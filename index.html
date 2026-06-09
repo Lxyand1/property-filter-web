@@ -838,6 +838,7 @@
                   <div class="ai-submit-row">
                     <span class="config-note">Key &#20250;&#20445;&#23384;&#22312;&#24403;&#21069;&#27983;&#35272;&#22120; localStorage&#12290;&#20844;&#24320;&#20998;&#20139;&#32593;&#39029;&#26102;&#65292;&#20351;&#29992;&#32773;&#21487;&#33021;&#20174;&#21069;&#31471;&#35831;&#27714;&#20013;&#30475;&#21040; Key&#12290;</span>
                     <button class="button" type="button" id="clearApiKey">&#21024;&#38500; Key</button>
+                    <button class="button" type="button" id="testApiKey">&#27979;&#35797;&#36830;&#25509;</button>
                     <button class="button primary" type="button" id="saveApiKey">&#20445;&#23384;&#35774;&#32622;</button>
                   </div>
                 </div>
@@ -1203,7 +1204,7 @@
     }
 
     function saveAiConfig() {
-      const apiKey = els.apiKeyInput.value.trim();
+      const apiKey = cleanApiKey(els.apiKeyInput.value);
       const baseUrl = els.baseUrlInput.value.trim().replace(/\/+$/, "") || "https://api.senseaudio.cn";
       const model = els.modelInput.value.trim() || "senseaudio-s2";
       if (!apiKey) {
@@ -1247,8 +1248,18 @@
       return JSON.parse(match[0]);
     }
 
-    async function getAiMatch(query) {
-      const apiKey = els.apiKeyInput.value.trim() || localStorage.getItem(aiConfigKeys.apiKey) || "";
+    function cleanApiKey(value) {
+      return String(value || "").trim().replace(/^Bearer\s+/i, "").replace(/^['"]|['"]$/g, "");
+    }
+
+    function apiErrorMessage(data, status) {
+      const code = data.code || data.error?.code || "";
+      const message = data.message || data.error?.message || data.error || "";
+      return [code, message || `AI API ?????${status}`].filter(Boolean).join("?");
+    }
+
+    async function requestSenseAudio(messages, options = {}) {
+      const apiKey = cleanApiKey(els.apiKeyInput.value || localStorage.getItem(aiConfigKeys.apiKey));
       const model = els.modelInput.value.trim() || "senseaudio-s2";
       if (!apiKey) throw new Error("??? AI ?????????? API Key");
 
@@ -1258,17 +1269,32 @@
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`
         },
-        body: JSON.stringify({
-          model,
-          temperature: 0.2,
-          messages: [
-            { role: "system", content: aiSystemPrompt() },
-            { role: "user", content: JSON.stringify({ query, listings }) }
-          ]
-        })
+        body: JSON.stringify({ model, temperature: options.temperature ?? 0.2, messages })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error?.message || data.error || `AI API ?????${response.status}`);
+      if (!response.ok) throw new Error(apiErrorMessage(data, response.status));
+      return data;
+    }
+
+    async function testAiConnection() {
+      els.testApiKey.disabled = true;
+      els.testApiKey.textContent = "???...";
+      try {
+        await requestSenseAudio([{ role: "user", content: "???? OK" }], { temperature: 0 });
+        appendAiMessage("assistant", "AI ????????? Key ????????");
+      } catch (error) {
+        appendAiMessage("assistant", `AI ???????${error.message || error}`);
+      } finally {
+        els.testApiKey.disabled = false;
+        els.testApiKey.textContent = "????";
+      }
+    }
+
+    async function getAiMatch(query) {
+      const data = await requestSenseAudio([
+        { role: "system", content: aiSystemPrompt() },
+        { role: "user", content: JSON.stringify({ query, listings }) }
+      ]);
       const content = data.choices?.[0]?.message?.content || data.content || "";
       return parseAiJson(content);
     }
