@@ -1240,11 +1240,11 @@
 
     function aiSystemPrompt() {
       return [
-        "????AI?????????????????????",
-        "?????? JSON????? Markdown??????????",
-        "JSON ???{\"filters\":{\"community\":\"\",\"rooms\":\"\",\"halls\":\"\",\"bathrooms\":\"\",\"areaRange\":\"\",\"floor\":\"\",\"direction\":\"\",\"decoration\":\"\",\"yearRange\":\"\",\"surroundings\":[]},\"reply\":\"?????????\"}",
-        "????????????????????????rooms?halls?bathrooms ???????surroundings ???? ?????????",
-        "????????????????????????????????????"
+        "\u4f60\u662f\u5c0f\u90b1AI\u52a9\u624b\uff0c\u4efb\u52a1\u662f\u6839\u636e\u5ba2\u6237\u81ea\u7136\u8bed\u8a00\u9700\u6c42\u7b5b\u9009\u623f\u6e90\u3002",
+        "\u53ea\u80fd\u8fd4\u56de\u4e25\u683c JSON\uff0c\u4e0d\u8981\u4f7f\u7528 Markdown\uff0c\u4e0d\u8981\u6dfb\u52a0\u591a\u4f59\u89e3\u91ca\u3002",
+        "JSON \u683c\u5f0f\uff1a{\\\"filters\\\":{\\\"community\\\":\\\"\\\",\\\"rooms\\\":\\\"\\\",\\\"halls\\\":\\\"\\\",\\\"bathrooms\\\":\\\"\\\",\\\"areaRange\\\":\\\"\\\",\\\"floor\\\":\\\"\\\",\\\"direction\\\":\\\"\\\",\\\"decoration\\\":\\\"\\\",\\\"yearRange\\\":\\\"\\\",\\\"surroundings\\\":[]},\\\"reply\\\":\\\"\u7ed9\u5ba2\u6237\u770b\u7684\u4e2d\u6587\u56de\u590d\\\"}",
+        "\u5b57\u6bb5\u53d6\u503c\u5fc5\u987b\u6765\u81ea\u623f\u6e90\u6570\u636e\u548c\u7b5b\u9009\u9879\u3002\u672a\u77e5\u6761\u4ef6\u7559\u7a7a\u3002rooms\u3001halls\u3001bathrooms \u7528\u6570\u5b57\u5b57\u7b26\u4e32\u3002surroundings \u53ea\u80fd\u5305\u542b \u5b66\u6821\u3001\u533b\u9662\u3001\u516c\u56ed\u3002",
+        "\u5982\u679c\u5ba2\u6237\u95ee\u5019\u6216\u9700\u6c42\u4e0d\u660e\u786e\uff0c\u4e5f\u8981\u7ed9\u51fa\u7b80\u77ed\u4e2d\u6587\u56de\u590d\uff0c\u5e76\u8fd4\u56de\u5c3d\u91cf\u5c11\u7684\u7b5b\u9009\u6761\u4ef6\u3002"
       ].join("\n");
     }
 
@@ -1263,7 +1263,7 @@
     function apiErrorMessage(data, status) {
       const code = data.code || data.error?.code || "";
       const message = data.message || data.error?.message || data.error || "";
-      return [code, message || `AI API ?????${status}`].filter(Boolean).join("?");
+      return [code, message || `AI API \u8bf7\u6c42\u5931\u8d25\uff1a${status}`].filter(Boolean).join("\uff1a");
     }
 
     async function requestSenseAudio(messages, options = {}) {
@@ -1285,16 +1285,20 @@
     }
 
     async function testAiConnection() {
-      els.testApiKey.disabled = true;
-      els.testApiKey.textContent = "\u6d4b\u8bd5\u4e2d...";
+      if (els.testApiKey) {
+        els.testApiKey.disabled = true;
+        els.testApiKey.textContent = "\u6d4b\u8bd5\u4e2d...";
+      }
       try {
-        await requestSenseAudio([{ role: "user", content: "???? OK" }], { temperature: 0 });
+        await requestSenseAudio([{ role: "user", content: "\u8bf7\u53ea\u56de\u590d OK" }], { temperature: 0 });
         appendAiMessage("assistant", "AI \u8fde\u63a5\u6d4b\u8bd5\u6210\u529f\uff0c\u5f53\u524d Key \u548c\u6a21\u578b\u53ef\u4ee5\u4f7f\u7528\u3002");
       } catch (error) {
-        appendAiMessage("assistant", `AI ???????${error.message || error}`);
+        appendAiMessage("assistant", `AI \u8fde\u63a5\u6d4b\u8bd5\u5931\u8d25\uff1a${error.message || error}`);
       } finally {
-        els.testApiKey.disabled = false;
-        els.testApiKey.textContent = "\u6d4b\u8bd5\u8fde\u63a5";
+        if (els.testApiKey) {
+          els.testApiKey.disabled = false;
+          els.testApiKey.textContent = "\u6d4b\u8bd5\u8fde\u63a5";
+        }
       }
     }
 
@@ -1500,27 +1504,35 @@
       }, 1800);
     }
 
-    els.filterBtn.addEventListener("click", applyFilters);
-    els.resetBtn.addEventListener("click", resetFilters);
+    if (els.filterBtn) els.filterBtn.addEventListener("click", applyFilters);
+    if (els.resetBtn) els.resetBtn.addEventListener("click", resetFilters);
 
-    els.aiForm.addEventListener("submit", (event) => {
+    if (els.aiForm) els.aiForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      handleAiSubmit(els.aiInput.value);
+      handleAiSubmit(inputValue(els.aiInput));
     });
 
-    els.aiInput.addEventListener("keydown", (event) => {
+    if (els.aiInput) els.aiInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
-        handleAiSubmit(els.aiInput.value);
+        handleAiSubmit(inputValue(els.aiInput));
       }
     });
 
-    els.aiClear.addEventListener("click", () => {
+    if (els.aiClear) els.aiClear.addEventListener("click", () => {
       resetFilters();
       appendAiMessage("assistant", aiText.cleared);
     });
 
-  [
+    window.propertyFilterSaveApiKey = saveAiConfig;
+    window.propertyFilterClearApiKey = clearAiConfig;
+    window.propertyFilterTestApiKey = testAiConnection;
+
+    if (els.saveApiKey) els.saveApiKey.addEventListener("click", saveAiConfig);
+    if (els.clearApiKey) els.clearApiKey.addEventListener("click", clearAiConfig);
+    if (els.testApiKey) els.testApiKey.addEventListener("click", testAiConnection);
+
+    [
       els.community,
       els.rooms,
       els.halls,
@@ -1530,7 +1542,7 @@
       els.direction,
       els.decoration,
       els.yearRange
-    ].forEach((select) => {
+    ].filter(Boolean).forEach((select) => {
       select.addEventListener("change", applyFilters);
     });
 
@@ -1538,16 +1550,18 @@
       input.addEventListener("change", applyFilters);
     });
 
-    els.closeModal.addEventListener("click", closeModal);
-    els.copyVideo.addEventListener("click", copyActiveVideo);
+    if (els.closeModal) els.closeModal.addEventListener("click", closeModal);
+    if (els.copyVideo) els.copyVideo.addEventListener("click", copyActiveVideo);
 
-    els.modalBackdrop.addEventListener("click", (event) => {
+    if (els.modalBackdrop) els.modalBackdrop.addEventListener("click", (event) => {
       if (event.target === els.modalBackdrop) closeModal();
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeModal();
     });
+
+    loadAiConfig();
 
     render();
   </script>
