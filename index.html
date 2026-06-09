@@ -837,9 +837,9 @@
                   </div>
                   <div class="ai-submit-row">
                     <span class="config-note">Key &#20250;&#20445;&#23384;&#22312;&#24403;&#21069;&#27983;&#35272;&#22120; localStorage&#12290;&#20844;&#24320;&#20998;&#20139;&#32593;&#39029;&#26102;&#65292;&#20351;&#29992;&#32773;&#21487;&#33021;&#20174;&#21069;&#31471;&#35831;&#27714;&#20013;&#30475;&#21040; Key&#12290;</span>
-                    <button class="button" type="button" id="clearApiKey">&#21024;&#38500; Key</button>
-                    <button class="button" type="button" id="testApiKey">&#27979;&#35797;&#36830;&#25509;</button>
-                    <button class="button primary" type="button" id="saveApiKey">&#20445;&#23384;&#35774;&#32622;</button>
+                    <button class="button" type="button" id="clearApiKey" onclick="window.propertyFilterClearApiKey && window.propertyFilterClearApiKey()">&#21024;&#38500; Key</button>
+                    <button class="button" type="button" id="testApiKey" onclick="window.propertyFilterTestApiKey && window.propertyFilterTestApiKey()">&#27979;&#35797;&#36830;&#25509;</button>
+                    <button class="button primary" type="button" id="saveApiKey" onclick="window.propertyFilterSaveApiKey && window.propertyFilterSaveApiKey()">&#20445;&#23384;&#35774;&#32622;</button>
                   </div>
                 </div>
               </details>
@@ -1216,7 +1216,7 @@
       const baseUrl = inputValue(els.baseUrlInput, "https://api.senseaudio.cn").trim().replace(/\/+$/, "") || "https://api.senseaudio.cn";
       const model = inputValue(els.modelInput, "senseaudio-s2").trim() || "senseaudio-s2";
       if (!apiKey) {
-        appendAiMessage("assistant", "???? SenseAudio API Key?????????");
+        appendAiMessage("assistant", "\u8bf7\u5148\u586b\u5199 SenseAudio API Key\uff0c\u518d\u53d1\u9001\u5ba2\u6237\u9700\u6c42\u3002");
         return;
       }
       localStorage.setItem(aiConfigKeys.apiKey, apiKey);
@@ -1224,13 +1224,13 @@
       localStorage.setItem(aiConfigKeys.model, model);
       setInputValue(els.baseUrlInput, baseUrl);
       setInputValue(els.modelInput, model);
-      appendAiMessage("assistant", "AI ???????????????????");
+      appendAiMessage("assistant", "AI \u63a5\u53e3\u8bbe\u7f6e\u5df2\u4fdd\u5b58\uff0c\u53ef\u4ee5\u5f00\u59cb\u8f93\u5165\u5ba2\u6237\u9700\u6c42\u3002");
     }
 
     function clearAiConfig() {
       localStorage.removeItem(aiConfigKeys.apiKey);
       setInputValue(els.apiKeyInput, "");
-      appendAiMessage("assistant", "??????????? API Key?");
+      appendAiMessage("assistant", "\u5df2\u5220\u9664\u5f53\u524d\u6d4f\u89c8\u5668\u4fdd\u5b58\u7684 API Key\u3002");
     }
 
     function aiEndpoint() {
@@ -1252,7 +1252,7 @@
       const text = String(content || "").trim();
       try { return JSON.parse(text); } catch (error) {}
       const match = text.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error("AI ?????????? JSON");
+      if (!match) throw new Error("AI \u8fd4\u56de\u5185\u5bb9\u4e0d\u662f\u53ef\u89e3\u6790\u7684 JSON");
       return JSON.parse(match[0]);
     }
 
@@ -1269,7 +1269,7 @@
     async function requestSenseAudio(messages, options = {}) {
       const apiKey = cleanApiKey(inputValue(els.apiKeyInput) || localStorage.getItem(aiConfigKeys.apiKey));
       const model = inputValue(els.modelInput, "senseaudio-s2").trim() || "senseaudio-s2";
-      if (!apiKey) throw new Error("??? AI ?????????? API Key");
+      if (!apiKey) throw new Error("\u8bf7\u5148\u5728 AI \u63a5\u53e3\u8bbe\u7f6e\u4e2d\u586b\u5199\u5e76\u4fdd\u5b58 API Key");
 
       const response = await fetch(aiEndpoint(), {
         method: "POST",
@@ -1286,15 +1286,15 @@
 
     async function testAiConnection() {
       els.testApiKey.disabled = true;
-      els.testApiKey.textContent = "???...";
+      els.testApiKey.textContent = "\u6d4b\u8bd5\u4e2d...";
       try {
         await requestSenseAudio([{ role: "user", content: "???? OK" }], { temperature: 0 });
-        appendAiMessage("assistant", "AI ????????? Key ????????");
+        appendAiMessage("assistant", "AI \u8fde\u63a5\u6d4b\u8bd5\u6210\u529f\uff0c\u5f53\u524d Key \u548c\u6a21\u578b\u53ef\u4ee5\u4f7f\u7528\u3002");
       } catch (error) {
         appendAiMessage("assistant", `AI ???????${error.message || error}`);
       } finally {
         els.testApiKey.disabled = false;
-        els.testApiKey.textContent = "????";
+        els.testApiKey.textContent = "\u6d4b\u8bd5\u8fde\u63a5";
       }
     }
 
