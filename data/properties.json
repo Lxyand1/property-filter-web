@@ -1,0 +1,93 @@
+[
+  {
+    "community": "万源城御璄",
+    "rooms": 4,
+    "halls": 2,
+    "bathrooms": 3,
+    "area": 264.5,
+    "areaRange": "200-300平",
+    "floor": "中层",
+    "direction": "南",
+    "decoration": "精装",
+    "year": 2015,
+    "yearRange": "2015-2020",
+    "surroundings": [
+      "学校",
+      "医院",
+      "公园"
+    ],
+    "videoLink": "https://www.xiaohongshu.com/explore/6a26b3310000000006031926?xsec_token=ABBIXFqLgtwTvM63y0Jo3jnHcVZtg7u2vUL_639ysGDnE=&xsec_source=pc_user"
+  },
+  {
+    "community": "新时代景庭",
+    "rooms": 2,
+    "halls": 2,
+    "bathrooms": 1,
+    "area": 102.8,
+    "areaRange": "100-200平",
+    "floor": "高层",
+    "direction": "北",
+    "decoration": "精装",
+    "year": 2022,
+    "yearRange": "2020-2025",
+    "surroundings": [
+      "学校",
+      "医院"
+    ],
+    "videoLink": "https://www.xiaohongshu.com/explore/6a2559a1000000000702124c?xsec_token=AB6DBw9iy8T3_400jTpgD0gqag_eXlsTYiEmfS_6ggfL0=&xsec_source=pc_user"
+  },
+  {
+    "community": "上海花园洋房",
+    "rooms": 3,
+    "halls": 2,
+    "bathrooms": 3,
+    "area": 153.9,
+    "areaRange": "100-200平",
+    "floor": "低层",
+    "direction": "南",
+    "decoration": "精装",
+    "year": 2010,
+    "yearRange": "2010-2015",
+    "surroundings": [
+      "学校",
+      "医院",
+      "公园"
+    ],
+    "videoLink": "https://www.xiaohongshu.com/explore/6a24cc900000000006021cb9?xsec_token=ABv_lQ6X-FrLDhdYw6wC2P9biRCJloLaHw3fvT4FGCiWs=&xsec_source=pc_user"
+  },
+  {
+    "community": "阳光美景城",
+    "rooms": 2,
+    "halls": 2,
+    "bathrooms": 1,
+    "area": 103.92,
+    "areaRange": "100-200平",
+    "floor": "中层",
+    "direction": "北",
+    "decoration": "简装",
+    "year": 2018,
+    "yearRange": "2015-2020",
+    "surroundings": [
+      "学校"
+    ],
+    "videoLink": "https://www.xiaohongshu.com/explore/6a24111400000000070110ff?xsec_token=ABv_lQ6X-FrLDhdYw6wC2P9X01LyM6VVNHjSx09iXo4bg=&xsec_source=pc_user"
+  },
+  {
+    "community": "万源城朗郡",
+    "rooms": 2,
+    "halls": 2,
+    "bathrooms": 2,
+    "area": 122.3,
+    "areaRange": "100-200平",
+    "floor": "低层",
+    "direction": "南",
+    "decoration": "精装",
+    "year": 2008,
+    "yearRange": "2005-2010",
+    "surroundings": [
+      "医院",
+      "公园"
+    ],
+    "videoLink": "https://www.xiaohongshu.com/explore/6a22372e0000000021022247?xsec_token=ABMaKWq9E66e3rA9jUgznzkSTK3BHA4DsSMroxpW5U7Mc=&xsec_source=pc_user"
+  }
+]

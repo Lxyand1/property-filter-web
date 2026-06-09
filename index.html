@@ -1,0 +1,1521 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小邱房源筛选页</title>
+  <style>
+    :root {
+      --bg: #FAFAFA;
+      --fg: #111111;
+      --surface: #FFFFFF;
+      --muted: #6B6B6B;
+      --border: #E5E5E5;
+      --accent: #2F6FEB;
+      --success: #17A34A;
+      --warn: #EAB308;
+      --danger: #DC2626;
+      --shadow: 0 2px 8px rgba(17, 17, 17, 0.08);
+      --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-mono: ui-monospace, 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      line-height: 1.5;
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 20px 24px 32px;
+    }
+
+    .shell {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .control-panel {
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .results-panel {
+      min-width: 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      display: grid;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 16px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-family: var(--font-display);
+      font-size: clamp(32px, 6vw, 64px);
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      font-weight: 600;
+      text-wrap: pretty;
+    }
+
+    .lead {
+      margin: 20px 0 0;
+      max-width: 640px;
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .advisor-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .advisor-top {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .advisor-card h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .advisor-card p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .ai-assistant {
+      min-height: 0;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(47, 111, 235, 0.16), transparent 32%),
+        linear-gradient(135deg, #FFFFFF 0%, #F5F7FB 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .ai-header {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .ai-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), #6C5CE7);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(47, 111, 235, 0.24);
+    }
+
+    .ai-header h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 36px);
+      line-height: 1.1;
+    }
+
+    .ai-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .ai-messages {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-height: 150px;
+      max-height: 260px;
+      overflow: auto;
+      padding: 18px 20px;
+    }
+
+    .ai-message {
+      width: fit-content;
+      max-width: min(92%, 620px);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    .ai-message.assistant {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--fg);
+    }
+
+    .ai-message.user {
+      justify-self: end;
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .ai-form {
+      display: grid;
+      gap: 10px;
+      padding: 16px 20px 20px;
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .ai-config {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: rgba(247, 249, 252, 0.9);
+    }
+
+    .ai-config summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .ai-config-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding-top: 8px;
+    }
+
+    .text-input {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--fg);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 111, 235, 0.12);
+    }
+
+    .config-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .ai-input {
+      width: 100%;
+      min-height: 72px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--surface);
+      color: var(--fg);
+      outline: none;
+    }
+
+    .ai-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 111, 235, 0.12);
+    }
+
+    .ai-quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quick-prompt {
+      min-height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .quick-prompt:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .ai-submit-row {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .ai-hint {
+      margin-right: auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--bg);
+    }
+
+    .metric strong {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      padding: 16px;
+      background: rgba(250, 250, 250, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--fg);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .select:focus {
+      border-color: var(--accent);
+    }
+
+    .surroundings {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    .chip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .chip:has(input:checked) {
+      border-color: var(--accent);
+      background: rgba(47, 111, 235, 0.08);
+      color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .button {
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button:hover {
+      background: var(--surface);
+    }
+
+    .button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin: 0 0 16px;
+    }
+
+    .result-head h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      color: inherit;
+      transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .community {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .meta {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .area {
+      flex: 0 0 auto;
+      color: var(--accent);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .fact {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+
+    .fact span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .fact strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(47, 111, 235, 0.08);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .open-link {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .empty {
+      display: none;
+      padding: 32px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .empty strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 20px;
+    }
+
+    .empty p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(17, 17, 17, 0.42);
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 18px 50px rgba(17, 17, 17, 0.22);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .modal-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .close {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      color: var(--fg);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .video-box {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      word-break: break-all;
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 80;
+      transform: translateX(-50%) translateY(16px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--fg);
+      color: #FFFFFF;
+      box-shadow: var(--shadow);
+      transition: opacity 160ms ease, transform 160ms ease;
+      font-size: 14px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 1180px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .control-panel {
+        position: static;
+        max-height: none;
+        overflow: visible;
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      }
+
+      .filters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 1023px) {
+      .page {
+        padding: 24px 16px 40px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 639px) {
+      .page {
+        padding: 16px 12px 32px;
+      }
+
+      .lead {
+        font-size: 16px;
+      }
+
+      .summary-grid,
+      .filters,
+      .cards,
+      .facts {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .actions,
+      .result-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .card-top {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="shell">
+      <div class="workspace">
+        <aside class="control-panel">
+          <section class="ai-assistant" aria-labelledby="page-title">
+            <div class="ai-header">
+              <div class="ai-avatar">AI</div>
+              <div>
+                <h1 id="page-title">&#23567;&#37041;AI&#21161;&#25163;</h1>
+                <p>&#36755;&#20837;&#23458;&#25143;&#38656;&#27714;&#65292;&#30001; AI &#33258;&#21160;&#21305;&#37197;&#25151;&#28304;&#65307;&#20063;&#21487;&#20197;&#29992;&#19979;&#26041;&#31579;&#36873;&#26465;&#20214;&#25163;&#21160;&#31579;&#36873;&#12290;</p>
+              </div>
+            </div>
+
+            <div class="ai-messages" id="aiMessages" aria-live="polite">
+              <div class="ai-message assistant">&#24744;&#22909;&#65292;&#25105;&#26159;&#23567;&#37041;AI&#21161;&#25163;&#12290;&#35831;&#30452;&#25509;&#36755;&#20837;&#24744;&#24819;&#35201;&#30340;&#25151;&#28304;&#26465;&#20214;&#65292;&#20363;&#22914;&#65306;&#21335;&#21521;&#20004;&#25151;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#38468;&#36817;&#12290;</div>
+            </div>
+
+            <form class="ai-form" id="aiForm">
+              <details class="ai-config">
+                <summary>AI &#25509;&#21475;&#35774;&#32622;&#65288;GitHub Pages &#30452;&#36830;&#27169;&#24335;&#65289;</summary>
+                <div class="ai-config-grid">
+                  <div class="field">
+                    <label for="apiKeyInput">SenseAudio API Key</label>
+                    <input class="text-input" id="apiKeyInput" type="password" autocomplete="off" placeholder="&#22312;&#27492;&#36755;&#20837; API Key&#65292;&#28857;&#20445;&#23384;&#21518;&#26412;&#27983;&#35272;&#22120;&#21487;&#29992;">
+                  </div>
+                  <div class="field">
+                    <label for="baseUrlInput">API Base URL</label>
+                    <input class="text-input" id="baseUrlInput" type="url" value="https://api.senseaudio.cn" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label for="modelInput">Model</label>
+                    <input class="text-input" id="modelInput" type="text" value="senseaudio-s2" autocomplete="off">
+                  </div>
+                  <div class="ai-submit-row">
+                    <span class="config-note">Key &#20250;&#20445;&#23384;&#22312;&#24403;&#21069;&#27983;&#35272;&#22120; localStorage&#12290;&#20844;&#24320;&#20998;&#20139;&#32593;&#39029;&#26102;&#65292;&#20351;&#29992;&#32773;&#21487;&#33021;&#20174;&#21069;&#31471;&#35831;&#27714;&#20013;&#30475;&#21040; Key&#12290;</span>
+                    <button class="button" type="button" id="clearApiKey">&#21024;&#38500; Key</button>
+                    <button class="button primary" type="button" id="saveApiKey">&#20445;&#23384;&#35774;&#32622;</button>
+                  </div>
+                </div>
+              </details>
+
+              <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
+              <div class="ai-submit-row">
+                <span class="ai-hint">&#25353; Enter &#21457;&#36865;&#65292;Shift + Enter &#25442;&#34892;</span>
+                <button class="button" type="button" id="aiClear">&#28165;&#31354;&#23545;&#35805;</button>
+                <button class="button primary" type="submit">&#21457;&#36865;&#32473; AI</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="advisor-card compact-summary" aria-label="&#25151;&#28304;&#27010;&#35272;">
+            <div class="advisor-top">
+              <div class="avatar">&#37041;</div>
+              <div>
+                <h2>&#25151;&#28304;&#27010;&#35272;</h2>
+                <p>&#24403;&#21069;&#25972;&#29702;&#20102; 5 &#22871;&#21487;&#37325;&#28857;&#20102;&#35299;&#30340;&#25151;&#28304;&#12290;</p>
+              </div>
+            </div>
+            <div class="summary-grid">
+              <div class="metric"><strong id="totalCount">5</strong><span>&#31934;&#36873;&#25151;&#28304;</span></div>
+              <div class="metric"><strong id="matchCount">5</strong><span>&#31526;&#21512;&#26465;&#20214;</span></div>
+              <div class="metric"><strong id="avgArea">&#8212;</strong><span>&#24179;&#22343;&#38754;&#31215;</span></div>
+              <div class="metric"><strong id="mainFit">&#8212;</strong><span>&#24120;&#35265;&#25143;&#22411;</span></div>
+            </div>
+          </section>
+
+          <section class="toolbar" aria-label="&#31579;&#36873;&#26465;&#20214;">
+            <div class="filters">
+              <div class="field">
+                <label for="community">&#23567;&#21306;&#20559;&#22909;</label>
+                <select class="select" id="community">
+                  <option value="">&#19981;&#22266;&#23450;</option>
+                  <option value="&#19975;&#28304;&#22478;&#24481;&#29828;">&#19975;&#28304;&#22478;&#24481;&#29828;</option>
+                  <option value="&#26032;&#26102;&#20195;&#26223;&#24237;">&#26032;&#26102;&#20195;&#26223;&#24237;</option>
+                  <option value="&#19978;&#28023;&#33457;&#22253;&#27915;&#25151;">&#19978;&#28023;&#33457;&#22253;&#27915;&#25151;</option>
+                  <option value="&#38451;&#20809;&#32654;&#26223;&#22478;">&#38451;&#20809;&#32654;&#26223;&#22478;</option>
+                  <option value="&#19975;&#28304;&#22478;&#26391;&#37089;">&#19975;&#28304;&#22478;&#26391;&#37089;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="rooms">&#25151;&#38388;&#25968;</label>
+                <select class="select" id="rooms">
+                  <option value="">&#19981;&#38480;</option>
+                  <option value="2">2 &#25151;</option>
+                  <option value="3">3 &#25151;</option>
+                  <option value="4">4 &#25151;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="halls">&#23458;&#21381;&#25968;</label>
+                <select class="select" id="halls">
+                  <option value="">&#19981;&#38480;</option>
+                  <option value="1">1 &#21381;</option>
+                  <option value="2">2 &#21381;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="bathrooms">&#21355;&#29983;&#38388;</label>
+                <select class="select" id="bathrooms">
+                  <option value="">&#19981;&#38480;</option>
+                  <option value="1">1 &#21355;</option>
+                  <option value="2">2 &#21355;</option>
+                  <option value="3">3 &#21355;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="areaRange">&#38754;&#31215;&#33539;&#22260;</label>
+                <select class="select" id="areaRange">
+                  <option value="">&#20840;&#37096;</option>
+                  <option value="100-200?">100-200&#24179;</option>
+                  <option value="200-300?">200-300&#24179;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="floor">&#27004;&#23618;&#20559;&#22909;</label>
+                <select class="select" id="floor">
+                  <option value="">&#20840;&#37096;</option>
+                  <option value="??">&#39640;&#23618;</option>
+                  <option value="??">&#20013;&#23618;</option>
+                  <option value="??">&#20302;&#23618;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="direction">&#26397;&#21521;</label>
+                <select class="select" id="direction">
+                  <option value="">&#20840;&#37096;</option>
+                  <option value="?">&#21335;</option>
+                  <option value="?">&#21271;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="decoration">&#35013;&#20462;&#24773;&#20917;</label>
+                <select class="select" id="decoration">
+                  <option value="">&#20840;&#37096;</option>
+                  <option value="??">&#31934;&#35013;</option>
+                  <option value="??">&#31616;&#35013;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="yearRange">&#24314;&#25104;&#24180;&#20195;</label>
+                <select class="select" id="yearRange">
+                  <option value="">&#20840;&#37096;</option>
+                  <option value="2005-2010">2005-2010</option>
+                  <option value="2010-2015">2010-2015</option>
+                  <option value="2015-2020">2015-2020</option>
+                  <option value="2020-2025">2020-2025</option>
+                </select>
+              </div>
+
+              <div class="surroundings" aria-label="&#21608;&#36793;&#37197;&#22871;">
+                <label>&#24076;&#26395;&#21608;&#36793;&#26377;</label>
+                <span class="chip"><input type="checkbox" name="surrounding" value="??">&#23398;&#26657;</span>
+                <span class="chip"><input type="checkbox" name="surrounding" value="??">&#21307;&#38498;</span>
+                <span class="chip"><input type="checkbox" name="surrounding" value="??">&#20844;&#22253;</span>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="button" type="button" id="resetBtn">&#37325;&#26032;&#36873;&#25321;</button>
+              <button class="button primary" type="button" id="filterBtn">&#26597;&#30475;&#21305;&#37197;&#25151;&#28304;</button>
+            </div>
+          </section>
+        </aside>
+
+        <section class="results-panel" aria-labelledby="result-title">
+          <div class="result-head">
+            <div>
+              <h2 id="result-title">&#20026;&#24744;&#21305;&#37197;&#21040;&#30340;&#25151;&#28304;</h2>
+              <div class="result-count" id="resultText">&#24403;&#21069;&#20849;&#26377; 5 &#22871;&#25151;&#28304;&#21487;&#26597;&#30475;</div>
+            </div>
+          </div>
+
+          <div class="cards" id="cards"></div>
+
+          <div class="empty" id="emptyState">
+            <strong>&#26242;&#26102;&#27809;&#26377;&#23436;&#20840;&#31526;&#21512;&#26465;&#20214;&#30340;&#25151;&#28304;</strong>
+            <p>&#24744;&#21487;&#20197;&#36866;&#24403;&#25918;&#23485;&#23567;&#21306;&#12289;&#25143;&#22411;&#12289;&#38754;&#31215;&#25110;&#21608;&#36793;&#37197;&#22871;&#65292;&#23567;&#37041;&#20877;&#24110;&#24744;&#19968;&#36215;&#31579;&#36873;&#12290;</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="modalTitle">房源视频</h2>
+          <p class="modal-subtitle" id="modalSubtitle">小邱已为您准备好这套房源的视频介绍</p>
+        </div>
+        <button class="close" type="button" id="closeModal" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="video-box" id="videoLink">—</div>
+        <div class="modal-actions">
+          <a class="button primary" id="openVideo" href="#" target="_blank" rel="noopener">打开房源视频</a>
+          <button class="button" type="button" id="copyVideo">复制视频链接</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已复制视频链接</div>
+
+  <script>
+    const listings = [
+      {
+        community: "万源城御璄",
+        rooms: 4,
+        halls: 2,
+        bathrooms: 3,
+        area: 264.5,
+        areaRange: "200-300平",
+        floor: "中层",
+        direction: "南",
+        decoration: "精装",
+        year: 2015,
+        yearRange: "2015-2020",
+        surroundings: ["学校", "医院", "公园"],
+        videoLink: "https://www.xiaohongshu.com/explore/6a26b3310000000006031926?xsec_token=ABBIXFqLgtwTvM63y0Jo3jnHcVZtg7u2vUL_639ysGDnE=&xsec_source=pc_user"
+      },
+      {
+        community: "新时代景庭",
+        rooms: 2,
+        halls: 2,
+        bathrooms: 1,
+        area: 102.8,
+        areaRange: "100-200平",
+        floor: "高层",
+        direction: "北",
+        decoration: "精装",
+        year: 2022,
+        yearRange: "2020-2025",
+        surroundings: ["学校", "医院"],
+        videoLink: "https://www.xiaohongshu.com/explore/6a2559a1000000000702124c?xsec_token=AB6DBw9iy8T3_400jTpgD0gqag_eXlsTYiEmfS_6ggfL0=&xsec_source=pc_user"
+      },
+      {
+        community: "上海花园洋房",
+        rooms: 3,
+        halls: 2,
+        bathrooms: 3,
+        area: 153.9,
+        areaRange: "100-200平",
+        floor: "低层",
+        direction: "南",
+        decoration: "精装",
+        year: 2010,
+        yearRange: "2010-2015",
+        surroundings: ["学校", "医院", "公园"],
+        videoLink: "https://www.xiaohongshu.com/explore/6a24cc900000000006021cb9?xsec_token=ABv_lQ6X-FrLDhdYw6wC2P9biRCJloLaHw3fvT4FGCiWs=&xsec_source=pc_user"
+      },
+      {
+        community: "阳光美景城",
+        rooms: 2,
+        halls: 2,
+        bathrooms: 1,
+        area: 103.92,
+        areaRange: "100-200平",
+        floor: "中层",
+        direction: "北",
+        decoration: "简装",
+        year: 2018,
+        yearRange: "2015-2020",
+        surroundings: ["学校"],
+        videoLink: "https://www.xiaohongshu.com/explore/6a24111400000000070110ff?xsec_token=ABv_lQ6X-FrLDhdYw6wC2P9X01LyM6VVNHjSx09iXo4bg=&xsec_source=pc_user"
+      },
+      {
+        community: "万源城朗郡",
+        rooms: 2,
+        halls: 2,
+        bathrooms: 2,
+        area: 122.3,
+        areaRange: "100-200平",
+        floor: "低层",
+        direction: "南",
+        decoration: "精装",
+        year: 2008,
+        yearRange: "2005-2010",
+        surroundings: ["医院", "公园"],
+        videoLink: "https://www.xiaohongshu.com/explore/6a22372e0000000021022247?xsec_token=ABMaKWq9E66e3rA9jUgznzkSTK3BHA4DsSMroxpW5U7Mc=&xsec_source=pc_user"
+      }
+    ];
+
+    const state = {
+      filtered: [...listings],
+      activeVideo: ""
+    };
+
+    const els = {
+      community: document.getElementById("community"),
+      rooms: document.getElementById("rooms"),
+      halls: document.getElementById("halls"),
+      bathrooms: document.getElementById("bathrooms"),
+      areaRange: document.getElementById("areaRange"),
+      floor: document.getElementById("floor"),
+      direction: document.getElementById("direction"),
+      decoration: document.getElementById("decoration"),
+      yearRange: document.getElementById("yearRange"),
+      surroundingChecks: Array.from(document.querySelectorAll("input[name='surrounding']")),
+      filterBtn: document.getElementById("filterBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      cards: document.getElementById("cards"),
+      emptyState: document.getElementById("emptyState"),
+      resultText: document.getElementById("resultText"),
+      resultsPanel: document.querySelector(".results-panel"),
+      totalCount: document.getElementById("totalCount"),
+      matchCount: document.getElementById("matchCount"),
+      avgArea: document.getElementById("avgArea"),
+      mainFit: document.getElementById("mainFit"),
+      modalBackdrop: document.getElementById("modalBackdrop"),
+      closeModal: document.getElementById("closeModal"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalSubtitle: document.getElementById("modalSubtitle"),
+      videoLink: document.getElementById("videoLink"),
+      openVideo: document.getElementById("openVideo"),
+      copyVideo: document.getElementById("copyVideo"),
+      toast: document.getElementById("toast"),
+      aiMessages: document.getElementById("aiMessages"),
+      aiForm: document.getElementById("aiForm"),
+      aiInput: document.getElementById("aiInput"),
+      aiClear: document.getElementById("aiClear")
+    };
+
+    function u(text) {
+      return JSON.parse('"' + text + '"');
+    }
+
+    const aiText = {
+      loading: u("\u6b63\u5728\u8bf7\u6c42 AI\uff0c\u8bf7\u7a0d\u7b49..."),
+      failed: u("AI \u63a5\u53e3\u6682\u65f6\u4e0d\u53ef\u7528\uff0c\u8bf7\u68c0\u67e5 API Key \u6216\u540e\u7aef\u670d\u52a1\u914d\u7f6e\u3002"),
+      cleared: u("\u5df2\u6e05\u7a7a\u5bf9\u8bdd\u3002\u60a8\u53ef\u4ee5\u91cd\u65b0\u8f93\u5165\u623f\u6e90\u9700\u6c42\u3002"),
+      defaultReply: u("AI \u5df2\u8fd4\u56de\u5339\u914d\u7ed3\u679c\uff0c\u4e0b\u65b9\u623f\u6e90\u5217\u8868\u5df2\u540c\u6b65\u66f4\u65b0\u3002")
+    };
+
+    function appendAiMessage(role, text) {
+      const node = document.createElement("div");
+      node.className = "ai-message " + role;
+      node.textContent = text;
+      els.aiMessages.appendChild(node);
+      els.aiMessages.scrollTop = els.aiMessages.scrollHeight;
+      return node;
+    }
+
+    function setSelectValue(select, value) {
+      select.value = value || "";
+    }
+
+    function normalizeFilters(filters) {
+      const safe = filters || {};
+      return {
+        community: safe.community || "",
+        rooms: safe.rooms ? String(safe.rooms) : "",
+        halls: safe.halls ? String(safe.halls) : "",
+        bathrooms: safe.bathrooms ? String(safe.bathrooms) : "",
+        areaRange: safe.areaRange || "",
+        floor: safe.floor || "",
+        direction: safe.direction || "",
+        decoration: safe.decoration || "",
+        yearRange: safe.yearRange || "",
+        surroundings: Array.isArray(safe.surroundings) ? safe.surroundings : []
+      };
+    }
+
+    function applyAiFilters(filters) {
+      const normalized = normalizeFilters(filters);
+      setSelectValue(els.community, normalized.community);
+      setSelectValue(els.rooms, normalized.rooms);
+      setSelectValue(els.halls, normalized.halls);
+      setSelectValue(els.bathrooms, normalized.bathrooms);
+      setSelectValue(els.areaRange, normalized.areaRange);
+      setSelectValue(els.floor, normalized.floor);
+      setSelectValue(els.direction, normalized.direction);
+      setSelectValue(els.decoration, normalized.decoration);
+      setSelectValue(els.yearRange, normalized.yearRange);
+      els.surroundingChecks.forEach((input) => {
+        input.checked = normalized.surroundings.includes(input.value);
+      });
+      applyFilters();
+    }
+
+    const aiConfigKeys = {
+      apiKey: "propertyFilter.senseaudio.apiKey",
+      baseUrl: "propertyFilter.senseaudio.baseUrl",
+      model: "propertyFilter.senseaudio.model"
+    };
+
+    function loadAiConfig() {
+      els.apiKeyInput.value = localStorage.getItem(aiConfigKeys.apiKey) || "";
+      els.baseUrlInput.value = localStorage.getItem(aiConfigKeys.baseUrl) || els.baseUrlInput.value || "https://api.senseaudio.cn";
+      els.modelInput.value = localStorage.getItem(aiConfigKeys.model) || els.modelInput.value || "senseaudio-s2";
+    }
+
+    function saveAiConfig() {
+      const apiKey = els.apiKeyInput.value.trim();
+      const baseUrl = els.baseUrlInput.value.trim().replace(/\/+$/, "") || "https://api.senseaudio.cn";
+      const model = els.modelInput.value.trim() || "senseaudio-s2";
+      if (!apiKey) {
+        appendAiMessage("assistant", "???? SenseAudio API Key?????????");
+        return;
+      }
+      localStorage.setItem(aiConfigKeys.apiKey, apiKey);
+      localStorage.setItem(aiConfigKeys.baseUrl, baseUrl);
+      localStorage.setItem(aiConfigKeys.model, model);
+      els.baseUrlInput.value = baseUrl;
+      els.modelInput.value = model;
+      appendAiMessage("assistant", "AI ???????????????????");
+    }
+
+    function clearAiConfig() {
+      localStorage.removeItem(aiConfigKeys.apiKey);
+      els.apiKeyInput.value = "";
+      appendAiMessage("assistant", "??????????? API Key?");
+    }
+
+    function aiEndpoint() {
+      const baseUrl = (els.baseUrlInput.value.trim() || "https://api.senseaudio.cn").replace(/\/+$/, "");
+      return `${baseUrl}/v1/chat/completions`;
+    }
+
+    function aiSystemPrompt() {
+      return [
+        "????AI?????????????????????",
+        "?????? JSON????? Markdown??????????",
+        "JSON ???{\"filters\":{\"community\":\"\",\"rooms\":\"\",\"halls\":\"\",\"bathrooms\":\"\",\"areaRange\":\"\",\"floor\":\"\",\"direction\":\"\",\"decoration\":\"\",\"yearRange\":\"\",\"surroundings\":[]},\"reply\":\"?????????\"}",
+        "????????????????????????rooms?halls?bathrooms ???????surroundings ???? ?????????",
+        "????????????????????????????????????"
+      ].join("\n");
+    }
+
+    function parseAiJson(content) {
+      const text = String(content || "").trim();
+      try { return JSON.parse(text); } catch (error) {}
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("AI ?????????? JSON");
+      return JSON.parse(match[0]);
+    }
+
+    async function getAiMatch(query) {
+      const apiKey = els.apiKeyInput.value.trim() || localStorage.getItem(aiConfigKeys.apiKey) || "";
+      const model = els.modelInput.value.trim() || "senseaudio-s2";
+      if (!apiKey) throw new Error("??? AI ?????????? API Key");
+
+      const response = await fetch(aiEndpoint(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.2,
+          messages: [
+            { role: "system", content: aiSystemPrompt() },
+            { role: "user", content: JSON.stringify({ query, listings }) }
+          ]
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error?.message || data.error || `AI API ?????${response.status}`);
+      const content = data.choices?.[0]?.message?.content || data.content || "";
+      return parseAiJson(content);
+    }
+
+    async function handleAiSubmit(text) {
+      const query = text.trim();
+      if (!query) return;
+      appendAiMessage("user", query);
+      els.aiInput.value = "";
+      const loadingNode = appendAiMessage("assistant", aiText.loading);
+
+      try {
+        const aiResult = await getAiMatch(query);
+        if (aiResult.filters) applyAiFilters(aiResult.filters);
+        if (window.innerWidth < 1180) {
+          els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        loadingNode.textContent = aiResult.reply || aiResult.content || aiText.defaultReply;
+      } catch (error) {
+        loadingNode.textContent = error.message || aiText.failed;
+      }
+    }
+
+    function selectedSurroundings() {
+      return els.surroundingChecks
+        .filter((input) => input.checked)
+        .map((input) => input.value);
+    }
+
+    function applyFilters() {
+      const filters = {
+        community: els.community.value,
+        rooms: els.rooms.value,
+        halls: els.halls.value,
+        bathrooms: els.bathrooms.value,
+        areaRange: els.areaRange.value,
+        floor: els.floor.value,
+        direction: els.direction.value,
+        decoration: els.decoration.value,
+        yearRange: els.yearRange.value,
+        surroundings: selectedSurroundings()
+      };
+
+      state.filtered = listings.filter((item) => {
+        const basicMatch =
+          (!filters.community || item.community === filters.community) &&
+          (!filters.rooms || String(item.rooms) === filters.rooms) &&
+          (!filters.halls || String(item.halls) === filters.halls) &&
+          (!filters.bathrooms || String(item.bathrooms) === filters.bathrooms) &&
+          (!filters.areaRange || item.areaRange === filters.areaRange) &&
+          (!filters.floor || item.floor === filters.floor) &&
+          (!filters.direction || item.direction === filters.direction) &&
+          (!filters.decoration || item.decoration === filters.decoration) &&
+          (!filters.yearRange || item.yearRange === filters.yearRange);
+
+        const surroundingsMatch = filters.surroundings.length === 0 ||
+          filters.surroundings.every((tag) => item.surroundings.includes(tag));
+
+        return basicMatch && surroundingsMatch;
+      });
+
+      render();
+      if (window.innerWidth < 1180) {
+        els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function resetFilters() {
+      [
+        els.community,
+        els.rooms,
+        els.halls,
+        els.bathrooms,
+        els.areaRange,
+        els.floor,
+        els.direction,
+        els.decoration,
+        els.yearRange
+      ].forEach((select) => {
+        select.value = "";
+      });
+
+      els.surroundingChecks.forEach((input) => {
+        input.checked = false;
+      });
+
+      applyFilters();
+    }
+
+    function renderCards() {
+      els.cards.innerHTML = state.filtered.map((item) => {
+        const tags = item.surroundings.map((tag) => `<span class="tag">${tag}</span>`).join("");
+
+        return `
+          <button class="card" type="button" data-index="${listings.indexOf(item)}" aria-label="查看${item.community}房源视频">
+            <div class="card-top">
+              <div>
+                <h3 class="community">${item.community}</h3>
+                <p class="meta">${item.rooms}房${item.halls}厅${item.bathrooms}卫 · ${item.year}年建成</p>
+              </div>
+              <div class="area">${item.area}㎡</div>
+            </div>
+
+            <div class="facts">
+              <div class="fact"><span>面积</span><strong>${item.area}㎡</strong></div>
+              <div class="fact"><span>楼层</span><strong>${item.floor}</strong></div>
+              <div class="fact"><span>朝向</span><strong>${item.direction}</strong></div>
+              <div class="fact"><span>装修</span><strong>${item.decoration}</strong></div>
+              <div class="fact"><span>建成年代</span><strong>${item.year}年</strong></div>
+              <div class="fact"><span>房型</span><strong>${item.rooms}房${item.halls}厅${item.bathrooms}卫</strong></div>
+            </div>
+
+            <div class="tags">${tags}</div>
+
+            <div class="card-footer">
+              <span>小邱推荐房源</span>
+              <span class="open-link">查看视频</span>
+            </div>
+          </button>
+        `;
+      }).join("");
+
+      Array.from(els.cards.querySelectorAll(".card")).forEach((card) => {
+        card.addEventListener("click", () => {
+          const listing = listings[Number(card.dataset.index)];
+          window.open(listing.videoLink, "_blank", "noopener");
+        });
+      });
+    }
+
+    function renderSummary() {
+      if (els.totalCount) els.totalCount.textContent = listings.length;
+      if (els.matchCount) els.matchCount.textContent = state.filtered.length;
+      els.resultText.textContent = state.filtered.length > 0
+        ? `当前为您匹配到 ${state.filtered.length} 套房源`
+        : "当前没有完全符合条件的房源";
+
+      if (state.filtered.length === 0) {
+        els.avgArea.textContent = "—";
+        els.mainFit.textContent = "—";
+        return;
+      }
+
+      const avg = state.filtered.reduce((sum, item) => sum + item.area, 0) / state.filtered.length;
+      const layoutCounts = state.filtered.reduce((acc, item) => {
+        const key = `${item.rooms}房${item.halls}厅`;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+      const mainFit = Object.entries(layoutCounts).sort((a, b) => b[1] - a[1])[0][0];
+
+      els.avgArea.textContent = `${avg.toFixed(1)}㎡`;
+      els.mainFit.textContent = mainFit;
+    }
+
+    function render() {
+      renderSummary();
+      renderCards();
+
+      const hasResults = state.filtered.length > 0;
+      els.cards.style.display = hasResults ? "grid" : "none";
+      els.emptyState.style.display = hasResults ? "none" : "block";
+    }
+
+    function openModal(listing) {
+      state.activeVideo = listing.videoLink;
+      els.modalTitle.textContent = `${listing.community} 房源视频`;
+      els.modalSubtitle.textContent = `${listing.rooms}房${listing.halls}厅${listing.bathrooms}卫 · ${listing.area}㎡ · ${listing.floor} · ${listing.decoration}`;
+      els.videoLink.textContent = listing.videoLink;
+      els.openVideo.href = listing.videoLink;
+      els.modalBackdrop.classList.add("open");
+      els.closeModal.focus();
+    }
+
+    function closeModal() {
+      els.modalBackdrop.classList.remove("open");
+    }
+
+    async function copyActiveVideo() {
+      if (!state.activeVideo) return;
+
+      try {
+        await navigator.clipboard.writeText(state.activeVideo);
+        showToast("已复制视频链接");
+      } catch (error) {
+        showToast("复制失败，请手动复制");
+      }
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 1800);
+    }
+
+    els.filterBtn.addEventListener("click", applyFilters);
+    els.resetBtn.addEventListener("click", resetFilters);
+
+    els.aiForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handleAiSubmit(els.aiInput.value);
+    });
+
+    els.aiInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        handleAiSubmit(els.aiInput.value);
+      }
+    });
+
+    els.aiClear.addEventListener("click", () => {
+      resetFilters();
+      appendAiMessage("assistant", aiText.cleared);
+    });
+
+  [
+      els.community,
+      els.rooms,
+      els.halls,
+      els.bathrooms,
+      els.areaRange,
+      els.floor,
+      els.direction,
+      els.decoration,
+      els.yearRange
+    ].forEach((select) => {
+      select.addEventListener("change", applyFilters);
+    });
+
+    els.surroundingChecks.forEach((input) => {
+      input.addEventListener("change", applyFilters);
+    });
+
+    els.closeModal.addEventListener("click", closeModal);
+    els.copyVideo.addEventListener("click", copyActiveVideo);
+
+    els.modalBackdrop.addEventListener("click", (event) => {
+      if (event.target === els.modalBackdrop) closeModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeModal();
+    });
+
+    render();
+  </script>
+</body>
+</html>
