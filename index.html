@@ -1197,16 +1197,24 @@
       model: "propertyFilter.senseaudio.model"
     };
 
+    function inputValue(el, fallback = "") {
+      return el ? String(el.value || "") : fallback;
+    }
+
+    function setInputValue(el, value) {
+      if (el) el.value = value;
+    }
+
     function loadAiConfig() {
-      els.apiKeyInput.value = localStorage.getItem(aiConfigKeys.apiKey) || "";
-      els.baseUrlInput.value = localStorage.getItem(aiConfigKeys.baseUrl) || els.baseUrlInput.value || "https://api.senseaudio.cn";
-      els.modelInput.value = localStorage.getItem(aiConfigKeys.model) || els.modelInput.value || "senseaudio-s2";
+      setInputValue(els.apiKeyInput, localStorage.getItem(aiConfigKeys.apiKey) || "");
+      setInputValue(els.baseUrlInput, localStorage.getItem(aiConfigKeys.baseUrl) || inputValue(els.baseUrlInput, "https://api.senseaudio.cn"));
+      setInputValue(els.modelInput, localStorage.getItem(aiConfigKeys.model) || inputValue(els.modelInput, "senseaudio-s2"));
     }
 
     function saveAiConfig() {
-      const apiKey = cleanApiKey(els.apiKeyInput.value);
-      const baseUrl = els.baseUrlInput.value.trim().replace(/\/+$/, "") || "https://api.senseaudio.cn";
-      const model = els.modelInput.value.trim() || "senseaudio-s2";
+      const apiKey = cleanApiKey(inputValue(els.apiKeyInput));
+      const baseUrl = inputValue(els.baseUrlInput, "https://api.senseaudio.cn").trim().replace(/\/+$/, "") || "https://api.senseaudio.cn";
+      const model = inputValue(els.modelInput, "senseaudio-s2").trim() || "senseaudio-s2";
       if (!apiKey) {
         appendAiMessage("assistant", "???? SenseAudio API Key?????????");
         return;
@@ -1214,19 +1222,19 @@
       localStorage.setItem(aiConfigKeys.apiKey, apiKey);
       localStorage.setItem(aiConfigKeys.baseUrl, baseUrl);
       localStorage.setItem(aiConfigKeys.model, model);
-      els.baseUrlInput.value = baseUrl;
-      els.modelInput.value = model;
+      setInputValue(els.baseUrlInput, baseUrl);
+      setInputValue(els.modelInput, model);
       appendAiMessage("assistant", "AI ???????????????????");
     }
 
     function clearAiConfig() {
       localStorage.removeItem(aiConfigKeys.apiKey);
-      els.apiKeyInput.value = "";
+      setInputValue(els.apiKeyInput, "");
       appendAiMessage("assistant", "??????????? API Key?");
     }
 
     function aiEndpoint() {
-      const baseUrl = (els.baseUrlInput.value.trim() || "https://api.senseaudio.cn").replace(/\/+$/, "");
+      const baseUrl = (inputValue(els.baseUrlInput, "https://api.senseaudio.cn").trim() || "https://api.senseaudio.cn").replace(/\/+$/, "");
       return `${baseUrl}/v1/chat/completions`;
     }
 
@@ -1259,8 +1267,8 @@
     }
 
     async function requestSenseAudio(messages, options = {}) {
-      const apiKey = cleanApiKey(els.apiKeyInput.value || localStorage.getItem(aiConfigKeys.apiKey));
-      const model = els.modelInput.value.trim() || "senseaudio-s2";
+      const apiKey = cleanApiKey(inputValue(els.apiKeyInput) || localStorage.getItem(aiConfigKeys.apiKey));
+      const model = inputValue(els.modelInput, "senseaudio-s2").trim() || "senseaudio-s2";
       if (!apiKey) throw new Error("??? AI ?????????? API Key");
 
       const response = await fetch(aiEndpoint(), {
