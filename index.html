@@ -1462,11 +1462,35 @@
       return parseAiJson(content);
     }
 
-    function conciseAiReply(reply) {
+    function textIncludes(text, value) {
+      return value && String(text || "").includes(value);
+    }
+
+    function fallbackListingsFromText(query, reply) {
+      const text = `${query || ""}\n${reply || ""}`;
+      const hitsByName = listings.filter((item) => textIncludes(text, item.community));
+      if (hitsByName.length) return hitsByName;
+
+      const wantsSchool = /\u5b66\u6821|\u5b66\u533a/.test(text);
+      const wantsHospital = /\u533b\u9662/.test(text);
+      const wantsPark = /\u516c\u56ed/.test(text);
+      return listings.filter((item) => {
+        if (textIncludes(text, "\u5357") && item.direction !== "\u5357") return false;
+        if (textIncludes(text, "\u5317") && item.direction !== "\u5317") return false;
+        if (textIncludes(text, "\u7cbe\u88c5") && item.decoration !== "\u7cbe\u88c5") return false;
+        if (textIncludes(text, "\u7b80\u88c5") && item.decoration !== "\u7b80\u88c5") return false;
+        if (wantsSchool && !item.surroundings.includes("\u5b66\u6821")) return false;
+        if (wantsHospital && !item.surroundings.includes("\u533b\u9662")) return false;
+        if (wantsPark && !item.surroundings.includes("\u516c\u56ed")) return false;
+        return true;
+      });
+    }
+
+    function conciseAiReply(reply, count = state.filtered.length) {
       const text = String(reply || "").trim();
-      if (!state.filtered.length) return text || "\u6682\u65f6\u6ca1\u6709\u627e\u5230\u5b8c\u5168\u5339\u914d\u7684\u623f\u6e90\u3002";
-      if (!text) return `\u4e3a\u60a8\u5339\u914d\u5230 ${state.filtered.length} \u5957\u623f\u6e90\uff1a`;
-      return text.length > 80 ? `\u4e3a\u60a8\u5339\u914d\u5230 ${state.filtered.length} \u5957\u623f\u6e90\uff1a` : text;
+      if (!count) return text || "\u6682\u65f6\u6ca1\u6709\u627e\u5230\u5b8c\u5168\u5339\u914d\u7684\u623f\u6e90\u3002";
+      if (!text) return `\u4e3a\u60a8\u5339\u914d\u5230 ${count} \u5957\u623f\u6e90\uff1a`;
+      return text.length > 80 ? `\u4e3a\u60a8\u5339\u914d\u5230 ${count} \u5957\u623f\u6e90\uff1a` : text;
     }
 
     async function handleAiSubmit(text) {
@@ -1479,9 +1503,12 @@
       try {
         const aiResult = await getAiMatch(query);
         if (aiResult.filters) applyAiFilters(aiResult.filters);
-        loadingNode.textContent = conciseAiReply(aiResult.reply || aiResult.content || aiText.defaultReply);
+        const replyText = aiResult.reply || aiResult.content || aiText.defaultReply;
+        let matchedListings = state.filtered;
+        if (!matchedListings.length) matchedListings = fallbackListingsFromText(query, replyText);
+        loadingNode.textContent = conciseAiReply(replyText, matchedListings.length);
         if (isMobileLayout()) setMobileView("ai");
-        appendAiListings(state.filtered, loadingNode);
+        appendAiListings(matchedListings, loadingNode);
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
       }
