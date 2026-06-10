@@ -1192,6 +1192,55 @@
       return node;
     }
 
+    function listingMeta(item) {
+      return `${item.rooms}?${item.halls}?${item.bathrooms}? ? ${item.area}? ? ${item.floor} ? ${item.direction}? ? ${item.decoration} ? ${item.year}??? ? ???${item.surroundings.join("?")}`;
+    }
+
+    function appendAiListings(items) {
+      const node = document.createElement("div");
+      node.className = "ai-message assistant";
+      if (!items.length) {
+        node.textContent = "??????????????????????????????????????";
+      } else {
+        const title = document.createElement("div");
+        title.textContent = `????? ${items.length} ????`;
+        node.appendChild(title);
+
+        const list = document.createElement("div");
+        list.className = "ai-listings";
+        items.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "ai-listing-card";
+
+          const head = document.createElement("div");
+          head.className = "ai-listing-title";
+          const name = document.createElement("span");
+          name.textContent = item.community;
+          const area = document.createElement("span");
+          area.className = "ai-listing-area";
+          area.textContent = `${item.area}?`;
+          head.append(name, area);
+
+          const meta = document.createElement("div");
+          meta.className = "ai-listing-meta";
+          meta.textContent = listingMeta(item);
+
+          const button = document.createElement("button");
+          button.className = "ai-video-button";
+          button.type = "button";
+          button.textContent = "????";
+          button.addEventListener("click", () => window.open(item.videoLink, "_blank", "noopener"));
+
+          card.append(head, meta, button);
+          list.appendChild(card);
+        });
+        node.appendChild(list);
+      }
+      els.aiMessages.appendChild(node);
+      els.aiMessages.scrollTop = els.aiMessages.scrollHeight;
+      return node;
+    }
+
     function setSelectValue(select, value) {
       select.value = value || "";
     }
@@ -1396,6 +1445,7 @@
           els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
         }
         loadingNode.textContent = aiResult.reply || aiResult.content || aiText.defaultReply;
+        appendAiListings(state.filtered);
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
       }
