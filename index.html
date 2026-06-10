@@ -349,6 +349,11 @@
 
     .ai-video-button {
       width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      touch-action: manipulation;
       min-height: 44px;
       border: 0;
       border-radius: 14px;
@@ -587,6 +592,8 @@
 
     .card {
       display: grid;
+      text-decoration: none;
+      touch-action: manipulation;
       gap: 16px;
       padding: 20px;
       background: var(--surface);
@@ -1918,11 +1925,12 @@
             tags.appendChild(tagNode);
           });
 
-          const button = document.createElement("button");
+          const button = document.createElement("a");
           button.className = "ai-video-button";
-          button.type = "button";
+          button.href = item.videoLink;
+          button.target = "_blank";
+          button.rel = "noopener noreferrer";
           button.textContent = "\u67e5\u770b\u623f\u6e90\u89c6\u9891";
-          button.addEventListener("click", () => window.open(item.videoLink, "_blank", "noopener"));
 
           card.append(head, subtitle, facts, tags, button);
           list.appendChild(card);
@@ -2264,12 +2272,20 @@
       applyFilters();
     }
 
+    function escapeAttr(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
     function renderCards() {
       els.cards.innerHTML = state.filtered.map((item) => {
         const tags = item.surroundings.map((tag) => `<span class="tag">${tag}</span>`).join("");
 
         return `
-          <button class="card" type="button" data-index="${listings.indexOf(item)}" aria-label="查看${item.community}房源视频">
+          <a class="card" href="${escapeAttr(item.videoLink)}" target="_blank" rel="noopener noreferrer" aria-label="${item.community} video">
             <div class="card-top">
               <div>
                 <h3 class="community">${item.community}</h3>
@@ -2293,16 +2309,10 @@
               <span>小邱推荐房源</span>
               <span class="open-link">查看视频</span>
             </div>
-          </button>
+          </a>
         `;
       }).join("");
 
-      Array.from(els.cards.querySelectorAll(".card")).forEach((card) => {
-        card.addEventListener("click", () => {
-          const listing = listings[Number(card.dataset.index)];
-          window.open(listing.videoLink, "_blank", "noopener");
-        });
-      });
     }
 
     function renderSummary() {
