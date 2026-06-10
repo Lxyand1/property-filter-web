@@ -955,6 +955,99 @@
       }
 
 
+      body.mobile-view-ai .ai-assistant {
+        min-height: calc(100vh - 74px);
+        grid-template-rows: auto minmax(0, 1fr);
+        border-radius: 18px;
+      }
+
+      body.mobile-view-ai .ai-header {
+        gap: 10px;
+        padding: 12px 14px;
+      }
+
+      body.mobile-view-ai .ai-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        font-size: 15px;
+      }
+
+      body.mobile-view-ai .ai-header h1 {
+        font-size: 18px;
+        line-height: 1.1;
+      }
+
+      body.mobile-view-ai .ai-header p {
+        display: none;
+      }
+
+      body.mobile-view-ai .ai-messages {
+        min-height: calc(100vh - 220px);
+        height: calc(100vh - 220px);
+        padding: 14px;
+      }
+
+      body.mobile-view-ai .ai-form {
+        display: block;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        padding: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.97);
+      }
+
+      body.mobile-view-ai .ai-form::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      body.mobile-view-ai .ai-input {
+        min-height: 44px;
+        height: 44px;
+        resize: none;
+        overflow: hidden;
+        border-radius: 999px;
+        padding: 11px 54px 11px 14px;
+        line-height: 20px;
+      }
+
+      body.mobile-view-ai .ai-submit-row {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        display: block;
+      }
+
+      body.mobile-view-ai #aiClear,
+      body.mobile-view-ai .ai-hint {
+        display: none !important;
+      }
+
+      body.mobile-view-ai .ai-send-button {
+        width: 36px;
+        height: 36px;
+        min-height: 36px;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 0;
+        display: grid;
+        place-items: center;
+        background: var(--accent);
+        box-shadow: 0 8px 18px rgba(47, 111, 235, 0.28);
+      }
+
+      body.mobile-view-ai .ai-send-button::before {
+        content: "\2191";
+        color: #FFFFFF;
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+
       body.mobile-view-ai .ai-message.assistant:has(.ai-listings) {
         max-width: 100%;
         padding: 12px;
@@ -1029,7 +1122,7 @@
               <div class="ai-submit-row">
                 <span class="ai-hint">&#25353; Enter &#21457;&#36865;&#65292;Shift + Enter &#25442;&#34892;</span>
                 <button class="button" type="button" id="aiClear">&#28165;&#31354;&#23545;&#35805;</button>
-                <button class="button primary" type="submit">&#21457;&#36865;&#32473; AI</button>
+                <button class="button primary ai-send-button" type="submit" aria-label="&#21457;&#36865;">&#21457;&#36865;&#32473; AI</button>
               </div>
             </form>
           </section>
