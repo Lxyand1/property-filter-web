@@ -1965,9 +1965,14 @@
     }
 
     function shouldShowAiListings(query, aiResult) {
-      if (hasMeaningfulFilters(aiResult && aiResult.filters)) return true;
-      const text = String(query || "");
-      return /\u623f|\u623f\u6e90|\u5c0f\u533a|\u9762\u79ef|\u697c\u5c42|\u671d\u5411|\u5357\u5411|\u5317\u5411|\u88c5\u4fee|\u7cbe\u88c5|\u7b80\u88c5|\u5b66\u6821|\u533b\u9662|\u516c\u56ed|\u4e24\u623f|\u4e8c\u623f|\u4e09\u623f|\u56db\u623f|\u770b\u770b|\u63a8\u8350|\u627e/.test(text);
+      const text = String(query || "").trim();
+      const metaQuestion = /\u600e\u4e48|\u600e\u6837|\u5982\u4f55|\u4ec0\u4e48\u65f6\u5019|\u4e3a\u4ec0\u4e48|\u80fd\u4e0d\u80fd|\u53ef\u4e0d\u53ef\u4ee5|\u600e\u4e48\u624d\u80fd|\u63d0\u4f9b\u623f\u6e90\u5361\u7247|\u623f\u6e90\u5361\u7247|\u4f7f\u7528|\u529f\u80fd|\u5e2e\u52a9|\u6559\u6211/.test(text);
+      const searchIntent = /\u6211\u60f3|\u60f3\u770b|\u5e2e\u6211|\u7ed9\u6211|\u627e|\u63a8\u8350|\u770b\u770b|\u8981|\u9700\u8981|\u6709\u6ca1\u6709|\u7b5b\u9009|\u5339\u914d/.test(text);
+      const housingConstraint = /\u5c0f\u533a|\u9762\u79ef|\u697c\u5c42|\u671d\u5411|\u5357\u5411|\u5317\u5411|\u88c5\u4fee|\u7cbe\u88c5|\u7b80\u88c5|\u5b66\u6821|\u533b\u9662|\u516c\u56ed|\u4e24\u623f|\u4e8c\u623f|\u4e09\u623f|\u56db\u623f|\u4e00\u623f|\u623f\u5b50|\u623f\u6e90/.test(text);
+      if (metaQuestion && !searchIntent) return false;
+      if (metaQuestion && !housingConstraint) return false;
+      if (hasMeaningfulFilters(aiResult && aiResult.filters)) return searchIntent || housingConstraint;
+      return searchIntent && housingConstraint;
     }
 
     function fallbackListingsFromText(query, reply) {
