@@ -1066,6 +1066,80 @@
       }
 
 
+
+
+      body.mobile-view-ai .ai-form {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 12px !important;
+        display: block !important;
+        height: 60px;
+        padding: 8px !important;
+        border-radius: 999px !important;
+        box-sizing: border-box;
+      }
+
+      body.mobile-view-ai .ai-input {
+        display: block;
+        width: 100%;
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 11px 58px 11px 14px !important;
+        box-sizing: border-box;
+      }
+
+      body.mobile-view-ai .ai-submit-row {
+        position: absolute !important;
+        top: 50% !important;
+        right: 12px !important;
+        bottom: auto !important;
+        width: 36px !important;
+        height: 36px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        transform: translateY(-50%) !important;
+      }
+
+      body.mobile-view-ai .ai-send-button {
+        position: relative !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: block !important;
+        font-size: 0 !important;
+        line-height: 0 !important;
+      }
+
+      body.mobile-view-ai .ai-send-button::before {
+        content: "" !important;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 12px;
+        height: 12px;
+        border-left: 3px solid #FFFFFF;
+        border-top: 3px solid #FFFFFF;
+        transform: translate(-50%, -35%) rotate(45deg);
+      }
+
+      body.mobile-view-ai .ai-send-button::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 3px;
+        height: 16px;
+        border-radius: 999px;
+        background: #FFFFFF;
+        transform: translate(-50%, -42%);
+      }
+
       body.mobile-view-ai .ai-message.assistant:has(.ai-listings) {
         max-width: 100%;
         padding: 12px;
