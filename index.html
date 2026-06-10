@@ -1014,11 +1014,17 @@
         line-height: 20px;
       }
 
+      body.mobile-view-ai .ai-input::placeholder {
+        color: transparent;
+      }
+
       body.mobile-view-ai .ai-submit-row {
         position: absolute;
         right: 12px;
-        bottom: 12px;
+        top: 50%;
+        bottom: auto;
         display: block;
+        transform: translateY(-50%);
       }
 
       body.mobile-view-ai #aiClear,
