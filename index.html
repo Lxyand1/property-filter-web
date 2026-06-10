@@ -246,51 +246,6 @@
       background: rgba(255, 255, 255, 0.82);
     }
 
-    .ai-config {
-      display: grid;
-      gap: 10px;
-      padding: 12px;
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      background: rgba(247, 249, 252, 0.9);
-    }
-
-    .ai-config summary {
-      cursor: pointer;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .ai-config-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      padding-top: 8px;
-    }
-
-    .text-input {
-      width: 100%;
-      min-height: 42px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--fg);
-      padding: 10px 12px;
-      outline: none;
-    }
-
-    .text-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(47, 111, 235, 0.12);
-    }
-
-    .config-note {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
     .ai-input {
       width: 100%;
       min-height: 72px;
@@ -820,31 +775,6 @@
             </div>
 
             <form class="ai-form" id="aiForm">
-              <details class="ai-config">
-                <summary>AI &#25509;&#21475;&#35774;&#32622;&#65288;GitHub Pages &#30452;&#36830;&#27169;&#24335;&#65289;</summary>
-                <p class="config-note" id="configStatus">&#27491;&#22312;&#35835;&#21462; config.json &#20013;&#30340; AI &#37197;&#32622;&#8230;</p>
-                <div class="ai-config-grid">
-                  <div class="field">
-                    <label for="apiKeyInput">SenseAudio API Key</label>
-                    <input class="text-input" id="apiKeyInput" type="password" autocomplete="off" placeholder="&#22312;&#27492;&#36755;&#20837; API Key&#65292;&#28857;&#20445;&#23384;&#21518;&#26412;&#27983;&#35272;&#22120;&#21487;&#29992;">
-                  </div>
-                  <div class="field">
-                    <label for="baseUrlInput">API Base URL</label>
-                    <input class="text-input" id="baseUrlInput" type="url" value="https://api.senseaudio.cn" autocomplete="off">
-                  </div>
-                  <div class="field">
-                    <label for="modelInput">Model</label>
-                    <input class="text-input" id="modelInput" type="text" value="senseaudio-s2" autocomplete="off">
-                  </div>
-                  <div class="ai-submit-row">
-                    <span class="config-note">Key &#20250;&#20445;&#23384;&#22312;&#24403;&#21069;&#27983;&#35272;&#22120; localStorage&#12290;&#20844;&#24320;&#20998;&#20139;&#32593;&#39029;&#26102;&#65292;&#20351;&#29992;&#32773;&#21487;&#33021;&#20174;&#21069;&#31471;&#35831;&#27714;&#20013;&#30475;&#21040; Key&#12290;</span>
-                    <button class="button" type="button" id="clearApiKey" onclick="window.propertyFilterClearApiKey && window.propertyFilterClearApiKey()">&#21024;&#38500; Key</button>
-                    <button class="button" type="button" id="testApiKey" onclick="window.propertyFilterTestApiKey && window.propertyFilterTestApiKey()">&#27979;&#35797;&#36830;&#25509;</button>
-                    <button class="button primary" type="button" id="saveApiKey" onclick="window.propertyFilterSaveApiKey && window.propertyFilterSaveApiKey()">&#20445;&#23384;&#35774;&#32622;</button>
-                  </div>
-                </div>
-              </details>
-
               <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
               <div class="ai-submit-row">
                 <span class="ai-hint">&#25353; Enter &#21457;&#36865;&#65292;Shift + Enter &#25442;&#34892;</span>
