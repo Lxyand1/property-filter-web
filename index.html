@@ -1926,16 +1926,17 @@
           });
 
           const button = document.createElement("a");
-          button.className = "ai-video-button";
+          button.className = "ai-video-button video-direct-link";
           button.href = item.videoLink;
           button.target = "_blank";
-          button.rel = "noopener noreferrer";
+          button.rel = "noopener noreferrer external";
           button.textContent = "\u67e5\u770b\u623f\u6e90\u89c6\u9891";
 
           card.append(head, subtitle, facts, tags, button);
           list.appendChild(card);
         });
         node.appendChild(list);
+        bindVideoDirectLinks(node);
       }
       if (!targetNode) els.aiMessages.appendChild(node);
       els.aiMessages.scrollTop = els.aiMessages.scrollHeight;
@@ -2285,7 +2286,7 @@
         const tags = item.surroundings.map((tag) => `<span class="tag">${tag}</span>`).join("");
 
         return `
-          <a class="card" href="${escapeAttr(item.videoLink)}" target="_blank" rel="noopener noreferrer" aria-label="${item.community} video">
+          <a class="card video-direct-link" href="${escapeAttr(item.videoLink)}" target="_blank" rel="noopener noreferrer external" aria-label="${item.community} video">
             <div class="card-top">
               <div>
                 <h3 class="community">${item.community}</h3>
@@ -2312,6 +2313,7 @@
           </a>
         `;
       }).join("");
+      bindVideoDirectLinks(els.cards);
 
     }
 
@@ -2434,6 +2436,27 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeModal();
     });
+
+    function isIOSBrowser() {
+      const ua = navigator.userAgent || "";
+      const platform = navigator.platform || "";
+      return /iPad|iPhone|iPod/.test(ua) || (platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    }
+
+    function bindVideoDirectLinks(root = document) {
+      root.querySelectorAll(".video-direct-link").forEach((link) => {
+        if (link.dataset.videoDirectBound === "true") return;
+        link.dataset.videoDirectBound = "true";
+        link.addEventListener("click", (event) => {
+          const href = link.getAttribute("href");
+          if (!href) return;
+          if (isIOSBrowser() || isMobileLayout()) {
+            event.preventDefault();
+            window.location.href = href;
+          }
+        });
+      });
+    }
 
     function setMobileFilterStage(stage) {
       const normalized = stage === "results" ? "results" : "form";
