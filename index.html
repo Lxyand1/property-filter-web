@@ -1196,18 +1196,29 @@
       return window.matchMedia ? window.matchMedia("(max-width: 768px)").matches : window.innerWidth <= 768;
     }
 
-    function listingMeta(item) {
-      return `${item.rooms}\u623f${item.halls}\u5385${item.bathrooms}\u536b ? ${item.area}\u33a1 ? ${item.floor} ? ${item.direction}\u5411 ? ${item.decoration} ? ${item.year}\u5e74\u5efa\u6210 ? \u5468\u8fb9\uff1a${item.surroundings.join("\u3001")}`;
+    function listingSummary(item) {
+      return `${item.rooms}\u623f${item.halls}\u5385${item.bathrooms}\u536b`;
+    }
+
+    function createFact(label, value) {
+      const fact = document.createElement("div");
+      fact.className = "ai-listing-fact";
+      const labelNode = document.createElement("span");
+      labelNode.textContent = label;
+      const strong = document.createElement("strong");
+      strong.textContent = value;
+      fact.append(labelNode, strong);
+      return fact;
     }
 
     function appendAiListings(items) {
       const node = document.createElement("div");
       node.className = "ai-message assistant";
       if (!items.length) {
-        node.textContent = "\u6682\u65f6\u6ca1\u6709\u5339\u914d\u5230\u5b8c\u5168\u7b26\u5408\u6761\u4ef6\u7684\u623f\u6e90\uff0c\u60a8\u53ef\u4ee5\u653e\u5bbd\u9762\u79ef\u3001\u697c\u5c42\u3001\u671d\u5411\u6216\u5468\u8fb9\u914d\u5957\u518d\u8bd5\u3002";
+        node.textContent = "\u6682\u65f6\u6ca1\u6709\u5339\u914d\u5230\u5b8c\u5168\u7b26\u5408\u6761\u4ef6\u7684\u623f\u6e90\uff0c\u60a8\u53ef\u4ee5\u653e\u5bbd\u6761\u4ef6\u518d\u8bd5\u3002";
       } else {
         const title = document.createElement("div");
-        title.textContent = `\u4e3a\u60a8\u5339\u914d\u5230 ${items.length} \u5957\u623f\u6e90\uff1a`;
+        title.textContent = `\u4e3a\u60a8\u5339\u914d\u5230 ${items.length} \u5957\u623f\u6e90`;
         node.appendChild(title);
 
         const list = document.createElement("div");
@@ -1218,24 +1229,43 @@
 
           const head = document.createElement("div");
           head.className = "ai-listing-title";
-          const name = document.createElement("span");
+          const name = document.createElement("div");
+          name.className = "ai-listing-name";
           name.textContent = item.community;
-          const area = document.createElement("span");
+          const area = document.createElement("div");
           area.className = "ai-listing-area";
           area.textContent = `${item.area}\u33a1`;
           head.append(name, area);
 
-          const meta = document.createElement("div");
-          meta.className = "ai-listing-meta";
-          meta.textContent = listingMeta(item);
+          const subtitle = document.createElement("div");
+          subtitle.className = "ai-listing-subtitle";
+          subtitle.textContent = `${listingSummary(item)} / ${item.year}\u5e74\u5efa\u6210`;
+
+          const facts = document.createElement("div");
+          facts.className = "ai-listing-facts";
+          facts.append(
+            createFact("\u697c\u5c42", item.floor),
+            createFact("\u671d\u5411", `${item.direction}\u5411`),
+            createFact("\u88c5\u4fee", item.decoration),
+            createFact("\u623f\u578b", listingSummary(item))
+          );
+
+          const tags = document.createElement("div");
+          tags.className = "ai-listing-tags";
+          item.surroundings.forEach((tag) => {
+            const tagNode = document.createElement("span");
+            tagNode.className = "ai-listing-tag";
+            tagNode.textContent = tag;
+            tags.appendChild(tagNode);
+          });
 
           const button = document.createElement("button");
           button.className = "ai-video-button";
           button.type = "button";
-          button.textContent = "\u67e5\u770b\u89c6\u9891";
+          button.textContent = "\u67e5\u770b\u623f\u6e90\u89c6\u9891";
           button.addEventListener("click", () => window.open(item.videoLink, "_blank", "noopener"));
 
-          card.append(head, meta, button);
+          card.append(head, subtitle, facts, tags, button);
           list.appendChild(card);
         });
         node.appendChild(list);
