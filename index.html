@@ -1010,7 +1010,7 @@
         resize: none;
         overflow: hidden;
         border-radius: 999px;
-        padding: 11px 54px 11px 14px;
+        padding: 11px 58px 11px 14px;
         line-height: 20px;
       }
 
@@ -1023,7 +1023,11 @@
         right: 12px;
         top: 50%;
         bottom: auto;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
         transform: translateY(-50%);
       }
 
@@ -1035,22 +1039,30 @@
       body.mobile-view-ai .ai-send-button {
         width: 36px;
         height: 36px;
+        min-width: 36px;
         min-height: 36px;
         padding: 0;
         border-radius: 50%;
         font-size: 0;
-        display: grid;
-        place-items: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: var(--accent);
         box-shadow: 0 8px 18px rgba(47, 111, 235, 0.28);
+        line-height: 1;
       }
 
       body.mobile-view-ai .ai-send-button::before {
         content: "\2191";
+        display: block;
+        width: 20px;
+        height: 20px;
         color: #FFFFFF;
         font-size: 20px;
         font-weight: 900;
-        line-height: 1;
+        line-height: 18px;
+        text-align: center;
+        transform: translateY(-1px);
       }
 
 
