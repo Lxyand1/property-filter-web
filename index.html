@@ -1140,6 +1140,49 @@
         transform: translate(-50%, -42%);
       }
 
+
+
+      body.mobile-view-ai {
+        height: 100dvh;
+        overflow: hidden;
+      }
+
+      body.mobile-view-ai .page {
+        height: 100dvh;
+        min-height: 100dvh;
+        overflow: hidden;
+        padding: 12px 12px 84px !important;
+        box-sizing: border-box;
+      }
+
+      body.mobile-view-ai .shell,
+      body.mobile-view-ai .workspace {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      body.mobile-view-ai .mobile-tabs {
+        position: relative;
+        top: auto;
+        flex: 0 0 auto;
+        margin-bottom: 10px;
+      }
+
+      body.mobile-view-ai .ai-assistant {
+        height: calc(100dvh - 106px);
+        min-height: 0 !important;
+        overflow: hidden;
+      }
+
+      body.mobile-view-ai .ai-messages {
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+
       body.mobile-view-ai .ai-message.assistant:has(.ai-listings) {
         max-width: 100%;
         padding: 12px;
