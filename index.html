@@ -1198,6 +1198,83 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+
+
+      html.mobile-view-ai,
+      html.mobile-view-ai body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden !important;
+        overscroll-behavior: none;
+        touch-action: manipulation;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .page {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        overflow: hidden !important;
+        padding: 10px 12px 84px !important;
+        box-sizing: border-box !important;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .shell {
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .workspace {
+        display: grid !important;
+        grid-template-rows: auto minmax(0, 1fr) !important;
+        gap: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .mobile-tabs {
+        position: relative !important;
+        top: auto !important;
+        z-index: 30 !important;
+        margin: 0 0 10px !important;
+        flex: none !important;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .control-panel {
+        display: contents !important;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .ai-assistant {
+        display: grid !important;
+        grid-template-rows: auto minmax(0, 1fr) !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .ai-messages {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 18px !important;
+      }
+
+      html.mobile-view-ai body.mobile-view-ai .ai-form {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+      }
+
       .lead {
         font-size: 16px;
       }
@@ -2110,6 +2187,8 @@
 
     function setMobileView(view) {
       const normalized = view === "filter" ? "filter" : "ai";
+      document.documentElement.classList.toggle("mobile-view-ai", normalized === "ai");
+      document.documentElement.classList.toggle("mobile-view-filter", normalized === "filter");
       document.body.classList.toggle("mobile-view-ai", normalized === "ai");
       document.body.classList.toggle("mobile-view-filter", normalized === "filter");
       document.querySelectorAll("[data-mobile-tab]").forEach((button) => {
