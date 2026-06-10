@@ -1136,9 +1136,7 @@
 
     let fileAiConfig = { ...defaultAiConfig };
 
-    function setConfigStatus(message) {
-      if (els.configStatus) els.configStatus.textContent = message;
-    }
+    function setConfigStatus() {}
 
     async function loadFileAiConfig() {
       try {
@@ -1151,9 +1149,6 @@
           model: String(config.model || config.SENSEAUDIO_MODEL || defaultAiConfig.model)
         };
         if (fileAiConfig.apiKey) {
-          setInputValue(els.apiKeyInput, fileAiConfig.apiKey);
-          setInputValue(els.baseUrlInput, fileAiConfig.baseUrl);
-          setInputValue(els.modelInput, fileAiConfig.model);
           localStorage.setItem(aiConfigKeys.apiKey, fileAiConfig.apiKey);
           localStorage.setItem(aiConfigKeys.baseUrl, fileAiConfig.baseUrl);
           localStorage.setItem(aiConfigKeys.model, fileAiConfig.model);
@@ -1238,7 +1233,7 @@
     async function requestSenseAudio(messages, options = {}) {
       const apiKey = cleanApiKey(inputValue(els.apiKeyInput) || localStorage.getItem(aiConfigKeys.apiKey) || fileAiConfig.apiKey);
       const model = inputValue(els.modelInput, fileAiConfig.model || "senseaudio-s2").trim() || "senseaudio-s2";
-      if (!apiKey) throw new Error("\u8bf7\u5148\u5728 AI \u63a5\u53e3\u8bbe\u7f6e\u4e2d\u586b\u5199\u5e76\u4fdd\u5b58 API Key");
+      if (!apiKey) throw new Error("AI \u914d\u7f6e\u672a\u751f\u6548\uff0c\u8bf7\u68c0\u67e5 config.json \u4e2d\u7684 apiKey");
 
       const response = await fetch(aiEndpoint(), {
         method: "POST",
@@ -1492,14 +1487,6 @@
       resetFilters();
       appendAiMessage("assistant", aiText.cleared);
     });
-
-    window.propertyFilterSaveApiKey = saveAiConfig;
-    window.propertyFilterClearApiKey = clearAiConfig;
-    window.propertyFilterTestApiKey = testAiConnection;
-
-    if (els.saveApiKey) els.saveApiKey.addEventListener("click", saveAiConfig);
-    if (els.clearApiKey) els.clearApiKey.addEventListener("click", clearAiConfig);
-    if (els.testApiKey) els.testApiKey.addEventListener("click", testAiConnection);
 
     [
       els.community,
