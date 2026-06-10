@@ -1192,18 +1192,22 @@
       return node;
     }
 
+    function isMobileLayout() {
+      return window.matchMedia ? window.matchMedia("(max-width: 768px)").matches : window.innerWidth <= 768;
+    }
+
     function listingMeta(item) {
-      return `${item.rooms}?${item.halls}?${item.bathrooms}? ? ${item.area}? ? ${item.floor} ? ${item.direction}? ? ${item.decoration} ? ${item.year}??? ? ???${item.surroundings.join("?")}`;
+      return `${item.rooms}\u623f${item.halls}\u5385${item.bathrooms}\u536b ? ${item.area}\u33a1 ? ${item.floor} ? ${item.direction}\u5411 ? ${item.decoration} ? ${item.year}\u5e74\u5efa\u6210 ? \u5468\u8fb9\uff1a${item.surroundings.join("\u3001")}`;
     }
 
     function appendAiListings(items) {
       const node = document.createElement("div");
       node.className = "ai-message assistant";
       if (!items.length) {
-        node.textContent = "??????????????????????????????????????";
+        node.textContent = "\u6682\u65f6\u6ca1\u6709\u5339\u914d\u5230\u5b8c\u5168\u7b26\u5408\u6761\u4ef6\u7684\u623f\u6e90\uff0c\u60a8\u53ef\u4ee5\u653e\u5bbd\u9762\u79ef\u3001\u697c\u5c42\u3001\u671d\u5411\u6216\u5468\u8fb9\u914d\u5957\u518d\u8bd5\u3002";
       } else {
         const title = document.createElement("div");
-        title.textContent = `????? ${items.length} ????`;
+        title.textContent = `\u4e3a\u60a8\u5339\u914d\u5230 ${items.length} \u5957\u623f\u6e90\uff1a`;
         node.appendChild(title);
 
         const list = document.createElement("div");
@@ -1218,7 +1222,7 @@
           name.textContent = item.community;
           const area = document.createElement("span");
           area.className = "ai-listing-area";
-          area.textContent = `${item.area}?`;
+          area.textContent = `${item.area}\u33a1`;
           head.append(name, area);
 
           const meta = document.createElement("div");
@@ -1228,7 +1232,7 @@
           const button = document.createElement("button");
           button.className = "ai-video-button";
           button.type = "button";
-          button.textContent = "????";
+          button.textContent = "\u67e5\u770b\u89c6\u9891";
           button.addEventListener("click", () => window.open(item.videoLink, "_blank", "noopener"));
 
           card.append(head, meta, button);
@@ -1308,12 +1312,9 @@
           localStorage.setItem(aiConfigKeys.apiKey, fileAiConfig.apiKey);
           localStorage.setItem(aiConfigKeys.baseUrl, fileAiConfig.baseUrl);
           localStorage.setItem(aiConfigKeys.model, fileAiConfig.model);
-          setConfigStatus("?? config.json ?? AI ?????????? AI ???");
         } else {
-          setConfigStatus("config.json ??? apiKey??????????");
         }
       } catch (error) {
-        setConfigStatus("???? config.json?????? API Key ???");
       }
     }
 
@@ -1441,11 +1442,11 @@
       try {
         const aiResult = await getAiMatch(query);
         if (aiResult.filters) applyAiFilters(aiResult.filters);
-        if (window.innerWidth < 1180) {
-          els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
         loadingNode.textContent = aiResult.reply || aiResult.content || aiText.defaultReply;
-        appendAiListings(state.filtered);
+        if (isMobileLayout()) {
+          setMobileView("ai");
+          appendAiListings(state.filtered);
+        }
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
       }
