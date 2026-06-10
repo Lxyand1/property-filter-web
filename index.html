@@ -1949,6 +1949,27 @@
       return value && String(text || "").includes(value);
     }
 
+    function hasMeaningfulFilters(filters) {
+      if (!filters || typeof filters !== "object") return false;
+      return [
+        "community",
+        "rooms",
+        "halls",
+        "bathrooms",
+        "areaRange",
+        "floor",
+        "direction",
+        "decoration",
+        "yearRange"
+      ].some((key) => Boolean(filters[key])) || (Array.isArray(filters.surroundings) && filters.surroundings.length > 0);
+    }
+
+    function shouldShowAiListings(query, aiResult) {
+      if (hasMeaningfulFilters(aiResult && aiResult.filters)) return true;
+      const text = String(query || "");
+      return /\u623f|\u623f\u6e90|\u5c0f\u533a|\u9762\u79ef|\u697c\u5c42|\u671d\u5411|\u5357\u5411|\u5317\u5411|\u88c5\u4fee|\u7cbe\u88c5|\u7b80\u88c5|\u5b66\u6821|\u533b\u9662|\u516c\u56ed|\u4e24\u623f|\u4e8c\u623f|\u4e09\u623f|\u56db\u623f|\u770b\u770b|\u63a8\u8350|\u627e/.test(text);
+    }
+
     function fallbackListingsFromText(query, reply) {
       const text = `${query || ""}\n${reply || ""}`;
       const hitsByName = listings.filter((item) => textIncludes(text, item.community));
@@ -1987,11 +2008,12 @@
         const aiResult = await getAiMatch(query);
         if (aiResult.filters) applyAiFilters(aiResult.filters);
         const replyText = aiResult.reply || aiResult.content || aiText.defaultReply;
-        let matchedListings = state.filtered;
-        if (!matchedListings.length) matchedListings = fallbackListingsFromText(query, replyText);
-        loadingNode.textContent = conciseAiReply(replyText, matchedListings.length);
+        const showListings = shouldShowAiListings(query, aiResult);
+        let matchedListings = showListings ? state.filtered : [];
+        if (showListings && !matchedListings.length) matchedListings = fallbackListingsFromText(query, replyText);
+        loadingNode.textContent = showListings ? conciseAiReply(replyText, matchedListings.length) : replyText;
         if (isMobileLayout()) setMobileView("ai");
-        appendAiListings(matchedListings, loadingNode);
+        if (showListings) appendAiListings(matchedListings, loadingNode);
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
       }
