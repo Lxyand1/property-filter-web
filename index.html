@@ -822,6 +822,7 @@
             <form class="ai-form" id="aiForm">
               <details class="ai-config">
                 <summary>AI &#25509;&#21475;&#35774;&#32622;&#65288;GitHub Pages &#30452;&#36830;&#27169;&#24335;&#65289;</summary>
+                <p class="config-note" id="configStatus">&#27491;&#22312;&#35835;&#21462; config.json &#20013;&#30340; AI &#37197;&#32622;&#8230;</p>
                 <div class="ai-config-grid">
                   <div class="field">
                     <label for="apiKeyInput">SenseAudio API Key</label>
@@ -1197,6 +1198,44 @@
       model: "propertyFilter.senseaudio.model"
     };
 
+    const defaultAiConfig = {
+      apiKey: "",
+      baseUrl: "https://api.senseaudio.cn",
+      model: "senseaudio-s2"
+    };
+
+    let fileAiConfig = { ...defaultAiConfig };
+
+    function setConfigStatus(message) {
+      if (els.configStatus) els.configStatus.textContent = message;
+    }
+
+    async function loadFileAiConfig() {
+      try {
+        const response = await fetch(`./config.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error(`config.json ${response.status}`);
+        const config = await response.json();
+        fileAiConfig = {
+          apiKey: cleanApiKey(config.apiKey || config.SENSEAUDIO_API_KEY || ""),
+          baseUrl: String(config.baseUrl || config.SENSEAUDIO_BASE_URL || defaultAiConfig.baseUrl).replace(/\/+$/, ""),
+          model: String(config.model || config.SENSEAUDIO_MODEL || defaultAiConfig.model)
+        };
+        if (fileAiConfig.apiKey) {
+          setInputValue(els.apiKeyInput, fileAiConfig.apiKey);
+          setInputValue(els.baseUrlInput, fileAiConfig.baseUrl);
+          setInputValue(els.modelInput, fileAiConfig.model);
+          localStorage.setItem(aiConfigKeys.apiKey, fileAiConfig.apiKey);
+          localStorage.setItem(aiConfigKeys.baseUrl, fileAiConfig.baseUrl);
+          localStorage.setItem(aiConfigKeys.model, fileAiConfig.model);
+          setConfigStatus("?? config.json ?? AI ?????????? AI ???");
+        } else {
+          setConfigStatus("config.json ??? apiKey??????????");
+        }
+      } catch (error) {
+        setConfigStatus("???? config.json?????? API Key ???");
+      }
+    }
+
     function inputValue(el, fallback = "") {
       return el ? String(el.value || "") : fallback;
     }
@@ -1234,7 +1273,7 @@
     }
 
     function aiEndpoint() {
-      const baseUrl = (inputValue(els.baseUrlInput, "https://api.senseaudio.cn").trim() || "https://api.senseaudio.cn").replace(/\/+$/, "");
+      const baseUrl = (inputValue(els.baseUrlInput, fileAiConfig.baseUrl || "https://api.senseaudio.cn").trim() || "https://api.senseaudio.cn").replace(/\/+$/, "");
       return `${baseUrl}/v1/chat/completions`;
     }
 
@@ -1267,8 +1306,8 @@
     }
 
     async function requestSenseAudio(messages, options = {}) {
-      const apiKey = cleanApiKey(inputValue(els.apiKeyInput) || localStorage.getItem(aiConfigKeys.apiKey));
-      const model = inputValue(els.modelInput, "senseaudio-s2").trim() || "senseaudio-s2";
+      const apiKey = cleanApiKey(inputValue(els.apiKeyInput) || localStorage.getItem(aiConfigKeys.apiKey) || fileAiConfig.apiKey);
+      const model = inputValue(els.modelInput, fileAiConfig.model || "senseaudio-s2").trim() || "senseaudio-s2";
       if (!apiKey) throw new Error("\u8bf7\u5148\u5728 AI \u63a5\u53e3\u8bbe\u7f6e\u4e2d\u586b\u5199\u5e76\u4fdd\u5b58 API Key");
 
       const response = await fetch(aiEndpoint(), {
@@ -1562,6 +1601,7 @@
     });
 
     loadAiConfig();
+    loadFileAiConfig();
 
     render();
   </script>
