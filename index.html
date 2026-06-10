@@ -686,6 +686,11 @@
       transform: translateX(-50%) translateY(0);
     }
 
+
+    .mobile-tabs {
+      display: none;
+    }
+
     @media (max-width: 1180px) {
       .workspace {
         grid-template-columns: 1fr;
@@ -725,6 +730,65 @@
         padding: 16px 12px 32px;
       }
 
+      .mobile-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 8px;
+        margin-bottom: 12px;
+        background: rgba(244, 247, 252, 0.94);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        backdrop-filter: blur(12px);
+      }
+
+      .mobile-tab {
+        min-height: 42px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .mobile-tab.active {
+        background: var(--accent);
+        color: #FFFFFF;
+        box-shadow: 0 10px 20px rgba(47, 111, 235, 0.18);
+      }
+
+      .control-panel {
+        display: contents;
+      }
+
+      [data-mobile-hide="true"] {
+        display: none !important;
+      }
+
+      body.mobile-view-ai [data-mobile-view="filter"],
+      body.mobile-view-filter [data-mobile-view="ai"] {
+        display: none !important;
+      }
+
+      body.mobile-view-ai .workspace,
+      body.mobile-view-filter .workspace {
+        display: block;
+      }
+
+      .ai-assistant,
+      .toolbar,
+      .results-panel {
+        margin-bottom: 14px;
+      }
+
+      .results-panel {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
       .lead {
         font-size: 16px;
       }
@@ -760,8 +824,13 @@
   <main class="page">
     <div class="shell">
       <div class="workspace">
+        <nav class="mobile-tabs" aria-label="&#25163;&#26426;&#31471;&#39029;&#38754;&#20999;&#25442;">
+          <button class="mobile-tab active" type="button" data-mobile-tab="ai">AI&#25214;&#25151;</button>
+          <button class="mobile-tab" type="button" data-mobile-tab="filter">&#25163;&#21160;&#31579;&#36873;</button>
+        </nav>
+
         <aside class="control-panel">
-          <section class="ai-assistant" aria-labelledby="page-title">
+          <section class="ai-assistant" data-mobile-view="ai" aria-labelledby="page-title">
             <div class="ai-header">
               <div class="ai-avatar">AI</div>
               <div>
@@ -784,7 +853,7 @@
             </form>
           </section>
 
-          <section class="advisor-card compact-summary" aria-label="&#25151;&#28304;&#27010;&#35272;">
+          <section class="advisor-card compact-summary" data-mobile-hide="true" aria-label="&#25151;&#28304;&#27010;&#35272;">
             <div class="advisor-top">
               <div class="avatar">&#37041;</div>
               <div>
@@ -800,7 +869,7 @@
             </div>
           </section>
 
-          <section class="toolbar" aria-label="&#31579;&#36873;&#26465;&#20214;">
+          <section class="toolbar" data-mobile-view="filter" aria-label="&#31579;&#36873;&#26465;&#20214;">
             <div class="filters">
               <div class="field">
                 <label for="community">&#23567;&#21306;&#20559;&#22909;</label>
@@ -906,7 +975,7 @@
           </section>
         </aside>
 
-        <section class="results-panel" aria-labelledby="result-title">
+        <section class="results-panel" data-mobile-view="filter" aria-labelledby="result-title">
           <div class="result-head">
             <div>
               <h2 id="result-title">&#20026;&#24744;&#21305;&#37197;&#21040;&#30340;&#25151;&#28304;</h2>
@@ -1516,6 +1585,21 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeModal();
     });
+
+    function setMobileView(view) {
+      const normalized = view === "filter" ? "filter" : "ai";
+      document.body.classList.toggle("mobile-view-ai", normalized === "ai");
+      document.body.classList.toggle("mobile-view-filter", normalized === "filter");
+      document.querySelectorAll("[data-mobile-tab]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.mobileTab === normalized);
+      });
+    }
+
+    document.querySelectorAll("[data-mobile-tab]").forEach((button) => {
+      button.addEventListener("click", () => setMobileView(button.dataset.mobileTab));
+    });
+
+    setMobileView("ai");
 
     loadAiConfig();
     loadFileAiConfig();
