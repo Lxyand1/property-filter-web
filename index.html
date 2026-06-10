@@ -1211,9 +1211,9 @@
       return fact;
     }
 
-    function appendAiListings(items) {
-      const node = document.createElement("div");
-      node.className = "ai-message assistant";
+    function appendAiListings(items, targetNode) {
+      const node = targetNode || document.createElement("div");
+      if (!targetNode) node.className = "ai-message assistant";
       if (!items.length) {
         node.textContent = "\u6682\u65f6\u6ca1\u6709\u5339\u914d\u5230\u5b8c\u5168\u7b26\u5408\u6761\u4ef6\u7684\u623f\u6e90\uff0c\u60a8\u53ef\u4ee5\u653e\u5bbd\u6761\u4ef6\u518d\u8bd5\u3002";
       } else {
@@ -1270,7 +1270,7 @@
         });
         node.appendChild(list);
       }
-      els.aiMessages.appendChild(node);
+      if (!targetNode) els.aiMessages.appendChild(node);
       els.aiMessages.scrollTop = els.aiMessages.scrollHeight;
       return node;
     }
@@ -1462,6 +1462,13 @@
       return parseAiJson(content);
     }
 
+    function conciseAiReply(reply) {
+      const text = String(reply || "").trim();
+      if (!state.filtered.length) return text || "\u6682\u65f6\u6ca1\u6709\u627e\u5230\u5b8c\u5168\u5339\u914d\u7684\u623f\u6e90\u3002";
+      if (!text) return `\u4e3a\u60a8\u5339\u914d\u5230 ${state.filtered.length} \u5957\u623f\u6e90\uff1a`;
+      return text.length > 80 ? `\u4e3a\u60a8\u5339\u914d\u5230 ${state.filtered.length} \u5957\u623f\u6e90\uff1a` : text;
+    }
+
     async function handleAiSubmit(text) {
       const query = text.trim();
       if (!query) return;
@@ -1472,11 +1479,9 @@
       try {
         const aiResult = await getAiMatch(query);
         if (aiResult.filters) applyAiFilters(aiResult.filters);
-        loadingNode.textContent = aiResult.reply || aiResult.content || aiText.defaultReply;
-        if (isMobileLayout()) {
-          setMobileView("ai");
-          appendAiListings(state.filtered);
-        }
+        loadingNode.textContent = conciseAiReply(aiResult.reply || aiResult.content || aiText.defaultReply);
+        if (isMobileLayout()) setMobileView("ai");
+        appendAiListings(state.filtered, loadingNode);
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
       }
