@@ -895,6 +895,24 @@
         display: none !important;
       }
 
+
+      body.mobile-view-filter.mobile-filter-form .results-panel,
+      body.mobile-view-filter.mobile-filter-results .toolbar {
+        display: none !important;
+      }
+
+      body.mobile-view-filter.mobile-filter-results .results-panel {
+        display: block !important;
+      }
+
+      body.mobile-view-filter .mobile-back-filter {
+        display: inline-flex;
+      }
+
+      body.mobile-view-filter.mobile-filter-form .toolbar {
+        display: block !important;
+      }
+
       body.mobile-view-ai [data-mobile-view="filter"],
       body.mobile-view-filter [data-mobile-view="ai"] {
         display: none !important;
@@ -1502,6 +1520,7 @@
               <h2 id="result-title">&#20026;&#24744;&#21305;&#37197;&#21040;&#30340;&#25151;&#28304;</h2>
               <div class="result-count" id="resultText">&#24403;&#21069;&#20849;&#26377; 5 &#22871;&#25151;&#28304;&#21487;&#26597;&#30475;</div>
             </div>
+            <button class="button mobile-back-filter" type="button" id="mobileBackToFilters">&#36820;&#22238;&#31579;&#36873;</button>
           </div>
 
           <div class="cards" id="cards"></div>
@@ -1633,6 +1652,7 @@
       surroundingChecks: Array.from(document.querySelectorAll("input[name='surrounding']")),
       filterBtn: document.getElementById("filterBtn"),
       resetBtn: document.getElementById("resetBtn"),
+      mobileBackToFilters: document.getElementById("mobileBackToFilters"),
       cards: document.getElementById("cards"),
       emptyState: document.getElementById("emptyState"),
       resultText: document.getElementById("resultText"),
@@ -1793,6 +1813,7 @@
         input.checked = normalized.surroundings.includes(input.value);
       });
       applyFilters();
+      if (isMobileLayout()) setMobileFilterStage("form");
     }
 
     const aiConfigKeys = {
@@ -2063,9 +2084,6 @@
       });
 
       render();
-      if (window.innerWidth < 1180) {
-        els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }
 
     function resetFilters() {
@@ -2198,8 +2216,12 @@
       }, 1800);
     }
 
-    if (els.filterBtn) els.filterBtn.addEventListener("click", applyFilters);
+    if (els.filterBtn) els.filterBtn.addEventListener("click", () => {
+      applyFilters();
+      if (isMobileLayout()) setMobileFilterStage("results");
+    });
     if (els.resetBtn) els.resetBtn.addEventListener("click", resetFilters);
+    if (els.mobileBackToFilters) els.mobileBackToFilters.addEventListener("click", () => setMobileFilterStage("form"));
 
     if (els.aiForm) els.aiForm.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -2247,6 +2269,14 @@
       if (event.key === "Escape") closeModal();
     });
 
+    function setMobileFilterStage(stage) {
+      const normalized = stage === "results" ? "results" : "form";
+      document.documentElement.classList.toggle("mobile-filter-results", normalized === "results");
+      document.documentElement.classList.toggle("mobile-filter-form", normalized === "form");
+      document.body.classList.toggle("mobile-filter-results", normalized === "results");
+      document.body.classList.toggle("mobile-filter-form", normalized === "form");
+    }
+
     function setMobileView(view) {
       const normalized = view === "filter" ? "filter" : "ai";
       document.documentElement.classList.toggle("mobile-view-ai", normalized === "ai");
@@ -2256,6 +2286,7 @@
       document.querySelectorAll("[data-mobile-tab]").forEach((button) => {
         button.classList.toggle("active", button.dataset.mobileTab === normalized);
       });
+      if (normalized === "filter") setMobileFilterStage("form");
     }
 
     document.querySelectorAll("[data-mobile-tab]").forEach((button) => {
