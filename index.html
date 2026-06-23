@@ -2344,6 +2344,42 @@
       }
     }
 
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function parseAsrError(text, status) {
+      let message = String(text || "").slice(0, 300) || `ASR ${status}`;
+      try {
+        const data = JSON.parse(text);
+        message = data.error?.message || data.message || data.error || message;
+        return { message, code: data.error?.code || data.code || "", refCode: data.error?.ref_code || data.ref_code || "" };
+      } catch (_) {
+        const serviceBusy = text.includes("????") || text.includes("500000") || text.includes("internal");
+        return { message: serviceBusy ? "??????????" : message, code: serviceBusy ? "internal" : "", refCode: serviceBusy ? "500000" : "" };
+      }
+    }
+
+    async function requestAsrTranscription(form) {
+      const maxAttempts = 3;
+      let lastError = null;
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        const response = await fetch(asrEndpoint(), {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${asrApiKey()}` },
+          body: form
+        });
+        const text = await response.text();
+        if (response.ok) return text;
+        const parsed = parseAsrError(text, response.status);
+        const retryable = response.status >= 500 || parsed.code === "internal" || String(parsed.refCode) === "500000";
+        lastError = new Error(parsed.message);
+        if (!retryable || attempt === maxAttempts) throw lastError;
+        await sleep(800 * attempt);
+      }
+      throw lastError || new Error("??????");
+    }
+
     async function transcribeVoiceInput() {
       stopVoiceTracks();
       const recordedType = voiceState.recorder?.mimeType || voiceState.chunks[0]?.type || "audio/webm";
@@ -2361,20 +2397,7 @@
         form.append("language", "zh");
         form.append("response_format", "json");
         form.append("enable_punctuation", "true");
-        const response = await fetch(asrEndpoint(), {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${asrApiKey()}` },
-          body: form
-        });
-        const text = await response.text();
-        if (!response.ok) {
-          let message = text.slice(0, 300) || `ASR ${response.status}`;
-          try {
-            const errorData = JSON.parse(text);
-            message = errorData.error?.message || errorData.message || errorData.error || message;
-          } catch (_) {}
-          throw new Error(message);
-        }
+        const text = await requestAsrTranscription(form);
         let resultText = text.trim();
         try {
           const data = JSON.parse(text);
