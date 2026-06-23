@@ -2283,6 +2283,15 @@
       return /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent);
     }
 
+    function isIOSWeChatBrowser() {
+      const ua = navigator.userAgent || "";
+      return /MicroMessenger/i.test(ua) && /iPad|iPhone|iPod/i.test(ua);
+    }
+
+    function unsupportedVoiceBrowserMessage() {
+      return "微信内置浏览器在 iPhone 上不能稳定完成网页录音识别。请点右上角“...”，选择“在 Safari 中打开”后再使用语音输入。";
+    }
+
     function supportedAudioMimeType() {
       const preferred = isAppleBrowser()
         ? ["audio/mp4", "audio/aac", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus", "audio/ogg"]
@@ -2302,6 +2311,11 @@
     async function startVoiceInput(event) {
       if (event) event.preventDefault();
       if (voiceState.recording || voiceState.loading) return;
+      if (isIOSWeChatBrowser()) {
+        appendAiMessage("assistant", unsupportedVoiceBrowserMessage());
+        setVoiceMode("text");
+        return;
+      }
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
         appendAiMessage("assistant", "\u5f53\u524d\u6d4f\u89c8\u5668\u4e0d\u652f\u6301\u5f55\u97f3\uff0c\u8bf7\u6362\u7528\u65b0\u7248 Chrome\u3001Edge \u6216 Safari\u3002");
         return;
@@ -2420,6 +2434,11 @@
     function toggleVoiceMode() {
       if (voiceState.loading) return;
       if (voiceState.recording) stopVoiceInput();
+      if (isIOSWeChatBrowser()) {
+        setVoiceMode("text");
+        appendAiMessage("assistant", unsupportedVoiceBrowserMessage());
+        return;
+      }
       setVoiceMode(voiceState.mode === "voice" ? "text" : "voice");
     }
 
