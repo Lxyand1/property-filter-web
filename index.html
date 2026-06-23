@@ -1637,6 +1637,9 @@
 
       html.mobile-view-ai body .ai-input-wrap {
         position: static !important;
+        display: block !important;
+        width: 100% !important;
+        height: 44px !important;
       }
 
       html.mobile-view-ai body .ai-voice-button {
@@ -1652,8 +1655,13 @@
     }
 
     @media (max-width: 768px) {
+      html.mobile-view-ai body .ai-input-wrap.voice-mode .ai-input {
+        display: none !important;
+      }
+
       html.mobile-view-ai body .ai-input-wrap.voice-mode .ai-hold-button {
         display: flex !important;
+        width: 100% !important;
         height: 44px !important;
         min-height: 44px !important;
         border-radius: 999px !important;
