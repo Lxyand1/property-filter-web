@@ -1522,6 +1522,22 @@
       }
     }
 
+
+    /* Allow long AI prompts to be reviewed inside the input box. */
+    .ai-input {
+      max-height: 180px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    @media (max-width: 768px) {
+      html.mobile-view-ai body .ai-input {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: auto !important;
+        white-space: pre-wrap;
+      }
+    }
   </style>
 </head>
 <body>
