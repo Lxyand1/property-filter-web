@@ -2291,30 +2291,18 @@
       const raw = String(text || "").trim();
       if (!raw) return raw;
       if (raw.includes("\n\n") || raw.length < 180) return raw;
-      const sections = [
-        ["????", /????[:?]?/],
-        ["????", /????[:?]?|????[:?]?/],
-        ["????", /????[:?]?/],
-        ["?????", /?????[:?]?|????[:?]?|??[:?]?/],
-        ["????", /????[:?]?/]
-      ];
-      let formatted = raw;
-      sections.forEach(([title, regex]) => {
-        formatted = formatted.replace(regex, `\n\n${title}?`);
-      });
-      formatted = formatted.replace(/^\n+/, "");
-      if (formatted === raw) {
-        const sentences = raw.split(/(?<=[???])/).filter(Boolean);
-        if (sentences.length >= 5) {
-          return [
-            `?????${sentences.slice(0, 2).join("")}`,
-            `?????${sentences.slice(2, 5).join("")}`,
-            sentences.length > 7 ? `??????${sentences.slice(5, -2).join("")}` : "",
-            `?????${sentences.slice(-2).join("")}`
-          ].filter(Boolean).join("\n\n");
-        }
-      }
-      return formatted;
+      const sentences = raw.split(/(?<=[。！？])/).filter(Boolean);
+      if (sentences.length < 5) return raw;
+      const first = sentences.slice(0, 2).join("");
+      const middle = sentences.slice(2, Math.min(5, sentences.length)).join("");
+      const advice = sentences.length > 7 ? sentences.slice(5, -2).join("") : "";
+      const risk = sentences.slice(-2).join("");
+      return [
+        `总体判断：${first}`,
+        `影响因素：${middle}`,
+        advice ? `给你的建议：${advice}` : "",
+        `风险提示：${risk}`
+      ].filter(Boolean).join("\n\n");
     }
 
     async function handleAiSubmit(text) {
