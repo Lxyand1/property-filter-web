@@ -397,113 +397,6 @@
       box-shadow: 0 0 0 3px rgba(47, 111, 235, 0.12);
     }
 
-    .ai-input-wrap {
-      position: relative;
-    }
-
-    .ai-input-wrap.voice-mode .ai-input {
-      display: none;
-    }
-
-    .ai-hold-button {
-      display: none;
-      width: 100%;
-      min-height: 72px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: linear-gradient(180deg, #FFFFFF 0%, #F6F8FC 100%);
-      color: var(--fg);
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-    }
-
-    .ai-input-wrap.voice-mode .ai-hold-button {
-      display: flex;
-    }
-
-    .ai-hold-button.is-recording {
-      background: #FEE2E2;
-      border-color: #EF4444;
-      color: #B91C1C;
-      animation: voicePulse 1.2s infinite;
-    }
-
-    .ai-hold-button.is-loading {
-      color: var(--muted);
-      cursor: wait;
-    }
-
-    .ai-voice-button {
-      position: absolute;
-      left: 10px;
-      bottom: 10px;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: #FFFFFF;
-      color: var(--fg);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
-    }
-
-    .ai-voice-button::before {
-      content: "";
-      width: 10px;
-      height: 15px;
-      border: 2px solid currentColor;
-      border-radius: 8px;
-      border-bottom-left-radius: 8px;
-      border-bottom-right-radius: 8px;
-      box-sizing: border-box;
-    }
-
-    .ai-voice-button::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 18px;
-      width: 14px;
-      height: 8px;
-      border-bottom: 2px solid currentColor;
-      border-left: 2px solid currentColor;
-      border-right: 2px solid currentColor;
-      border-radius: 0 0 10px 10px;
-      transform: translateX(-50%);
-      box-sizing: border-box;
-    }
-
-    .ai-voice-button:hover {
-      transform: translateY(-1px);
-      border-color: rgba(47, 111, 235, 0.42);
-    }
-
-    .ai-voice-button.is-active {
-      background: #EEF4FF;
-      border-color: rgba(47, 111, 235, 0.55);
-      color: var(--accent);
-    }
-
-    .ai-voice-button.is-loading {
-      opacity: 0.7;
-      cursor: wait;
-    }
-
-    @keyframes voicePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.28); }
-      50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-    }
-
     .ai-quick {
       display: flex;
       flex-wrap: wrap;
@@ -1629,50 +1522,6 @@
       }
     }
 
-
-    @media (max-width: 768px) {
-      html.mobile-view-ai body .ai-input {
-        padding-left: 50px !important;
-      }
-
-      html.mobile-view-ai body .ai-input-wrap {
-        position: static !important;
-        display: block !important;
-        width: 100% !important;
-        height: 44px !important;
-      }
-
-      html.mobile-view-ai body .ai-voice-button {
-        position: absolute !important;
-        left: 14px !important;
-        top: 50% !important;
-        bottom: auto !important;
-        transform: translateY(-50%) !important;
-        width: 34px !important;
-        height: 34px !important;
-        z-index: 2;
-      }
-    }
-
-    @media (max-width: 768px) {
-      html.mobile-view-ai body .ai-input-wrap.voice-mode .ai-input {
-        display: none !important;
-      }
-
-      html.mobile-view-ai body .ai-input-wrap.voice-mode .ai-hold-button {
-        display: flex !important;
-        width: 100% !important;
-        height: 44px !important;
-        min-height: 44px !important;
-        border-radius: 999px !important;
-        padding: 0 58px 0 50px !important;
-        box-sizing: border-box !important;
-      }
-
-      html.mobile-view-ai body .ai-input-wrap.voice-mode .ai-voice-button {
-        color: var(--accent) !important;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1699,11 +1548,7 @@
             </div>
 
             <form class="ai-form" id="aiForm">
-              <div class="ai-input-wrap" id="aiInputWrap">
-                <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
-                <button class="ai-hold-button" type="button" id="aiHoldButton">&#25353;&#20303;&#35828;&#35805;</button>
-                <button class="ai-voice-button" type="button" id="aiVoiceButton" aria-label="&#35821;&#38899;&#36755;&#20837;" title="&#35821;&#38899;&#36755;&#20837;"></button>
-              </div>
+              <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
               <div class="ai-submit-row">
                 <span class="ai-hint">&#25353; Enter &#21457;&#36865;&#65292;Shift + Enter &#25442;&#34892;</span>
                 <button class="button" type="button" id="aiClear">&#28165;&#31354;&#23545;&#35805;</button>
@@ -1993,10 +1838,7 @@
       aiMessages: document.getElementById("aiMessages"),
       aiForm: document.getElementById("aiForm"),
       aiInput: document.getElementById("aiInput"),
-      aiInputWrap: document.getElementById("aiInputWrap"),
-      aiHoldButton: document.getElementById("aiHoldButton"),
-      aiClear: document.getElementById("aiClear"),
-      aiVoiceButton: document.getElementById("aiVoiceButton")
+      aiClear: document.getElementById("aiClear")
     };
 
     function u(text) {
@@ -2146,8 +1988,7 @@
       apiKey: "propertyFilter.senseaudio.apiKey",
       baseUrl: "propertyFilter.senseaudio.baseUrl",
       model: "propertyFilter.senseaudio.model",
-      searchApiKey: "propertyFilter.search.apiKey",
-      asrApiKey: "propertyFilter.senseaudio.asrApiKey"
+      searchApiKey: "propertyFilter.search.apiKey"
     };
 
     const defaultAiConfig = {
@@ -2157,10 +1998,7 @@
       searchProvider: "tavily",
       searchApiKey: "",
       searchBaseUrl: "https://api.tavily.com",
-      searchEnabled: true,
-      asrApiKey: "",
-      asrBaseUrl: "https://api.senseaudio.cn",
-      asrModel: "senseaudio-asr-pro-1.5-260319"
+      searchEnabled: true
     };
 
     let fileAiConfig = { ...defaultAiConfig };
@@ -2179,17 +2017,13 @@
           searchProvider: String(config.searchProvider || defaultAiConfig.searchProvider),
           searchApiKey: cleanApiKey(config.searchApiKey || config.TAVILY_API_KEY || config.SEARCH_API_KEY || ""),
           searchBaseUrl: String(config.searchBaseUrl || defaultAiConfig.searchBaseUrl).replace(/\/+$/, ""),
-          searchEnabled: config.searchEnabled !== false,
-          asrApiKey: cleanApiKey(config.asrApiKey || config.SENSEAUDIO_ASR_API_KEY || ""),
-          asrBaseUrl: String(config.asrBaseUrl || config.SENSEAUDIO_ASR_BASE_URL || defaultAiConfig.asrBaseUrl).replace(/\/+$/, ""),
-          asrModel: String(config.asrModel || config.SENSEAUDIO_ASR_MODEL || defaultAiConfig.asrModel)
+          searchEnabled: config.searchEnabled !== false
         };
         if (fileAiConfig.apiKey) {
           localStorage.setItem(aiConfigKeys.apiKey, fileAiConfig.apiKey);
           localStorage.setItem(aiConfigKeys.baseUrl, fileAiConfig.baseUrl);
           localStorage.setItem(aiConfigKeys.model, fileAiConfig.model);
           if (fileAiConfig.searchApiKey) localStorage.setItem(aiConfigKeys.searchApiKey, fileAiConfig.searchApiKey);
-          if (fileAiConfig.asrApiKey) localStorage.setItem(aiConfigKeys.asrApiKey, fileAiConfig.asrApiKey);
         } else {
         }
       } catch (error) {
@@ -2235,211 +2069,6 @@
     function aiEndpoint() {
       const baseUrl = (inputValue(els.baseUrlInput, fileAiConfig.baseUrl || "https://api.senseaudio.cn").trim() || "https://api.senseaudio.cn").replace(/\/+$/, "");
       return `${baseUrl}/v1/chat/completions`;
-    }
-
-    const voiceState = {
-      recorder: null,
-      stream: null,
-      chunks: [],
-      recording: false,
-      loading: false,
-      mode: "text"
-    };
-
-    function asrEndpoint() {
-      const baseUrl = String(fileAiConfig.asrBaseUrl || fileAiConfig.baseUrl || "https://api.senseaudio.cn").replace(/\/+$/, "");
-      return `${baseUrl}/v1/audio/transcriptions`;
-    }
-
-    function asrApiKey() {
-      return cleanApiKey(localStorage.getItem(aiConfigKeys.asrApiKey) || fileAiConfig.asrApiKey || fileAiConfig.apiKey || "");
-    }
-
-    function setVoiceMode(mode) {
-      voiceState.mode = mode;
-      if (els.aiInputWrap) els.aiInputWrap.classList.toggle("voice-mode", mode === "voice");
-      if (els.aiVoiceButton) {
-        els.aiVoiceButton.classList.toggle("is-active", mode === "voice");
-        els.aiVoiceButton.title = mode === "voice" ? "\u5207\u6362\u6587\u5b57\u8f93\u5165" : "\u5207\u6362\u8bed\u97f3\u8f93\u5165";
-        els.aiVoiceButton.setAttribute("aria-label", els.aiVoiceButton.title);
-      }
-      setVoiceButtonState("idle");
-    }
-
-    function setVoiceButtonState(state) {
-      if (els.aiVoiceButton) {
-        els.aiVoiceButton.classList.toggle("is-loading", state === "loading");
-        els.aiVoiceButton.disabled = state === "loading";
-      }
-      if (els.aiHoldButton) {
-        els.aiHoldButton.classList.toggle("is-recording", state === "recording");
-        els.aiHoldButton.classList.toggle("is-loading", state === "loading");
-        els.aiHoldButton.disabled = state === "loading";
-        els.aiHoldButton.textContent = state === "recording" ? "\u677e\u5f00\u53d1\u9001" : state === "loading" ? "\u8bc6\u522b\u4e2d..." : "\u6309\u4f4f\u8bf4\u8bdd";
-      }
-    }
-
-    function isAppleBrowser() {
-      return /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent);
-    }
-
-    function isIOSWeChatBrowser() {
-      const ua = navigator.userAgent || "";
-      return /MicroMessenger/i.test(ua) && /iPad|iPhone|iPod/i.test(ua);
-    }
-
-    function unsupportedVoiceBrowserMessage() {
-      return "微信内置浏览器在 iPhone 上不能稳定完成网页录音识别。请点右上角“...”，选择“在 Safari 中打开”后再使用语音输入。";
-    }
-
-    function supportedAudioMimeType() {
-      const preferred = isAppleBrowser()
-        ? ["audio/mp4", "audio/aac", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus", "audio/ogg"]
-        : ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/aac", "audio/ogg;codecs=opus", "audio/ogg"];
-      return preferred.find((type) => window.MediaRecorder && MediaRecorder.isTypeSupported(type)) || "";
-    }
-
-    function audioFileName(mimeType) {
-      const type = String(mimeType || "").toLowerCase();
-      if (type.includes("mp4")) return "voice-input.m4a";
-      if (type.includes("aac")) return "voice-input.aac";
-      if (type.includes("ogg")) return "voice-input.ogg";
-      if (type.includes("mpeg") || type.includes("mp3")) return "voice-input.mp3";
-      return "voice-input.webm";
-    }
-
-    async function startVoiceInput(event) {
-      if (event) event.preventDefault();
-      if (voiceState.recording || voiceState.loading) return;
-      if (isIOSWeChatBrowser()) {
-        appendAiMessage("assistant", unsupportedVoiceBrowserMessage());
-        setVoiceMode("text");
-        return;
-      }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
-        appendAiMessage("assistant", "\u5f53\u524d\u6d4f\u89c8\u5668\u4e0d\u652f\u6301\u5f55\u97f3\uff0c\u8bf7\u6362\u7528\u65b0\u7248 Chrome\u3001Edge \u6216 Safari\u3002");
-        return;
-      }
-      const key = asrApiKey();
-      if (!key) {
-        appendAiMessage("assistant", "\u8bed\u97f3\u8f93\u5165\u672a\u914d\u7f6e ASR API Key\uff0c\u8bf7\u5148\u68c0\u67e5 config.json \u7684 asrApiKey\u3002");
-        return;
-      }
-      try {
-        voiceState.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        voiceState.chunks = [];
-        const mimeType = supportedAudioMimeType();
-        voiceState.recorder = new MediaRecorder(voiceState.stream, mimeType ? { mimeType } : undefined);
-        voiceState.recorder.addEventListener("dataavailable", (event) => {
-          if (event.data && event.data.size) voiceState.chunks.push(event.data);
-        });
-        voiceState.recorder.addEventListener("stop", transcribeVoiceInput);
-        voiceState.recording = true;
-        setVoiceButtonState("recording");
-        voiceState.recorder.start();
-      } catch (error) {
-        stopVoiceTracks();
-        appendAiMessage("assistant", `\u65e0\u6cd5\u5f00\u542f\u9ea6\u514b\u98ce\uff1a${error.message || error}`);
-        setVoiceButtonState("idle");
-      }
-    }
-
-    function stopVoiceTracks() {
-      if (voiceState.stream) voiceState.stream.getTracks().forEach((track) => track.stop());
-      voiceState.stream = null;
-    }
-
-    function stopVoiceInput(event) {
-      if (event) event.preventDefault();
-      if (voiceState.recorder && voiceState.recording) {
-        voiceState.recording = false;
-        setVoiceButtonState("loading");
-        voiceState.recorder.stop();
-      }
-    }
-
-    function sleep(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    function parseAsrError(text, status) {
-      let message = String(text || "").slice(0, 300) || `ASR ${status}`;
-      try {
-        const data = JSON.parse(text);
-        message = data.error?.message || data.message || data.error || message;
-        return { message, code: data.error?.code || data.code || "", refCode: data.error?.ref_code || data.ref_code || "" };
-      } catch (_) {
-        const serviceBusy = text.includes("????") || text.includes("500000") || text.includes("internal");
-        return { message: serviceBusy ? "??????????" : message, code: serviceBusy ? "internal" : "", refCode: serviceBusy ? "500000" : "" };
-      }
-    }
-
-    async function requestAsrTranscription(form) {
-      const maxAttempts = 3;
-      let lastError = null;
-      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-        const response = await fetch(asrEndpoint(), {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${asrApiKey()}` },
-          body: form
-        });
-        const text = await response.text();
-        if (response.ok) return text;
-        const parsed = parseAsrError(text, response.status);
-        const retryable = response.status >= 500 || parsed.code === "internal" || String(parsed.refCode) === "500000";
-        lastError = new Error(parsed.message);
-        if (!retryable || attempt === maxAttempts) throw lastError;
-        await sleep(800 * attempt);
-      }
-      throw lastError || new Error("??????");
-    }
-
-    async function transcribeVoiceInput() {
-      stopVoiceTracks();
-      const recordedType = voiceState.recorder?.mimeType || voiceState.chunks[0]?.type || "audio/webm";
-      const blob = new Blob(voiceState.chunks, { type: recordedType });
-      voiceState.chunks = [];
-      if (!blob.size) {
-        setVoiceButtonState("idle");
-        appendAiMessage("assistant", "\u6ca1\u6709\u5f55\u5230\u58f0\u97f3\uff0c\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002");
-        return;
-      }
-      try {
-        const form = new FormData();
-        form.append("file", blob, audioFileName(blob.type));
-        form.append("model", fileAiConfig.asrModel || "senseaudio-asr-pro-1.5-260319");
-        form.append("language", "zh");
-        form.append("response_format", "json");
-        form.append("enable_punctuation", "true");
-        const text = await requestAsrTranscription(form);
-        let resultText = text.trim();
-        try {
-          const data = JSON.parse(text);
-          resultText = data.text || data.transcription || resultText;
-        } catch (_) {}
-        resultText = String(resultText || "").trim();
-        if (!resultText) throw new Error("\u6ca1\u6709\u8bc6\u522b\u5230\u6587\u5b57");
-        els.aiInput.value = inputValue(els.aiInput) ? `${inputValue(els.aiInput)} ${resultText}` : resultText;
-        setVoiceMode("text");
-        els.aiInput.focus();
-      } catch (error) {
-        appendAiMessage("assistant", `\u8bed\u97f3\u8bc6\u522b\u5931\u8d25\uff1a${error.message || error}`);
-      } finally {
-        voiceState.recorder = null;
-        voiceState.loading = false;
-        setVoiceButtonState("idle");
-      }
-    }
-
-    function toggleVoiceMode() {
-      if (voiceState.loading) return;
-      if (voiceState.recording) stopVoiceInput();
-      if (isIOSWeChatBrowser()) {
-        setVoiceMode("text");
-        appendAiMessage("assistant", unsupportedVoiceBrowserMessage());
-        return;
-      }
-      setVoiceMode(voiceState.mode === "voice" ? "text" : "voice");
     }
 
     function aiSystemPrompt() {
@@ -2910,16 +2539,6 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
     });
     if (els.resetBtn) els.resetBtn.addEventListener("click", resetFilters);
     if (els.mobileBackToFilters) els.mobileBackToFilters.addEventListener("click", () => setMobileFilterStage("form"));
-
-    if (els.aiVoiceButton) els.aiVoiceButton.addEventListener("click", toggleVoiceMode);
-    if (els.aiHoldButton) {
-      els.aiHoldButton.addEventListener("pointerdown", startVoiceInput);
-      els.aiHoldButton.addEventListener("pointerup", stopVoiceInput);
-      els.aiHoldButton.addEventListener("pointercancel", stopVoiceInput);
-      els.aiHoldButton.addEventListener("pointerleave", (event) => {
-        if (voiceState.recording) stopVoiceInput(event);
-      });
-    }
 
     if (els.aiForm) els.aiForm.addEventListener("submit", (event) => {
       event.preventDefault();
