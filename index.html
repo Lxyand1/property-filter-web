@@ -2279,9 +2279,24 @@
       }
     }
 
+    function isAppleBrowser() {
+      return /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent);
+    }
+
     function supportedAudioMimeType() {
-      const types = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus", "audio/ogg"];
-      return types.find((type) => window.MediaRecorder && MediaRecorder.isTypeSupported(type)) || "";
+      const preferred = isAppleBrowser()
+        ? ["audio/mp4", "audio/aac", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus", "audio/ogg"]
+        : ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/aac", "audio/ogg;codecs=opus", "audio/ogg"];
+      return preferred.find((type) => window.MediaRecorder && MediaRecorder.isTypeSupported(type)) || "";
+    }
+
+    function audioFileName(mimeType) {
+      const type = String(mimeType || "").toLowerCase();
+      if (type.includes("mp4")) return "voice-input.m4a";
+      if (type.includes("aac")) return "voice-input.aac";
+      if (type.includes("ogg")) return "voice-input.ogg";
+      if (type.includes("mpeg") || type.includes("mp3")) return "voice-input.mp3";
+      return "voice-input.webm";
     }
 
     async function startVoiceInput(event) {
@@ -2331,7 +2346,8 @@
 
     async function transcribeVoiceInput() {
       stopVoiceTracks();
-      const blob = new Blob(voiceState.chunks, { type: voiceState.chunks[0]?.type || "audio/webm" });
+      const recordedType = voiceState.recorder?.mimeType || voiceState.chunks[0]?.type || "audio/webm";
+      const blob = new Blob(voiceState.chunks, { type: recordedType });
       voiceState.chunks = [];
       if (!blob.size) {
         setVoiceButtonState("idle");
@@ -2340,7 +2356,7 @@
       }
       try {
         const form = new FormData();
-        form.append("file", blob, "voice-input.webm");
+        form.append("file", blob, audioFileName(blob.type));
         form.append("model", fileAiConfig.asrModel || "senseaudio-asr-pro-1.5-260319");
         form.append("language", "zh");
         form.append("response_format", "json");
@@ -2351,7 +2367,14 @@
           body: form
         });
         const text = await response.text();
-        if (!response.ok) throw new Error(text.slice(0, 300) || `ASR ${response.status}`);
+        if (!response.ok) {
+          let message = text.slice(0, 300) || `ASR ${response.status}`;
+          try {
+            const errorData = JSON.parse(text);
+            message = errorData.error?.message || errorData.message || errorData.error || message;
+          } catch (_) {}
+          throw new Error(message);
+        }
         let resultText = text.trim();
         try {
           const data = JSON.parse(text);
