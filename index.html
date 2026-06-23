@@ -397,6 +397,50 @@
       box-shadow: 0 0 0 3px rgba(47, 111, 235, 0.12);
     }
 
+    .ai-input-wrap {
+      position: relative;
+    }
+
+    .ai-voice-button {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--fg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .ai-voice-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(47, 111, 235, 0.42);
+    }
+
+    .ai-voice-button.is-recording {
+      background: #FEE2E2;
+      border-color: #EF4444;
+      color: #B91C1C;
+      animation: voicePulse 1.2s infinite;
+    }
+
+    .ai-voice-button.is-loading {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    @keyframes voicePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.28); }
+      50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    }
+
     .ai-quick {
       display: flex;
       flex-wrap: wrap;
@@ -1522,6 +1566,27 @@
       }
     }
 
+
+    @media (max-width: 768px) {
+      html.mobile-view-ai body .ai-input {
+        padding-left: 50px !important;
+      }
+
+      html.mobile-view-ai body .ai-input-wrap {
+        position: static !important;
+      }
+
+      html.mobile-view-ai body .ai-voice-button {
+        position: absolute !important;
+        left: 14px !important;
+        top: 50% !important;
+        bottom: auto !important;
+        transform: translateY(-50%) !important;
+        width: 34px !important;
+        height: 34px !important;
+        z-index: 2;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1548,7 +1613,10 @@
             </div>
 
             <form class="ai-form" id="aiForm">
-              <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
+              <div class="ai-input-wrap">
+                <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
+                <button class="ai-voice-button" type="button" id="aiVoiceButton" aria-label="&#35821;&#38899;&#36755;&#20837;" title="&#35821;&#38899;&#36755;&#20837;">&#127908;</button>
+              </div>
               <div class="ai-submit-row">
                 <span class="ai-hint">&#25353; Enter &#21457;&#36865;&#65292;Shift + Enter &#25442;&#34892;</span>
                 <button class="button" type="button" id="aiClear">&#28165;&#31354;&#23545;&#35805;</button>
@@ -1838,7 +1906,8 @@
       aiMessages: document.getElementById("aiMessages"),
       aiForm: document.getElementById("aiForm"),
       aiInput: document.getElementById("aiInput"),
-      aiClear: document.getElementById("aiClear")
+      aiClear: document.getElementById("aiClear"),
+      aiVoiceButton: document.getElementById("aiVoiceButton")
     };
 
     function u(text) {
@@ -1988,7 +2057,8 @@
       apiKey: "propertyFilter.senseaudio.apiKey",
       baseUrl: "propertyFilter.senseaudio.baseUrl",
       model: "propertyFilter.senseaudio.model",
-      searchApiKey: "propertyFilter.search.apiKey"
+      searchApiKey: "propertyFilter.search.apiKey",
+      asrApiKey: "propertyFilter.senseaudio.asrApiKey"
     };
 
     const defaultAiConfig = {
@@ -1998,7 +2068,10 @@
       searchProvider: "tavily",
       searchApiKey: "",
       searchBaseUrl: "https://api.tavily.com",
-      searchEnabled: true
+      searchEnabled: true,
+      asrApiKey: "",
+      asrBaseUrl: "https://api.senseaudio.cn",
+      asrModel: "senseaudio-asr-pro-1.5-260319"
     };
 
     let fileAiConfig = { ...defaultAiConfig };
@@ -2017,13 +2090,17 @@
           searchProvider: String(config.searchProvider || defaultAiConfig.searchProvider),
           searchApiKey: cleanApiKey(config.searchApiKey || config.TAVILY_API_KEY || config.SEARCH_API_KEY || ""),
           searchBaseUrl: String(config.searchBaseUrl || defaultAiConfig.searchBaseUrl).replace(/\/+$/, ""),
-          searchEnabled: config.searchEnabled !== false
+          searchEnabled: config.searchEnabled !== false,
+          asrApiKey: cleanApiKey(config.asrApiKey || config.SENSEAUDIO_ASR_API_KEY || ""),
+          asrBaseUrl: String(config.asrBaseUrl || config.SENSEAUDIO_ASR_BASE_URL || defaultAiConfig.asrBaseUrl).replace(/\/+$/, ""),
+          asrModel: String(config.asrModel || config.SENSEAUDIO_ASR_MODEL || defaultAiConfig.asrModel)
         };
         if (fileAiConfig.apiKey) {
           localStorage.setItem(aiConfigKeys.apiKey, fileAiConfig.apiKey);
           localStorage.setItem(aiConfigKeys.baseUrl, fileAiConfig.baseUrl);
           localStorage.setItem(aiConfigKeys.model, fileAiConfig.model);
           if (fileAiConfig.searchApiKey) localStorage.setItem(aiConfigKeys.searchApiKey, fileAiConfig.searchApiKey);
+          if (fileAiConfig.asrApiKey) localStorage.setItem(aiConfigKeys.asrApiKey, fileAiConfig.asrApiKey);
         } else {
         }
       } catch (error) {
@@ -2069,6 +2146,126 @@
     function aiEndpoint() {
       const baseUrl = (inputValue(els.baseUrlInput, fileAiConfig.baseUrl || "https://api.senseaudio.cn").trim() || "https://api.senseaudio.cn").replace(/\/+$/, "");
       return `${baseUrl}/v1/chat/completions`;
+    }
+
+    const voiceState = {
+      recorder: null,
+      stream: null,
+      chunks: [],
+      recording: false,
+      loading: false
+    };
+
+    function asrEndpoint() {
+      const baseUrl = String(fileAiConfig.asrBaseUrl || fileAiConfig.baseUrl || "https://api.senseaudio.cn").replace(/\/+$/, "");
+      return `${baseUrl}/v1/audio/transcriptions`;
+    }
+
+    function asrApiKey() {
+      return cleanApiKey(localStorage.getItem(aiConfigKeys.asrApiKey) || fileAiConfig.asrApiKey || fileAiConfig.apiKey || "");
+    }
+
+    function setVoiceButtonState(state) {
+      if (!els.aiVoiceButton) return;
+      els.aiVoiceButton.classList.toggle("is-recording", state === "recording");
+      els.aiVoiceButton.classList.toggle("is-loading", state === "loading");
+      els.aiVoiceButton.disabled = state === "loading";
+      els.aiVoiceButton.textContent = state === "recording" ? "?" : "??";
+      els.aiVoiceButton.title = state === "recording" ? "????" : state === "loading" ? "???" : "????";
+      els.aiVoiceButton.setAttribute("aria-label", els.aiVoiceButton.title);
+    }
+
+    function supportedAudioMimeType() {
+      const types = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus", "audio/ogg"];
+      return types.find((type) => window.MediaRecorder && MediaRecorder.isTypeSupported(type)) || "";
+    }
+
+    async function startVoiceInput() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        appendAiMessage("assistant", "???????????????? Chrome?Edge ? Safari? ");
+        return;
+      }
+      const key = asrApiKey();
+      if (!key) {
+        appendAiMessage("assistant", "??????? ASR API Key???? config.json ?? asrApiKey? ");
+        return;
+      }
+      try {
+        voiceState.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        voiceState.chunks = [];
+        const mimeType = supportedAudioMimeType();
+        voiceState.recorder = new MediaRecorder(voiceState.stream, mimeType ? { mimeType } : undefined);
+        voiceState.recorder.addEventListener("dataavailable", (event) => {
+          if (event.data && event.data.size) voiceState.chunks.push(event.data);
+        });
+        voiceState.recorder.addEventListener("stop", transcribeVoiceInput);
+        voiceState.recording = true;
+        setVoiceButtonState("recording");
+        voiceState.recorder.start();
+      } catch (error) {
+        stopVoiceTracks();
+        appendAiMessage("assistant", `????????${error.message || error}`);
+        setVoiceButtonState("idle");
+      }
+    }
+
+    function stopVoiceTracks() {
+      if (voiceState.stream) voiceState.stream.getTracks().forEach((track) => track.stop());
+      voiceState.stream = null;
+    }
+
+    function stopVoiceInput() {
+      if (voiceState.recorder && voiceState.recording) {
+        voiceState.recording = false;
+        setVoiceButtonState("loading");
+        voiceState.recorder.stop();
+      }
+    }
+
+    async function transcribeVoiceInput() {
+      stopVoiceTracks();
+      const blob = new Blob(voiceState.chunks, { type: voiceState.chunks[0]?.type || "audio/webm" });
+      voiceState.chunks = [];
+      if (!blob.size) {
+        setVoiceButtonState("idle");
+        appendAiMessage("assistant", "????????????? ");
+        return;
+      }
+      try {
+        const form = new FormData();
+        form.append("file", blob, "voice-input.webm");
+        form.append("model", fileAiConfig.asrModel || "senseaudio-asr-pro-1.5-260319");
+        form.append("language", "zh");
+        form.append("response_format", "json");
+        form.append("enable_punctuation", "true");
+        const response = await fetch(asrEndpoint(), {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${asrApiKey()}` },
+          body: form
+        });
+        const text = await response.text();
+        if (!response.ok) throw new Error(text.slice(0, 300) || `ASR ${response.status}`);
+        let resultText = text.trim();
+        try {
+          const data = JSON.parse(text);
+          resultText = data.text || data.transcription || resultText;
+        } catch (_) {}
+        resultText = String(resultText || "").trim();
+        if (!resultText) throw new Error("???????");
+        els.aiInput.value = inputValue(els.aiInput) ? `${inputValue(els.aiInput)} ${resultText}` : resultText;
+        els.aiInput.focus();
+      } catch (error) {
+        appendAiMessage("assistant", `???????${error.message || error}`);
+      } finally {
+        voiceState.recorder = null;
+        voiceState.loading = false;
+        setVoiceButtonState("idle");
+      }
+    }
+
+    function toggleVoiceInput() {
+      if (voiceState.recording) stopVoiceInput();
+      else startVoiceInput();
     }
 
     function aiSystemPrompt() {
@@ -2539,6 +2736,8 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
     });
     if (els.resetBtn) els.resetBtn.addEventListener("click", resetFilters);
     if (els.mobileBackToFilters) els.mobileBackToFilters.addEventListener("click", () => setMobileFilterStage("form"));
+
+    if (els.aiVoiceButton) els.aiVoiceButton.addEventListener("click", toggleVoiceInput);
 
     if (els.aiForm) els.aiForm.addEventListener("submit", (event) => {
       event.preventDefault();

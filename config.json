@@ -5,5 +5,8 @@
   "searchProvider": "tavily",
   "searchApiKey": "",
   "searchBaseUrl": "https://api.tavily.com",
-  "searchEnabled": true
+  "searchEnabled": true,
+  "asrApiKey": "",
+  "asrBaseUrl": "https://api.senseaudio.cn",
+  "asrModel": "senseaudio-asr-pro-1.5-260319"
 }
