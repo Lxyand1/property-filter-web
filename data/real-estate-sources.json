@@ -1,0 +1,105 @@
+{
+  "updatedAt": "2026-06-23T10:45:35",
+  "sources": [
+    {
+      "id": "255e47b5d8bb238f",
+      "category": "purchase_restriction",
+      "title": "?????? ??????",
+      "url": "https://fgj.sh.gov.cn/",
+      "contentHash": "03854d468d080639b6b5718cf48aeef0de62a3bd8718c7128e16ad44ae0a4535",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "4e8f0e21e9e8a387",
+      "category": "purchase_restriction",
+      "title": "?????? ??????",
+      "url": "https://www.shanghai.gov.cn/",
+      "contentHash": "7a8ac3591eb7bf46c443dd7f1bc38c4f1c1cb76997ad96dfbeb1f3247478c8a3",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "9176819db45aadc2",
+      "category": "loan_policy",
+      "title": "???? ??????",
+      "url": "https://www.shanghai.gov.cn/",
+      "contentHash": "687636aa23aefc6e493628d62e247bde9727ce98aa3d6904618927b095f41911",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "b1fe5280e9f8c7b7",
+      "category": "tax_policy",
+      "title": "???? ??????",
+      "url": "https://www.shanghai.gov.cn/",
+      "contentHash": "a659c23a5133b2223a9667134686d67c75fb77ba09ee2d742160bb5d76f42ff2",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "fdaaf442d851150c",
+      "category": "tax_policy",
+      "title": "???? ??????",
+      "url": "https://fgj.sh.gov.cn/",
+      "contentHash": "a2e113ca565c7b2f05566260ed790d6e6dc742d31f7933f75b19370d49884cd7",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "dbf925b215e4bc5c",
+      "category": "market_trend",
+      "title": "??????? ??????",
+      "url": "https://fgj.sh.gov.cn/",
+      "contentHash": "285224fd1e0c36af519e29b7dda67340c2d79c2eee35028bbdeb23885fc54103",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "5cac03cce60c85d6",
+      "category": "market_trend",
+      "title": "??????? ??????",
+      "url": "https://www.shanghai.gov.cn/",
+      "contentHash": "24b30ffebecb6d135073dbf01294e37d835f2afb2976361b541f5b4ebb4a6b67",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "ee7921aa068e6f3d",
+      "category": "land_auction",
+      "title": "??????? ??????",
+      "url": "https://ghzyj.sh.gov.cn/",
+      "contentHash": "aa85b99304a2371737a7a29e6b324dda33be4dbd1836bcca2f5ee61d73d26d5c",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "0f6e38613b2e3021",
+      "category": "third_fourth_generation_housing",
+      "title": "???/????? ??????",
+      "url": "https://ghzyj.sh.gov.cn/",
+      "contentHash": "1641de657b3fd8e4af5fd321cae1512a9d5cbf61e629c5e327bc3bba6673e782",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    },
+    {
+      "id": "8a4e9e5858b1860f",
+      "category": "third_fourth_generation_housing",
+      "title": "???/????? ??????",
+      "url": "https://fgj.sh.gov.cn/",
+      "contentHash": "c3479df9728a9387973fed54d66af0661d8a7ad624c444f3ed3a09b2a09ec8f9",
+      "firstSeenAt": "2026-06-23T10:45:35",
+      "lastSeenAt": "2026-06-23T10:45:35",
+      "status": "seed_source"
+    }
+  ]
+}
