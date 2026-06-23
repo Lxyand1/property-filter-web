@@ -401,6 +401,45 @@
       position: relative;
     }
 
+    .ai-input-wrap.voice-mode .ai-input {
+      display: none;
+    }
+
+    .ai-hold-button {
+      display: none;
+      width: 100%;
+      min-height: 72px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F6F8FC 100%);
+      color: var(--fg);
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    .ai-input-wrap.voice-mode .ai-hold-button {
+      display: flex;
+    }
+
+    .ai-hold-button.is-recording {
+      background: #FEE2E2;
+      border-color: #EF4444;
+      color: #B91C1C;
+      animation: voicePulse 1.2s infinite;
+    }
+
+    .ai-hold-button.is-loading {
+      color: var(--muted);
+      cursor: wait;
+    }
+
     .ai-voice-button {
       position: absolute;
       left: 10px;
@@ -415,8 +454,33 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 16px;
       transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .ai-voice-button::before {
+      content: "";
+      width: 10px;
+      height: 15px;
+      border: 2px solid currentColor;
+      border-radius: 8px;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .ai-voice-button::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 18px;
+      width: 14px;
+      height: 8px;
+      border-bottom: 2px solid currentColor;
+      border-left: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      border-radius: 0 0 10px 10px;
+      transform: translateX(-50%);
+      box-sizing: border-box;
     }
 
     .ai-voice-button:hover {
@@ -424,11 +488,10 @@
       border-color: rgba(47, 111, 235, 0.42);
     }
 
-    .ai-voice-button.is-recording {
-      background: #FEE2E2;
-      border-color: #EF4444;
-      color: #B91C1C;
-      animation: voicePulse 1.2s infinite;
+    .ai-voice-button.is-active {
+      background: #EEF4FF;
+      border-color: rgba(47, 111, 235, 0.55);
+      color: var(--accent);
     }
 
     .ai-voice-button.is-loading {
@@ -1587,6 +1650,21 @@
         z-index: 2;
       }
     }
+
+    @media (max-width: 768px) {
+      html.mobile-view-ai body .ai-input-wrap.voice-mode .ai-hold-button {
+        display: flex !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        border-radius: 999px !important;
+        padding: 0 58px 0 50px !important;
+        box-sizing: border-box !important;
+      }
+
+      html.mobile-view-ai body .ai-input-wrap.voice-mode .ai-voice-button {
+        color: var(--accent) !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1613,9 +1691,10 @@
             </div>
 
             <form class="ai-form" id="aiForm">
-              <div class="ai-input-wrap">
+              <div class="ai-input-wrap" id="aiInputWrap">
                 <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
-                <button class="ai-voice-button" type="button" id="aiVoiceButton" aria-label="&#35821;&#38899;&#36755;&#20837;" title="&#35821;&#38899;&#36755;&#20837;">&#127908;</button>
+                <button class="ai-hold-button" type="button" id="aiHoldButton">&#25353;&#20303;&#35828;&#35805;</button>
+                <button class="ai-voice-button" type="button" id="aiVoiceButton" aria-label="&#35821;&#38899;&#36755;&#20837;" title="&#35821;&#38899;&#36755;&#20837;"></button>
               </div>
               <div class="ai-submit-row">
                 <span class="ai-hint">&#25353; Enter &#21457;&#36865;&#65292;Shift + Enter &#25442;&#34892;</span>
@@ -1906,6 +1985,8 @@
       aiMessages: document.getElementById("aiMessages"),
       aiForm: document.getElementById("aiForm"),
       aiInput: document.getElementById("aiInput"),
+      aiInputWrap: document.getElementById("aiInputWrap"),
+      aiHoldButton: document.getElementById("aiHoldButton"),
       aiClear: document.getElementById("aiClear"),
       aiVoiceButton: document.getElementById("aiVoiceButton")
     };
@@ -2153,7 +2234,8 @@
       stream: null,
       chunks: [],
       recording: false,
-      loading: false
+      loading: false,
+      mode: "text"
     };
 
     function asrEndpoint() {
@@ -2165,14 +2247,28 @@
       return cleanApiKey(localStorage.getItem(aiConfigKeys.asrApiKey) || fileAiConfig.asrApiKey || fileAiConfig.apiKey || "");
     }
 
+    function setVoiceMode(mode) {
+      voiceState.mode = mode;
+      if (els.aiInputWrap) els.aiInputWrap.classList.toggle("voice-mode", mode === "voice");
+      if (els.aiVoiceButton) {
+        els.aiVoiceButton.classList.toggle("is-active", mode === "voice");
+        els.aiVoiceButton.title = mode === "voice" ? "\u5207\u6362\u6587\u5b57\u8f93\u5165" : "\u5207\u6362\u8bed\u97f3\u8f93\u5165";
+        els.aiVoiceButton.setAttribute("aria-label", els.aiVoiceButton.title);
+      }
+      setVoiceButtonState("idle");
+    }
+
     function setVoiceButtonState(state) {
-      if (!els.aiVoiceButton) return;
-      els.aiVoiceButton.classList.toggle("is-recording", state === "recording");
-      els.aiVoiceButton.classList.toggle("is-loading", state === "loading");
-      els.aiVoiceButton.disabled = state === "loading";
-      els.aiVoiceButton.textContent = state === "recording" ? "?" : "??";
-      els.aiVoiceButton.title = state === "recording" ? "????" : state === "loading" ? "???" : "????";
-      els.aiVoiceButton.setAttribute("aria-label", els.aiVoiceButton.title);
+      if (els.aiVoiceButton) {
+        els.aiVoiceButton.classList.toggle("is-loading", state === "loading");
+        els.aiVoiceButton.disabled = state === "loading";
+      }
+      if (els.aiHoldButton) {
+        els.aiHoldButton.classList.toggle("is-recording", state === "recording");
+        els.aiHoldButton.classList.toggle("is-loading", state === "loading");
+        els.aiHoldButton.disabled = state === "loading";
+        els.aiHoldButton.textContent = state === "recording" ? "\u677e\u5f00\u53d1\u9001" : state === "loading" ? "\u8bc6\u522b\u4e2d..." : "\u6309\u4f4f\u8bf4\u8bdd";
+      }
     }
 
     function supportedAudioMimeType() {
@@ -2180,14 +2276,16 @@
       return types.find((type) => window.MediaRecorder && MediaRecorder.isTypeSupported(type)) || "";
     }
 
-    async function startVoiceInput() {
+    async function startVoiceInput(event) {
+      if (event) event.preventDefault();
+      if (voiceState.recording || voiceState.loading) return;
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
-        appendAiMessage("assistant", "???????????????? Chrome?Edge ? Safari? ");
+        appendAiMessage("assistant", "\u5f53\u524d\u6d4f\u89c8\u5668\u4e0d\u652f\u6301\u5f55\u97f3\uff0c\u8bf7\u6362\u7528\u65b0\u7248 Chrome\u3001Edge \u6216 Safari\u3002");
         return;
       }
       const key = asrApiKey();
       if (!key) {
-        appendAiMessage("assistant", "??????? ASR API Key???? config.json ?? asrApiKey? ");
+        appendAiMessage("assistant", "\u8bed\u97f3\u8f93\u5165\u672a\u914d\u7f6e ASR API Key\uff0c\u8bf7\u5148\u68c0\u67e5 config.json \u7684 asrApiKey\u3002");
         return;
       }
       try {
@@ -2204,7 +2302,7 @@
         voiceState.recorder.start();
       } catch (error) {
         stopVoiceTracks();
-        appendAiMessage("assistant", `????????${error.message || error}`);
+        appendAiMessage("assistant", `\u65e0\u6cd5\u5f00\u542f\u9ea6\u514b\u98ce\uff1a${error.message || error}`);
         setVoiceButtonState("idle");
       }
     }
@@ -2214,7 +2312,8 @@
       voiceState.stream = null;
     }
 
-    function stopVoiceInput() {
+    function stopVoiceInput(event) {
+      if (event) event.preventDefault();
       if (voiceState.recorder && voiceState.recording) {
         voiceState.recording = false;
         setVoiceButtonState("loading");
@@ -2228,7 +2327,7 @@
       voiceState.chunks = [];
       if (!blob.size) {
         setVoiceButtonState("idle");
-        appendAiMessage("assistant", "????????????? ");
+        appendAiMessage("assistant", "\u6ca1\u6709\u5f55\u5230\u58f0\u97f3\uff0c\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002");
         return;
       }
       try {
@@ -2251,11 +2350,12 @@
           resultText = data.text || data.transcription || resultText;
         } catch (_) {}
         resultText = String(resultText || "").trim();
-        if (!resultText) throw new Error("???????");
+        if (!resultText) throw new Error("\u6ca1\u6709\u8bc6\u522b\u5230\u6587\u5b57");
         els.aiInput.value = inputValue(els.aiInput) ? `${inputValue(els.aiInput)} ${resultText}` : resultText;
+        setVoiceMode("text");
         els.aiInput.focus();
       } catch (error) {
-        appendAiMessage("assistant", `???????${error.message || error}`);
+        appendAiMessage("assistant", `\u8bed\u97f3\u8bc6\u522b\u5931\u8d25\uff1a${error.message || error}`);
       } finally {
         voiceState.recorder = null;
         voiceState.loading = false;
@@ -2263,9 +2363,10 @@
       }
     }
 
-    function toggleVoiceInput() {
+    function toggleVoiceMode() {
+      if (voiceState.loading) return;
       if (voiceState.recording) stopVoiceInput();
-      else startVoiceInput();
+      setVoiceMode(voiceState.mode === "voice" ? "text" : "voice");
     }
 
     function aiSystemPrompt() {
@@ -2737,7 +2838,15 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
     if (els.resetBtn) els.resetBtn.addEventListener("click", resetFilters);
     if (els.mobileBackToFilters) els.mobileBackToFilters.addEventListener("click", () => setMobileFilterStage("form"));
 
-    if (els.aiVoiceButton) els.aiVoiceButton.addEventListener("click", toggleVoiceInput);
+    if (els.aiVoiceButton) els.aiVoiceButton.addEventListener("click", toggleVoiceMode);
+    if (els.aiHoldButton) {
+      els.aiHoldButton.addEventListener("pointerdown", startVoiceInput);
+      els.aiHoldButton.addEventListener("pointerup", stopVoiceInput);
+      els.aiHoldButton.addEventListener("pointercancel", stopVoiceInput);
+      els.aiHoldButton.addEventListener("pointerleave", (event) => {
+        if (voiceState.recording) stopVoiceInput(event);
+      });
+    }
 
     if (els.aiForm) els.aiForm.addEventListener("submit", (event) => {
       event.preventDefault();
