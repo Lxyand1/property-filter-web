@@ -1984,13 +1984,18 @@
     const aiConfigKeys = {
       apiKey: "propertyFilter.senseaudio.apiKey",
       baseUrl: "propertyFilter.senseaudio.baseUrl",
-      model: "propertyFilter.senseaudio.model"
+      model: "propertyFilter.senseaudio.model",
+      searchApiKey: "propertyFilter.search.apiKey"
     };
 
     const defaultAiConfig = {
       apiKey: "",
       baseUrl: "https://api.senseaudio.cn",
-      model: "senseaudio-s2"
+      model: "senseaudio-s2",
+      searchProvider: "tavily",
+      searchApiKey: "",
+      searchBaseUrl: "https://api.tavily.com",
+      searchEnabled: true
     };
 
     let fileAiConfig = { ...defaultAiConfig };
@@ -2005,12 +2010,17 @@
         fileAiConfig = {
           apiKey: cleanApiKey(config.apiKey || config.SENSEAUDIO_API_KEY || ""),
           baseUrl: String(config.baseUrl || config.SENSEAUDIO_BASE_URL || defaultAiConfig.baseUrl).replace(/\/+$/, ""),
-          model: String(config.model || config.SENSEAUDIO_MODEL || defaultAiConfig.model)
+          model: String(config.model || config.SENSEAUDIO_MODEL || defaultAiConfig.model),
+          searchProvider: String(config.searchProvider || defaultAiConfig.searchProvider),
+          searchApiKey: cleanApiKey(config.searchApiKey || config.TAVILY_API_KEY || config.SEARCH_API_KEY || ""),
+          searchBaseUrl: String(config.searchBaseUrl || defaultAiConfig.searchBaseUrl).replace(/\/+$/, ""),
+          searchEnabled: config.searchEnabled !== false
         };
         if (fileAiConfig.apiKey) {
           localStorage.setItem(aiConfigKeys.apiKey, fileAiConfig.apiKey);
           localStorage.setItem(aiConfigKeys.baseUrl, fileAiConfig.baseUrl);
           localStorage.setItem(aiConfigKeys.model, fileAiConfig.model);
+          if (fileAiConfig.searchApiKey) localStorage.setItem(aiConfigKeys.searchApiKey, fileAiConfig.searchApiKey);
         } else {
         }
       } catch (error) {
@@ -2122,10 +2132,53 @@
       }
     }
 
+    function shouldSearchRealEstate(query) {
+      const text = String(query || "");
+      return /\u9650\u8d2d|\u653f\u7b56|\u8d37\u6b3e|\u623f\u8d37|\u5229\u7387|\u9996\u4ed8|\u7a0e\u8d39|\u5951\u7a0e|\u589e\u503c\u7a0e|\u4e2a\u7a0e|\u7ecf\u6d4e|\u8d70\u52bf|\u623f\u4ef7|\u571f\u62cd|\u571f\u5730|\u5b66\u533a|\u5bf9\u53e3|\u505c\u8f66|\u8f66\u4f4d|\u7b2c\u4e09\u4ee3|\u7b2c\u56db\u4ee3|\u597d\u4e0d\u597d|\u600e\u4e48\u770b|\u4e70\u623f|\u4e0a\u6d77\u623f\u5730\u4ea7/.test(text);
+    }
+
+    function searchApiKey() {
+      return cleanApiKey(localStorage.getItem(aiConfigKeys.searchApiKey) || fileAiConfig.searchApiKey || "");
+    }
+
+    async function searchRealEstateWeb(query) {
+      if (!fileAiConfig.searchEnabled) return [];
+      const provider = String(fileAiConfig.searchProvider || "tavily").toLowerCase();
+      const apiKey = searchApiKey();
+      if (!apiKey || provider !== "tavily") return [];
+      const baseUrl = String(fileAiConfig.searchBaseUrl || "https://api.tavily.com").replace(/\/+$/, "");
+      const response = await fetch(`${baseUrl}/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: apiKey,
+          query: `${query} 上海 房地产 政策 2026`,
+          search_depth: "advanced",
+          include_answer: false,
+          max_results: 5
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `搜索请求失败：${response.status}`);
+      return (data.results || []).slice(0, 5).map((item) => ({
+        title: item.title || "",
+        url: item.url || "",
+        content: item.content || item.snippet || ""
+      }));
+    }
+
     async function getAiMatch(query) {
+      let webResults = [];
+      if (shouldSearchRealEstate(query)) {
+        try {
+          webResults = await searchRealEstateWeb(query);
+        } catch (error) {
+          webResults = [{ title: "搜索暂不可用", url: "", content: error.message || "搜索接口请求失败" }];
+        }
+      }
       const data = await requestSenseAudio([
         { role: "system", content: aiSystemPrompt() },
-        { role: "user", content: JSON.stringify({ query, listings }) }
+        { role: "user", content: JSON.stringify({ query, listings, webResults }) }
       ]);
       const content = data.choices?.[0]?.message?.content || data.content || "";
       return parseAiJson(content);
@@ -2151,6 +2204,9 @@
     }
 
     function shouldShowAiListings(query, aiResult) {
+      const intent = String((aiResult && aiResult.intent) || "").toLowerCase();
+      if (intent === "property_question" || intent === "chat") return false;
+      if (intent === "listing_search" || intent === "mixed") return true;
       const text = String(query || "").trim();
       const metaQuestion = /\u600e\u4e48|\u600e\u6837|\u5982\u4f55|\u4ec0\u4e48\u65f6\u5019|\u4e3a\u4ec0\u4e48|\u80fd\u4e0d\u80fd|\u53ef\u4e0d\u53ef\u4ee5|\u600e\u4e48\u624d\u80fd|\u63d0\u4f9b\u623f\u6e90\u5361\u7247|\u623f\u6e90\u5361\u7247|\u4f7f\u7528|\u529f\u80fd|\u5e2e\u52a9|\u6559\u6211/.test(text);
       const explicitSearch = /\u6211\u60f3|\u60f3\u770b|\u5e2e\u6211|\u7ed9\u6211|\u627e|\u63a8\u8350|\u770b\u770b|\u8981|\u9700\u8981|\u6709\u6ca1\u6709|\u7b5b\u9009|\u5339\u914d/.test(text);
