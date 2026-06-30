@@ -1812,14 +1812,13 @@
     }
 
     function listingRecommendationReason(item) {
-      const points = [];
-      if (item.rating) points.push(`${item.rating}\u8bc4\u7ea7`);
-      if (item.school) points.push(`\u5b66\u533a\uff1a${item.school}`);
-      if (item.parking && item.parking !== "\u65e0") points.push(item.parking);
-      if (/\u7cbe\u88c5|\u8c6a\u88c5/.test(item.decoration || "")) points.push(item.decoration);
-      if (item.highlights) points.push(item.highlights);
-      const reason = points.slice(0, 3).join("\uff0c");
-      return reason ? `\u63a8\u8350\u7406\u7531\uff1a${reason}\uff0c\u9002\u5408\u91cd\u70b9\u5173\u6ce8\u54c1\u8d28\u548c\u914d\u5957\u7684\u5ba2\u6237\u3002` : "\u63a8\u8350\u7406\u7531\uff1a\u603b\u4ef7\u3001\u6237\u578b\u548c\u57fa\u7840\u6761\u4ef6\u5339\u914d\u5f53\u524d\u9700\u6c42\uff0c\u53ef\u4f5c\u4e3a\u4f18\u5148\u5bf9\u6bd4\u623f\u6e90\u3002";
+      const highlight = String(item.highlights || "").trim();
+      if (!highlight) return "\u7b80\u77ed\u4ecb\u7ecd\uff1a\u8fd9\u5957\u623f\u6e90\u57fa\u7840\u6761\u4ef6\u5339\u914d\u5f53\u524d\u9700\u6c42\uff0c\u5efa\u8bae\u4f5c\u4e3a\u5907\u9009\u623f\u6e90\u5b9e\u5730\u5bf9\u6bd4\u3002";
+      const normalized = highlight.replace(/[\uff0c,\u3001\uff1b;]+/g, "\uff0c").replace(/\s+/g, "").replace(/\uff0c+/g, "\uff0c").replace(/^\uff0c|\uff0c$/g, "");
+      if (/\u6700\u4f4e\u603b\u4ef7|\u6027\u4ef7\u6bd4|\u7b0b/.test(normalized)) return `\u7b80\u77ed\u4ecb\u7ecd\uff1a${normalized}\uff0c\u9002\u5408\u9884\u7b97\u654f\u611f\u3001\u60f3\u5728\u540c\u677f\u5757\u91cc\u4f18\u5148\u63a7\u5236\u603b\u4ef7\u7684\u5ba2\u6237\u3002`;
+      if (/\u697c\u738b|\u6b21\u9876\u697c|\u5b89\u9759|\u4f4d\u7f6e/.test(normalized)) return `\u7b80\u77ed\u4ecb\u7ecd\uff1a${normalized}\uff0c\u5c45\u4f4f\u9762\u548c\u540e\u671f\u8f6c\u624b\u8fa8\u8bc6\u5ea6\u90fd\u6bd4\u8f83\u6e05\u6670\u3002`;
+      if (/\u54c1\u8d28|\u6b21\u65b0|\u5927\u5e73\u5c42|\u4eba\u8f66\u5206\u79bb|\u6237\u578b/.test(normalized)) return `\u7b80\u77ed\u4ecb\u7ecd\uff1a${normalized}\uff0c\u66f4\u9002\u5408\u91cd\u89c6\u5c45\u4f4f\u4f53\u9a8c\u548c\u5c0f\u533a\u54c1\u8d28\u7684\u6539\u5584\u5ba2\u6237\u3002`;
+      return `\u7b80\u77ed\u4ecb\u7ecd\uff1a${normalized}\uff0c\u8fd9\u662f\u8fd9\u5957\u623f\u6e90\u6700\u503c\u5f97\u5148\u770b\u7684\u5356\u70b9\u3002`;
     }
 
     function createFact(label, value) {
@@ -1886,13 +1885,6 @@
             tagNode.textContent = tag;
             tags.appendChild(tagNode);
           });
-          if (item.highlights) {
-            const tagNode = document.createElement("span");
-            tagNode.className = "ai-listing-tag";
-            tagNode.textContent = item.highlights;
-            tags.appendChild(tagNode);
-          }
-
           const button = document.createElement("a");
           button.className = "ai-video-button video-direct-link";
           button.href = item.videoLink;
