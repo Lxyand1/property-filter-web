@@ -1560,11 +1560,11 @@
             </div>
 
             <div class="ai-messages" id="aiMessages" aria-live="polite">
-              <div class="ai-message assistant">&#24744;&#22909;&#65292;&#25105;&#26159;&#23567;&#37041;AI&#21161;&#25163;&#12290;&#35831;&#30452;&#25509;&#36755;&#20837;&#24744;&#24819;&#35201;&#30340;&#25151;&#28304;&#26465;&#20214;&#65292;&#20363;&#22914;&#65306;&#21335;&#21521;&#20004;&#25151;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#38468;&#36817;&#12290;</div>
+              <div class="ai-message assistant">&#24744;&#22909;&#65292;&#25105;&#26159;&#23567;&#37041;AI&#21161;&#25163;&#12290;&#35831;&#30452;&#25509;&#36755;&#20837;&#24744;&#24819;&#35201;&#30340;&#25151;&#28304;&#26465;&#20214;&#65292;&#20363;&#22914;&#65306;1000&#19975;&#20197;&#20869;&#12289;&#24102;&#36710;&#20301;&#12289;&#31934;&#35013;&#12289;&#23454;&#39564;&#35199;&#26657;&#23398;&#21306;&#12290;</div>
             </div>
 
             <form class="ai-form" id="aiForm">
-              <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;&#21335;&#21521;&#12289;&#20004;&#25151;&#20004;&#21381;&#12289;&#31934;&#35013;&#12289;&#23398;&#26657;&#21644;&#21307;&#38498;&#38468;&#36817;&#30340;&#25151;&#28304;"></textarea>
+              <textarea class="ai-input" id="aiInput" placeholder="&#20363;&#22914;&#65306;&#25105;&#24819;&#30475;1000&#19975;&#20197;&#20869;&#12289;3&#25151;&#12289;&#24102;&#36710;&#20301;&#12289;&#31934;&#35013;&#12289;&#23454;&#39564;&#35199;&#26657;&#23398;&#21306;&#30340;&#25151;&#28304;"></textarea>
               <div class="ai-submit-row">
                 <span class="ai-hint">&#25353; Enter &#21457;&#36865;&#65292;Shift + Enter &#25442;&#34892;</span>
                 <button class="button" type="button" id="aiClear">&#28165;&#31354;&#23545;&#35805;</button>
@@ -1578,12 +1578,12 @@
               <div class="avatar">&#37041;</div>
               <div>
                 <h2>&#25151;&#28304;&#27010;&#35272;</h2>
-                <p>&#24403;&#21069;&#25972;&#29702;&#20102; 5 &#22871;&#21487;&#37325;&#28857;&#20102;&#35299;&#30340;&#25151;&#28304;&#12290;</p>
+                <p>&#24403;&#21069;&#24050;&#25509;&#20837;&#27491;&#24335;&#25151;&#28304;&#24211;&#65292;&#25903;&#25345;&#25353;&#39044;&#31639;&#12289;&#23398;&#21306;&#12289;&#36710;&#20301;&#21644;&#26143;&#35780;&#32423;&#31579;&#36873;&#12290;</p>
               </div>
             </div>
             <div class="summary-grid">
-              <div class="metric"><strong id="totalCount">5</strong><span>&#31934;&#36873;&#25151;&#28304;</span></div>
-              <div class="metric"><strong id="matchCount">5</strong><span>&#31526;&#21512;&#26465;&#20214;</span></div>
+              <div class="metric"><strong id="totalCount">?</strong><span>&#31934;&#36873;&#25151;&#28304;</span></div>
+              <div class="metric"><strong id="matchCount">?</strong><span>&#31526;&#21512;&#26465;&#20214;</span></div>
               <div class="metric"><strong id="avgArea">&#8212;</strong><span>&#24179;&#22343;&#38754;&#31215;</span></div>
               <div class="metric"><strong id="mainFit">&#8212;</strong><span>&#24120;&#35265;&#25143;&#22411;</span></div>
             </div>
@@ -1595,11 +1595,13 @@
                 <label for="community">&#23567;&#21306;&#20559;&#22909;</label>
                 <select class="select" id="community">
                   <option value="">&#19981;&#22266;&#23450;</option>
-                  <option value="&#19975;&#28304;&#22478;&#24481;&#29828;">&#19975;&#28304;&#22478;&#24481;&#29828;</option>
-                  <option value="&#26032;&#26102;&#20195;&#26223;&#24237;">&#26032;&#26102;&#20195;&#26223;&#24237;</option>
-                  <option value="&#19978;&#28023;&#33457;&#22253;&#27915;&#25151;">&#19978;&#28023;&#33457;&#22253;&#27915;&#25151;</option>
-                  <option value="&#38451;&#20809;&#32654;&#26223;&#22478;">&#38451;&#20809;&#32654;&#26223;&#22478;</option>
-                  <option value="&#19975;&#28304;&#22478;&#26391;&#37089;">&#19975;&#28304;&#22478;&#26391;&#37089;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="priceRange">&#25253;&#20215;&#21306;&#38388;</label>
+                <select class="select" id="priceRange">
+                  <option value="">&#20840;&#37096;</option>
                 </select>
               </div>
 
@@ -1607,18 +1609,6 @@
                 <label for="rooms">&#25151;&#38388;&#25968;</label>
                 <select class="select" id="rooms">
                   <option value="">&#19981;&#38480;</option>
-                  <option value="2">2 &#25151;</option>
-                  <option value="3">3 &#25151;</option>
-                  <option value="4">4 &#25151;</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label for="halls">&#23458;&#21381;&#25968;</label>
-                <select class="select" id="halls">
-                  <option value="">&#19981;&#38480;</option>
-                  <option value="1">1 &#21381;</option>
-                  <option value="2">2 &#21381;</option>
                 </select>
               </div>
 
@@ -1626,9 +1616,6 @@
                 <label for="bathrooms">&#21355;&#29983;&#38388;</label>
                 <select class="select" id="bathrooms">
                   <option value="">&#19981;&#38480;</option>
-                  <option value="1">1 &#21355;</option>
-                  <option value="2">2 &#21355;</option>
-                  <option value="3">3 &#21355;</option>
                 </select>
               </div>
 
@@ -1636,27 +1623,13 @@
                 <label for="areaRange">&#38754;&#31215;&#33539;&#22260;</label>
                 <select class="select" id="areaRange">
                   <option value="">&#20840;&#37096;</option>
-                  <option value="100-200&#24179;">100-200&#24179;</option>
-                  <option value="200-300&#24179;">200-300&#24179;</option>
                 </select>
               </div>
 
               <div class="field">
-                <label for="floor">&#27004;&#23618;&#20559;&#22909;</label>
+                <label for="floor">&#27004;&#23618;/&#31867;&#22411;</label>
                 <select class="select" id="floor">
                   <option value="">&#20840;&#37096;</option>
-                  <option value="&#39640;&#23618;">&#39640;&#23618;</option>
-                  <option value="&#20013;&#23618;">&#20013;&#23618;</option>
-                  <option value="&#20302;&#23618;">&#20302;&#23618;</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label for="direction">&#26397;&#21521;</label>
-                <select class="select" id="direction">
-                  <option value="">&#20840;&#37096;</option>
-                  <option value="&#21335;">&#21335;</option>
-                  <option value="&#21271;">&#21271;</option>
                 </select>
               </div>
 
@@ -1664,30 +1637,47 @@
                 <label for="decoration">&#35013;&#20462;&#24773;&#20917;</label>
                 <select class="select" id="decoration">
                   <option value="">&#20840;&#37096;</option>
-                  <option value="&#31934;&#35013;">&#31934;&#35013;</option>
-                  <option value="&#31616;&#35013;">&#31616;&#35013;</option>
                 </select>
               </div>
 
               <div class="field">
-                <label for="yearRange">&#24314;&#25104;&#24180;&#20195;</label>
+                <label for="yearRange">&#24314;&#31569;&#24180;&#20195;</label>
                 <select class="select" id="yearRange">
                   <option value="">&#20840;&#37096;</option>
-                  <option value="2005-2010">2005-2010</option>
-                  <option value="2010-2015">2010-2015</option>
-                  <option value="2015-2020">2015-2020</option>
-                  <option value="2020-2025">2020-2025</option>
                 </select>
               </div>
 
-              <div class="surroundings" aria-label="&#21608;&#36793;&#37197;&#22871;">
-                <label>&#24076;&#26395;&#21608;&#36793;&#26377;</label>
-                <span class="chip"><input type="checkbox" name="surrounding" value="&#23398;&#26657;">&#23398;&#26657;</span>
-                <span class="chip"><input type="checkbox" name="surrounding" value="&#21307;&#38498;">&#21307;&#38498;</span>
-                <span class="chip"><input type="checkbox" name="surrounding" value="&#20844;&#22253;">&#20844;&#22253;</span>
+              <div class="field">
+                <label for="school">&#23398;&#21306;</label>
+                <select class="select" id="school">
+                  <option value="">&#19981;&#38480;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="parking">&#36710;&#20301;</label>
+                <select class="select" id="parking">
+                  <option value="">&#19981;&#38480;</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="rating">&#26143;&#35780;&#32423;</label>
+                <select class="select" id="rating">
+                  <option value="">&#19981;&#38480;</option>
+                  <option value="4">4&#26143;&#21450;&#20197;&#19978;</option>
+                  <option value="3">3&#26143;&#21450;&#20197;&#19978;</option>
+                </select>
+              </div>
+
+              <div class="surroundings" aria-label="&#25151;&#28304;&#29305;&#28857;">
+                <label>&#24076;&#26395;&#21253;&#21547;</label>
+                <span class="chip"><input type="checkbox" name="surrounding" value="&#23398;&#21306;">&#23398;&#21306;</span>
+                <span class="chip"><input type="checkbox" name="surrounding" value="&#36710;&#20301;">&#36710;&#20301;</span>
+                <span class="chip"><input type="checkbox" name="surrounding" value="&#31934;&#35013;">&#31934;&#35013;</span>
+                <span class="chip"><input type="checkbox" name="surrounding" value="&#35946;&#35013;">&#35946;&#35013;</span>
               </div>
             </div>
-
             <div class="actions">
               <button class="button" type="button" id="resetBtn">&#37325;&#26032;&#36873;&#25321;</button>
               <button class="button primary" type="button" id="filterBtn">&#26597;&#30475;&#21305;&#37197;&#25151;&#28304;</button>
@@ -1699,7 +1689,7 @@
           <div class="result-head">
             <div>
               <h2 id="result-title">&#20026;&#24744;&#21305;&#37197;&#21040;&#30340;&#25151;&#28304;</h2>
-              <div class="result-count" id="resultText">&#24403;&#21069;&#20849;&#26377; 5 &#22871;&#25151;&#28304;&#21487;&#26597;&#30475;</div>
+              <div class="result-count" id="resultText">&#25151;&#28304;&#25968;&#25454;&#21152;&#36733;&#20013;</div>
             </div>
             <button class="button mobile-back-filter" type="button" id="mobileBackToFilters">&#36820;&#22238;&#31579;&#36873;</button>
           </div>
@@ -1737,86 +1727,10 @@
   <div class="toast" id="toast">已复制视频链接</div>
 
   <script>
-    const listings = [
-      {
-        community: "万源城御璄",
-        rooms: 4,
-        halls: 2,
-        bathrooms: 3,
-        area: 264.5,
-        areaRange: "200-300平",
-        floor: "中层",
-        direction: "南",
-        decoration: "精装",
-        year: 2015,
-        yearRange: "2015-2020",
-        surroundings: ["学校", "医院", "公园"],
-        videoLink: "https://weixin.qq.com/sph/ACzRZzpZZl"
-      },
-      {
-        community: "新时代景庭",
-        rooms: 2,
-        halls: 2,
-        bathrooms: 1,
-        area: 102.8,
-        areaRange: "100-200平",
-        floor: "高层",
-        direction: "北",
-        decoration: "精装",
-        year: 2022,
-        yearRange: "2020-2025",
-        surroundings: ["学校", "医院"],
-        videoLink: "https://weixin.qq.com/sph/AM7MES4S4o"
-      },
-      {
-        community: "上海花园洋房",
-        rooms: 3,
-        halls: 2,
-        bathrooms: 3,
-        area: 153.9,
-        areaRange: "100-200平",
-        floor: "低层",
-        direction: "南",
-        decoration: "精装",
-        year: 2010,
-        yearRange: "2010-2015",
-        surroundings: ["学校", "医院", "公园"],
-        videoLink: "https://weixin.qq.com/sph/AeoKXzL8yU"
-      },
-      {
-        community: "阳光美景城",
-        rooms: 2,
-        halls: 2,
-        bathrooms: 1,
-        area: 103.92,
-        areaRange: "100-200平",
-        floor: "中层",
-        direction: "北",
-        decoration: "简装",
-        year: 2018,
-        yearRange: "2015-2020",
-        surroundings: ["学校"],
-        videoLink: "https://weixin.qq.com/sph/A75eNeMo0d"
-      },
-      {
-        community: "万源城朗郡",
-        rooms: 2,
-        halls: 2,
-        bathrooms: 2,
-        area: 122.3,
-        areaRange: "100-200平",
-        floor: "低层",
-        direction: "南",
-        decoration: "精装",
-        year: 2008,
-        yearRange: "2005-2010",
-        surroundings: ["医院", "公园"],
-        videoLink: "https://weixin.qq.com/sph/A0OP6ZQTvh"
-      }
-    ];
+    let listings = [];
 
     const state = {
-      filtered: [...listings],
+      filtered: [],
       activeVideo: "",
       realEstateKnowledge: null
     };
@@ -1828,9 +1742,12 @@
       bathrooms: document.getElementById("bathrooms"),
       areaRange: document.getElementById("areaRange"),
       floor: document.getElementById("floor"),
-      direction: document.getElementById("direction"),
       decoration: document.getElementById("decoration"),
       yearRange: document.getElementById("yearRange"),
+      priceRange: document.getElementById("priceRange"),
+      school: document.getElementById("school"),
+      parking: document.getElementById("parking"),
+      rating: document.getElementById("rating"),
       surroundingChecks: Array.from(document.querySelectorAll("input[name='surrounding']")),
       filterBtn: document.getElementById("filterBtn"),
       resetBtn: document.getElementById("resetBtn"),
@@ -1916,33 +1833,41 @@
           head.className = "ai-listing-title";
           const name = document.createElement("div");
           name.className = "ai-listing-name";
-          name.textContent = item.community;
+          name.textContent = `${item.community} ${item.rating || ""}`.trim();
           const area = document.createElement("div");
           area.className = "ai-listing-area";
-          area.textContent = `${item.area}\u33a1`;
+          area.textContent = item.quotedPriceText || item.areaText || "";
           head.append(name, area);
 
           const subtitle = document.createElement("div");
           subtitle.className = "ai-listing-subtitle";
-          subtitle.textContent = `${listingSummary(item)} / ${item.year}\u5e74\u5efa\u6210`;
+          subtitle.textContent = `${listingSummary(item)} / ${item.areaText || ""} / ${item.yearText || ""}`;
 
           const facts = document.createElement("div");
           facts.className = "ai-listing-facts";
           facts.append(
-            createFact("\u697c\u5c42", item.floor),
-            createFact("\u671d\u5411", `${item.direction}\u5411`),
-            createFact("\u88c5\u4fee", item.decoration),
-            createFact("\u623f\u578b", listingSummary(item))
+            createFact("\u62a5\u4ef7", item.quotedPriceText || "\u2014"),
+            createFact("\u5e95\u4ef7", item.bottomPriceText || "\u2014"),
+            createFact("\u5b66\u533a", item.school || "\u2014"),
+            createFact("\u8f66\u4f4d", item.parking || "\u2014"),
+            createFact("\u88c5\u4fee", item.decoration || "\u2014"),
+            createFact("\u661f\u7ea7", item.rating || "\u2014")
           );
 
           const tags = document.createElement("div");
           tags.className = "ai-listing-tags";
-          item.surroundings.forEach((tag) => {
+          (item.surroundings || []).forEach((tag) => {
             const tagNode = document.createElement("span");
             tagNode.className = "ai-listing-tag";
             tagNode.textContent = tag;
             tags.appendChild(tagNode);
           });
+          if (item.highlights) {
+            const tagNode = document.createElement("span");
+            tagNode.className = "ai-listing-tag";
+            tagNode.textContent = item.highlights;
+            tags.appendChild(tagNode);
+          }
 
           const button = document.createElement("a");
           button.className = "ai-video-button video-direct-link";
@@ -1971,13 +1896,15 @@
       return {
         community: safe.community || "",
         rooms: safe.rooms ? String(safe.rooms) : "",
-        halls: safe.halls ? String(safe.halls) : "",
         bathrooms: safe.bathrooms ? String(safe.bathrooms) : "",
         areaRange: safe.areaRange || "",
+        priceRange: safe.priceRange || "",
         floor: safe.floor || "",
-        direction: safe.direction || "",
         decoration: safe.decoration || "",
         yearRange: safe.yearRange || "",
+        school: safe.school || "",
+        parking: safe.parking || "",
+        rating: safe.rating ? String(safe.rating) : "",
         surroundings: Array.isArray(safe.surroundings) ? safe.surroundings : []
       };
     }
@@ -1986,13 +1913,15 @@
       const normalized = normalizeFilters(filters);
       setSelectValue(els.community, normalized.community);
       setSelectValue(els.rooms, normalized.rooms);
-      setSelectValue(els.halls, normalized.halls);
       setSelectValue(els.bathrooms, normalized.bathrooms);
       setSelectValue(els.areaRange, normalized.areaRange);
+      setSelectValue(els.priceRange, normalized.priceRange);
       setSelectValue(els.floor, normalized.floor);
-      setSelectValue(els.direction, normalized.direction);
       setSelectValue(els.decoration, normalized.decoration);
       setSelectValue(els.yearRange, normalized.yearRange);
+      setSelectValue(els.school, normalized.school);
+      setSelectValue(els.parking, normalized.parking);
+      setSelectValue(els.rating, normalized.rating);
       els.surroundingChecks.forEach((input) => {
         input.checked = normalized.surroundings.includes(input.value);
       });
@@ -2091,7 +2020,7 @@
       return [
         "\u4f60\u662f\u5c0f\u90b1AI\u52a9\u624b\uff0c\u540c\u65f6\u5177\u5907\u4e24\u4e2a\u80fd\u529b\uff1a1. \u6839\u636e\u5ba2\u6237\u81ea\u7136\u8bed\u8a00\u9700\u6c42\u7b5b\u9009\u623f\u6e90\uff1b2. \u56de\u7b54\u4e0a\u6d77\u623f\u5730\u4ea7\u653f\u7b56\u3001\u8d37\u6b3e\u3001\u7a0e\u8d39\u3001\u5e02\u573a\u8d70\u52bf\u3001\u571f\u62cd\u548c\u4f4f\u5b85\u4ea7\u54c1\u95ee\u9898\u3002",
         "\u53ea\u80fd\u8fd4\u56de\u4e25\u683c JSON\uff0c\u4e0d\u8981\u4f7f\u7528 Markdown\uff0c\u4e0d\u8981\u5728 JSON \u5916\u6dfb\u52a0\u4efb\u4f55\u6587\u5b57\u3002",
-        "JSON \u683c\u5f0f\uff1a{\\\"intent\\\":\\\"listing_search|property_question|mixed|chat\\\",\\\"intents\\\":[\\\"property_question\\\",\\\"listing_search\\\"],\\\"filters\\\":{\\\"community\\\":\\\"\\\",\\\"rooms\\\":\\\"\\\",\\\"halls\\\":\\\"\\\",\\\"bathrooms\\\":\\\"\\\",\\\"areaRange\\\":\\\"\\\",\\\"floor\\\":\\\"\\\",\\\"direction\\\":\\\"\\\",\\\"decoration\\\":\\\"\\\",\\\"yearRange\\\":\\\"\\\",\\\"surroundings\\\":[]},\\\"reply\\\":\\\"\u7ed9\u5ba2\u6237\u770b\u7684\u4e2d\u6587\u56de\u590d\\\",\\\"policyReply\\\":\\\"\u653f\u7b56\u6216\u77e5\u8bc6\u95ee\u7b54\\\",\\\"listingReply\\\":\\\"\u623f\u6e90\u63a8\u8350\u5f15\u5bfc\u8bed\\\"}",
+        "JSON \u683c\u5f0f\uff1a{\\\"intent\\\":\\\"listing_search|property_question|mixed|chat\\\",\\\"intents\\\":[\\\"property_question\\\",\\\"listing_search\\\"],\\\"filters\\\":{\\\"community\\\":\\\"\\\",\\\"rooms\\\":\\\"\\\",\\\"bathrooms\\\":\\\"\\\",\\\"areaRange\\\":\\\"\\\",\\\"priceRange\\\":\\\"\\\",\\\"floor\\\":\\\"\\\",\\\"decoration\\\":\\\"\\\",\\\"yearRange\\\":\\\"\\\",\\\"school\\\":\\\"\\\",\\\"parking\\\":\\\"\\\",\\\"rating\\\":\\\"\\\",\\\"surroundings\\\":[]},\\\"reply\\\":\\\"\u7ed9\u5ba2\u6237\u770b\u7684\u4e2d\u6587\u56de\u590d\\\",\\\"policyReply\\\":\\\"\u653f\u7b56\u6216\u77e5\u8bc6\u95ee\u7b54\\\",\\\"listingReply\\\":\\\"\u623f\u6e90\u63a8\u8350\u5f15\u5bfc\u8bed\\\"}",
         "\u5982\u679c\u7528\u6237\u4e00\u53e5\u8bdd\u540c\u65f6\u95ee\u653f\u7b56\u548c\u627e\u623f\uff0c\u5fc5\u987b\u8fd4\u56de intent=mixed\uff0cintents \u5fc5\u987b\u540c\u65f6\u5305\u542b property_question \u548c listing_search\u3002policyReply \u56de\u7b54\u653f\u7b56\uff0clistingReply \u7528\u4e00\u53e5\u8bdd\u8bf4\u660e\u5df2\u6839\u636e\u627e\u623f\u6761\u4ef6\u5339\u914d\u623f\u6e90\u3002",
         "\u53ea\u6709\u627e\u623f\u9700\u6c42\u7528 listing_search\u3002\u53ea\u6709\u623f\u5730\u4ea7\u653f\u7b56\u3001\u8d37\u6b3e\u3001\u7a0e\u8d39\u3001\u7ecf\u6d4e\u8d70\u52bf\u3001\u623f\u4ef7\u8d70\u52bf\u3001\u571f\u62cd\u3001\u7b2c\u4e09\u4ee3\u6216\u7b2c\u56db\u4ee3\u4f4f\u5b85\u95ee\u9898\u7528 property_question\u3002",
         "property_question \u5fc5\u987b\u4f18\u5148\u4f7f\u7528\u7528\u6237\u6d88\u606f\u4e2d\u7684 knowledgeContext \u548c webResults\u3002\u4e0d\u8981\u7b80\u77ed\u6577\u884d\uff0c\u8981\u50cf\u4e13\u4e1a\u7f6e\u4e1a\u987e\u95ee\u4e00\u6837\u56de\u7b54\uff1a\u5148\u7ed9\u603b\u5224\u65ad\uff0c\u518d\u6309\u7ef4\u5ea6\u5c55\u5f00\uff0c\u6700\u540e\u7ed9\u884c\u52a8\u5efa\u8bae\u548c\u98ce\u9669\u63d0\u793a\u3002",
@@ -2253,13 +2182,15 @@
       return [
         "community",
         "rooms",
-        "halls",
         "bathrooms",
         "areaRange",
+        "priceRange",
         "floor",
-        "direction",
         "decoration",
-        "yearRange"
+        "yearRange",
+        "school",
+        "parking",
+        "rating"
       ].some((key) => Boolean(filters[key])) || (Array.isArray(filters.surroundings) && filters.surroundings.length > 0);
     }
 
@@ -2304,17 +2235,17 @@
       const hitsByName = listings.filter((item) => textIncludes(text, item.community));
       if (hitsByName.length) return hitsByName;
 
-      const wantsSchool = /\u5b66\u6821|\u5b66\u533a/.test(text);
-      const wantsHospital = /\u533b\u9662/.test(text);
-      const wantsPark = /\u516c\u56ed/.test(text);
+      const wantsSchool = /\u5b66\u6821|\u5b66\u533a|\u5b9e\u9a8c\u897f\u6821|\u534f\u548c\u53cc\u8bed|\u5e73\u5357|\u5e73\u5409|\u6587\u83b1/.test(text);
+      const wantsParking = /\u8f66\u4f4d|\u8f66\u5e93|\u505c\u8f66/.test(text);
+      const wantsFine = /\u7cbe\u88c5/.test(text);
+      const wantsLuxury = /\u8c6a\u88c5/.test(text);
+      const budget = (text.match(/(\d{3,4})\s*\u4e07/) || [])[1];
       return listings.filter((item) => {
-        if (textIncludes(text, "\u5357") && item.direction !== "\u5357") return false;
-        if (textIncludes(text, "\u5317") && item.direction !== "\u5317") return false;
-        if (textIncludes(text, "\u7cbe\u88c5") && item.decoration !== "\u7cbe\u88c5") return false;
-        if (textIncludes(text, "\u7b80\u88c5") && item.decoration !== "\u7b80\u88c5") return false;
-        if (wantsSchool && !item.surroundings.includes("\u5b66\u6821")) return false;
-        if (wantsHospital && !item.surroundings.includes("\u533b\u9662")) return false;
-        if (wantsPark && !item.surroundings.includes("\u516c\u56ed")) return false;
+        if (budget && Number(item.quotedPrice || 0) > Number(budget)) return false;
+        if (wantsFine && item.decoration !== "\u7cbe\u88c5") return false;
+        if (wantsLuxury && item.decoration !== "\u8c6a\u88c5") return false;
+        if (wantsSchool && !(item.surroundings || []).includes("\u5b66\u533a")) return false;
+        if (wantsParking && !(item.surroundings || []).includes("\u8f66\u4f4d")) return false;
         return true;
       });
     }
@@ -2375,6 +2306,45 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
       }
     }
 
+    function uniqueValues(key) {
+      return Array.from(new Set(listings.map((item) => item[key]).filter(Boolean)));
+    }
+
+    function fillSelect(select, values, labeler = (value) => value) {
+      if (!select) return;
+      const first = select.querySelector("option")?.outerHTML || '<option value="">??</option>';
+      select.innerHTML = first + values.map((value) => `<option value="${escapeAttr(value)}">${labeler(value)}</option>`).join("");
+    }
+
+    function numericSort(values) {
+      return values.slice().sort((a, b) => Number(a) - Number(b));
+    }
+
+    function initFilterOptions() {
+      const prices = ["1000\u4e07\u4ee5\u4e0b", "1000-1500\u4e07", "1500-2000\u4e07", "2000-3000\u4e07", "3000\u4e07\u4ee5\u4e0a"];
+      const areas = ["100\u5e73\u4ee5\u4e0b", "100-150\u5e73", "150-200\u5e73", "200-300\u5e73", "300\u5e73\u4ee5\u4e0a"];
+      const floors = ["\u4f4e\u5c42", "\u4e2d\u5c42", "\u9ad8\u5c42", "\u6d0b\u623f", "\u522b\u5885", "\u590d\u5f0f"];
+      const years = ["2000\u5e74\u524d", "2000-2005", "2005-2010", "2010-2015", "2015-2020", "2020\u5e74\u540e"];
+      fillSelect(els.community, uniqueValues("community").sort());
+      fillSelect(els.priceRange, prices.filter((v) => uniqueValues("priceRange").includes(v)));
+      fillSelect(els.rooms, numericSort(uniqueValues("rooms").map(String)), (v) => `${v} \u623f`);
+      fillSelect(els.bathrooms, numericSort(uniqueValues("bathrooms").map(String)), (v) => `${v} \u536b`);
+      fillSelect(els.areaRange, areas.filter((v) => uniqueValues("areaRange").includes(v)));
+      fillSelect(els.floor, floors.filter((v) => uniqueValues("floor").includes(v)));
+      fillSelect(els.decoration, uniqueValues("decoration").sort());
+      fillSelect(els.yearRange, years.filter((v) => uniqueValues("yearRange").includes(v)));
+      fillSelect(els.school, uniqueValues("school").sort());
+      fillSelect(els.parking, uniqueValues("parking").sort());
+    }
+
+    async function loadListings() {
+      const response = await fetch(`./data/properties.json?v=${Date.now()}`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`properties.json ${response.status}`);
+      listings = await response.json();
+      state.filtered = [...listings];
+      initFilterOptions();
+    }
+
     function selectedSurroundings() {
       return els.surroundingChecks
         .filter((input) => input.checked)
@@ -2385,13 +2355,15 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
       const filters = {
         community: els.community.value,
         rooms: els.rooms.value,
-        halls: els.halls.value,
         bathrooms: els.bathrooms.value,
         areaRange: els.areaRange.value,
+        priceRange: els.priceRange ? els.priceRange.value : "",
         floor: els.floor.value,
-        direction: els.direction.value,
         decoration: els.decoration.value,
         yearRange: els.yearRange.value,
+        school: els.school ? els.school.value : "",
+        parking: els.parking ? els.parking.value : "",
+        rating: els.rating ? els.rating.value : "",
         surroundings: selectedSurroundings()
       };
 
@@ -2399,13 +2371,15 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
         const basicMatch =
           (!filters.community || item.community === filters.community) &&
           (!filters.rooms || String(item.rooms) === filters.rooms) &&
-          (!filters.halls || String(item.halls) === filters.halls) &&
           (!filters.bathrooms || String(item.bathrooms) === filters.bathrooms) &&
           (!filters.areaRange || item.areaRange === filters.areaRange) &&
+          (!filters.priceRange || item.priceRange === filters.priceRange) &&
           (!filters.floor || item.floor === filters.floor) &&
-          (!filters.direction || item.direction === filters.direction) &&
           (!filters.decoration || item.decoration === filters.decoration) &&
-          (!filters.yearRange || item.yearRange === filters.yearRange);
+          (!filters.yearRange || item.yearRange === filters.yearRange) &&
+          (!filters.school || item.school === filters.school) &&
+          (!filters.parking || item.parking === filters.parking) &&
+          (!filters.rating || Number(item.ratingLevel || 0) >= Number(filters.rating));
 
         const surroundingsMatch = filters.surroundings.length === 0 ||
           filters.surroundings.every((tag) => item.surroundings.includes(tag));
@@ -2420,13 +2394,15 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
       [
         els.community,
         els.rooms,
-        els.halls,
         els.bathrooms,
         els.areaRange,
+        els.priceRange,
         els.floor,
-        els.direction,
         els.decoration,
-        els.yearRange
+        els.yearRange,
+        els.school,
+        els.parking,
+        els.rating
       ].forEach((select) => {
         select.value = "";
       });
@@ -2448,32 +2424,35 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
 
     function renderCards() {
       els.cards.innerHTML = state.filtered.map((item) => {
-        const tags = item.surroundings.map((tag) => `<span class="tag">${tag}</span>`).join("");
+        const tags = (item.surroundings || []).map((tag) => `<span class="tag">${tag}</span>`).join("");
+        const areaText = item.areaText || `${item.area}\u33a1`;
+        const yearText = item.yearText || (item.year ? `${item.year}\u5e74` : "\u2014");
+        const priceLine = `${item.quotedPriceText || "\u2014"} / \u5e95\u4ef7 ${item.bottomPriceText || "\u2014"}`;
 
         return `
-          <a class="card video-direct-link" href="${escapeAttr(item.videoLink)}" target="_blank" rel="noopener noreferrer external" aria-label="${item.community} video">
+          <a class="card video-direct-link" href="${escapeAttr(item.videoLink)}" target="_blank" rel="noopener noreferrer external" aria-label="${escapeAttr(item.community)} video">
             <div class="card-top">
               <div>
-                <h3 class="community">${item.community}</h3>
-                <p class="meta">${item.rooms}房${item.halls}厅${item.bathrooms}卫 · ${item.year}年建成</p>
+                <h3 class="community">${item.community} <span class="rating">${item.rating || ""}</span></h3>
+                <p class="meta">${item.layout || ""} \u00b7 ${yearText} \u00b7 ${item.floorText || item.floor || ""}</p>
               </div>
-              <div class="area">${item.area}㎡</div>
+              <div class="area">${areaText}</div>
             </div>
 
             <div class="facts">
-              <div class="fact"><span>面积</span><strong>${item.area}㎡</strong></div>
-              <div class="fact"><span>楼层</span><strong>${item.floor}</strong></div>
-              <div class="fact"><span>朝向</span><strong>${item.direction}</strong></div>
-              <div class="fact"><span>装修</span><strong>${item.decoration}</strong></div>
-              <div class="fact"><span>建成年代</span><strong>${item.year}年</strong></div>
-              <div class="fact"><span>房型</span><strong>${item.rooms}房${item.halls}厅${item.bathrooms}卫</strong></div>
+              <div class="fact"><span>\u62a5\u4ef7/\u5e95\u4ef7</span><strong>${priceLine}</strong></div>
+              <div class="fact"><span>\u9762\u79ef</span><strong>${areaText}</strong></div>
+              <div class="fact"><span>\u697c\u5c42/\u7c7b\u578b</span><strong>${item.floorText || item.floor || "\u2014"}</strong></div>
+              <div class="fact"><span>\u88c5\u4fee</span><strong>${item.decoration || "\u2014"}</strong></div>
+              <div class="fact"><span>\u5b66\u533a</span><strong>${item.school || "\u2014"}</strong></div>
+              <div class="fact"><span>\u8f66\u4f4d</span><strong>${item.parking || "\u2014"}</strong></div>
             </div>
 
-            <div class="tags">${tags}</div>
+            <div class="tags">${tags}${item.highlights ? `<span class="tag">${item.highlights}</span>` : ""}</div>
 
             <div class="card-footer">
-              <span>小邱推荐房源</span>
-              <span class="open-link">查看视频</span>
+              <span>\u771f\u5b9e\u623f\u6e90 \u00b7 \u5c0f\u90b1\u63a8\u8350</span>
+              <span class="open-link">\u67e5\u770b\u89c6\u9891</span>
             </div>
           </a>
         `;
@@ -2576,13 +2555,15 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
     [
       els.community,
       els.rooms,
-      els.halls,
       els.bathrooms,
       els.areaRange,
+      els.priceRange,
       els.floor,
-      els.direction,
       els.decoration,
-      els.yearRange
+      els.yearRange,
+      els.school,
+      els.parking,
+      els.rating
     ].filter(Boolean).forEach((select) => {
       select.addEventListener("change", applyFilters);
     });
@@ -2650,10 +2631,12 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
     setMobileView("ai");
 
     loadAiConfig();
-    loadFileAiConfig();
-    loadRealEstateKnowledge();
-
-    render();
+    Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge()])
+      .then(() => render())
+      .catch((error) => {
+        appendAiMessage("assistant", `房源数据加载失败：${error.message || error}`);
+        render();
+      });
   </script>
 </body>
 </html>
