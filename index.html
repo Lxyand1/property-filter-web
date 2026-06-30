@@ -304,6 +304,16 @@
       line-height: 1.55;
     }
 
+    .ai-listing-reason {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(242, 184, 75, 0.12);
+      color: #5f4211;
+      font-size: 13px;
+      font-weight: 760;
+      line-height: 1.55;
+    }
+
     .ai-listing-facts {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1801,6 +1811,17 @@
       return `${item.rooms}\u623f${item.halls}\u5385${item.bathrooms}\u536b`;
     }
 
+    function listingRecommendationReason(item) {
+      const points = [];
+      if (item.rating) points.push(`${item.rating}\u8bc4\u7ea7`);
+      if (item.school) points.push(`\u5b66\u533a\uff1a${item.school}`);
+      if (item.parking && item.parking !== "\u65e0") points.push(item.parking);
+      if (/\u7cbe\u88c5|\u8c6a\u88c5/.test(item.decoration || "")) points.push(item.decoration);
+      if (item.highlights) points.push(item.highlights);
+      const reason = points.slice(0, 3).join("\uff0c");
+      return reason ? `\u63a8\u8350\u7406\u7531\uff1a${reason}\uff0c\u9002\u5408\u91cd\u70b9\u5173\u6ce8\u54c1\u8d28\u548c\u914d\u5957\u7684\u5ba2\u6237\u3002` : "\u63a8\u8350\u7406\u7531\uff1a\u603b\u4ef7\u3001\u6237\u578b\u548c\u57fa\u7840\u6761\u4ef6\u5339\u914d\u5f53\u524d\u9700\u6c42\uff0c\u53ef\u4f5c\u4e3a\u4f18\u5148\u5bf9\u6bd4\u623f\u6e90\u3002";
+    }
+
     function createFact(label, value) {
       const fact = document.createElement("div");
       fact.className = "ai-listing-fact";
@@ -1842,6 +1863,10 @@
           subtitle.className = "ai-listing-subtitle";
           subtitle.textContent = `${listingSummary(item)} / ${item.areaText || ""} / ${item.yearText || ""}`;
 
+          const reason = document.createElement("div");
+          reason.className = "ai-listing-reason";
+          reason.textContent = listingRecommendationReason(item);
+
           const facts = document.createElement("div");
           facts.className = "ai-listing-facts";
           facts.append(
@@ -1875,7 +1900,7 @@
           button.rel = "noopener noreferrer external";
           button.textContent = "\u67e5\u770b\u623f\u6e90\u89c6\u9891";
 
-          card.append(head, subtitle, facts, tags, button);
+          card.append(head, subtitle, reason, facts, tags, button);
           list.appendChild(card);
         });
         node.appendChild(list);
