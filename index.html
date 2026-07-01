@@ -2388,8 +2388,8 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
     }
 
     async function loadListings() {
-      const response = await fetch(`./data/properties-ai-assistant-2.json?v=${Date.now()}`, { cache: "no-store" });
-      if (!response.ok) throw new Error(`properties.json ${response.status}`);
+      const response = await fetch(`./data/properties-ai-assistant-3.json?v=${Date.now()}`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`properties-ai-assistant-3.json ${response.status}`);
       listings = await response.json();
       state.filtered = [...listings];
       initFilterOptions();

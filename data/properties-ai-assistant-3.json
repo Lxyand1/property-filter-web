@@ -1,6 +1,8 @@
 [
   {
     "id": 1,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 2,
     "community": "万源城逸郡",
     "area": 134.0,
     "areaText": "134㎡",
@@ -29,12 +31,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AutNW8uDF",
-    "sourceRow": 2,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AWlVgciU0F"
   },
   {
     "id": 2,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 3,
     "community": "望族新城",
     "area": 135.0,
     "areaText": "135㎡",
@@ -63,12 +65,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/ACHgexhxS",
-    "sourceRow": 3,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/A5GgyC2YOV"
   },
   {
     "id": 3,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 4,
     "community": "万源城尚郡",
     "area": 91.0,
     "areaText": "91㎡",
@@ -98,12 +100,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/A3b0riNEd",
-    "sourceRow": 4,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AJhZ4fsxCd"
   },
   {
     "id": 4,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 5,
     "community": "融创玫瑰公馆",
     "area": 101.0,
     "areaText": "101㎡",
@@ -131,12 +133,12 @@
     "surroundings": [
       "学区"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AU2Qpld7G",
-    "sourceRow": 5,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/ABHKnlbjpJ"
   },
   {
     "id": 5,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 6,
     "community": "万源城尚郡",
     "area": 91.0,
     "areaText": "91㎡",
@@ -165,12 +167,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/Akasnr30K",
-    "sourceRow": 6,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AAzm1sWE0I"
   },
   {
     "id": 6,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 7,
     "community": "万源城御璄",
     "area": 229.0,
     "areaText": "229㎡",
@@ -200,12 +202,12 @@
       "车位",
       "豪装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/ATsrITLaW",
-    "sourceRow": 7,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AVDJeMTwB2"
   },
   {
     "id": 7,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 8,
     "community": "蔚蓝城市花园",
     "area": 129.0,
     "areaText": "129㎡",
@@ -233,12 +235,12 @@
     "surroundings": [
       "学区"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AXnWeoilQ",
-    "sourceRow": 8,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AsdRcqEKQy"
   },
   {
     "id": 8,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 9,
     "community": "新时代富嘉花园",
     "area": 105.0,
     "areaText": "105㎡",
@@ -267,12 +269,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AqPkkwhId",
-    "sourceRow": 9,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AroQTC9mgT"
   },
   {
     "id": 9,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 10,
     "community": "当代艺墅",
     "area": 330.0,
     "areaText": "330㎡",
@@ -302,12 +304,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AT1S4qMcR",
-    "sourceRow": 10,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/Al85SP0EM5"
   },
   {
     "id": 10,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 11,
     "community": "万源城御璄",
     "area": 264.0,
     "areaText": "264㎡",
@@ -337,12 +339,12 @@
       "车位",
       "豪装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AYlW0mJ57",
-    "sourceRow": 11,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AatUqcql5O"
   },
   {
     "id": 11,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 12,
     "community": "万源城朗郡",
     "area": 172.0,
     "areaText": "172㎡",
@@ -372,12 +374,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AdcCYcNOs",
-    "sourceRow": 12,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AuYeL0SUC7"
   },
   {
     "id": 12,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 13,
     "community": "新时代景庭",
     "area": 103.0,
     "areaText": "103㎡",
@@ -405,12 +407,12 @@
     "surroundings": [
       "学区"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AM4oYrEe2",
-    "sourceRow": 13,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AjeJPotcni"
   },
   {
     "id": 13,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 14,
     "community": "上海花园",
     "area": 154.0,
     "areaText": "154㎡",
@@ -440,12 +442,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/A0ewY1XT1",
-    "sourceRow": 14,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AD7hUapFGV"
   },
   {
     "id": 14,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 15,
     "community": "万源城朗郡",
     "area": 122.0,
     "areaText": "122㎡",
@@ -474,12 +476,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AutNW8uDF",
-    "sourceRow": 15,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AMMld2Ec9u"
   },
   {
     "id": 15,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 16,
     "community": "万源城逸郡",
     "area": 171.0,
     "areaText": "171㎡",
@@ -508,12 +510,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/ACHgexhxS",
-    "sourceRow": 16,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/A2QttHBtlj"
   },
   {
     "id": 16,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 17,
     "community": "东苑古龙城",
     "area": 473.0,
     "areaText": "473㎡",
@@ -542,12 +544,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/Aj996g6s2",
-    "sourceRow": 17,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/A7XGKfTf1z"
   },
   {
     "id": 17,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 18,
     "community": "万源城朗郡",
     "area": 172.0,
     "areaText": "172㎡",
@@ -577,12 +579,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/A3b0riNEd",
-    "sourceRow": 18,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AcxGPIkz2S"
   },
   {
     "id": 18,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 19,
     "community": "万源城逸郡",
     "area": 100.0,
     "areaText": "100㎡",
@@ -612,12 +614,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/ArCpUnix7",
-    "sourceRow": 19,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/A0PR6wYw92"
   },
   {
     "id": 19,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 20,
     "community": "万源城逸郡",
     "area": 221.0,
     "areaText": "221㎡",
@@ -646,12 +648,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AXnWeoilQ",
-    "sourceRow": 20,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AcX434kuOb"
   },
   {
     "id": 20,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 21,
     "community": "万源城朗郡",
     "area": 171.0,
     "areaText": "171㎡",
@@ -680,12 +682,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AdcCYcNOs",
-    "sourceRow": 21,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AHWgvan6PH"
   },
   {
     "id": 21,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 22,
     "community": "万源城御璄",
     "area": 297.0,
     "areaText": "297㎡",
@@ -715,12 +717,12 @@
       "车位",
       "豪装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/Aj996g6s2",
-    "sourceRow": 22,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/Ap1V0RL6Qy"
   },
   {
     "id": 22,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 23,
     "community": "万源城朗郡",
     "area": 172.0,
     "areaText": "172㎡",
@@ -749,12 +751,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/Akasnr30K",
-    "sourceRow": 23,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AUKqQCblld"
   },
   {
     "id": 23,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 24,
     "community": "万源城朗郡",
     "area": 115.0,
     "areaText": "115㎡",
@@ -784,12 +786,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/ArCpUnix7",
-    "sourceRow": 24,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AoufetHCGs"
   },
   {
     "id": 24,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 25,
     "community": "万源城朗郡",
     "area": 121.0,
     "areaText": "121㎡",
@@ -818,12 +820,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AxDnZAY26",
-    "sourceRow": 25,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AwVjXRuo8j"
   },
   {
     "id": 25,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 26,
     "community": "万源城逸郡",
     "area": 142.0,
     "areaText": "142㎡",
@@ -852,12 +854,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AXnWeoilQ",
-    "sourceRow": 26,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/ABerfPckO1"
   },
   {
     "id": 26,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 27,
     "community": "新时代景庭",
     "area": 249.0,
     "areaText": "249㎡",
@@ -886,12 +888,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AT1S4qMcR",
-    "sourceRow": 27,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AijKOEHmGq"
   },
   {
     "id": 27,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 28,
     "community": "融创玫瑰公馆",
     "area": 144.0,
     "areaText": "144㎡",
@@ -921,12 +923,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AdcCYcNOs",
-    "sourceRow": 28,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AN92juSpal"
   },
   {
     "id": 28,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 29,
     "community": "世纪古美",
     "area": 101.0,
     "areaText": "101㎡",
@@ -955,12 +957,12 @@
       "学区",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/Aj996g6s2",
-    "sourceRow": 29,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/ApKy5f1P68"
   },
   {
     "id": 29,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 30,
     "community": "新时代景庭",
     "area": 148.0,
     "areaText": "148㎡",
@@ -988,12 +990,12 @@
     "surroundings": [
       "学区"
     ],
-    "videoLink": "https://weixin.qq.com/sph/A0ewY1XT1",
-    "sourceRow": 30,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AwV2BNLagj"
   },
   {
     "id": 30,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 31,
     "community": "融创玫瑰公馆",
     "area": 123.0,
     "areaText": "123㎡",
@@ -1023,12 +1025,12 @@
       "车位",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/Aj996g6s2",
-    "sourceRow": 31,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AHQDm7VHNg"
   },
   {
     "id": 31,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 32,
     "community": "万源城朗郡",
     "area": 152.0,
     "areaText": "152㎡",
@@ -1057,12 +1059,12 @@
       "学区",
       "车位"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AM4oYrEe2",
-    "sourceRow": 32,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AG0rWxLcSt"
   },
   {
     "id": 32,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 33,
     "community": "康健丽都",
     "area": 98.0,
     "areaText": "98㎡",
@@ -1090,12 +1092,12 @@
     "surroundings": [
       "学区"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AdcCYcNOs",
-    "sourceRow": 33,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AFzpUXkQh5"
   },
   {
     "id": 33,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 34,
     "community": "康健丽都",
     "area": 136.0,
     "areaText": "136㎡",
@@ -1123,12 +1125,12 @@
     "surroundings": [
       "学区"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AT1S4qMcR",
-    "sourceRow": 34,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AHA8FUpaG4"
   },
   {
     "id": 34,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 35,
     "community": "融创玫瑰公馆",
     "area": 96.0,
     "areaText": "96㎡",
@@ -1157,8 +1159,73 @@
       "学区",
       "精装"
     ],
-    "videoLink": "https://weixin.qq.com/sph/AYlW0mJ57",
-    "sourceRow": 35,
-    "sourceFile": "AI-assistant-2.xlsx"
+    "videoLink": "https://weixin.qq.com/sph/AzuJSX02AY"
+  },
+  {
+    "id": 35,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 36,
+    "community": "新时代富嘉花园",
+    "area": 162.0,
+    "areaText": "162㎡",
+    "layout": "4房2厅3卫",
+    "rooms": 4,
+    "halls": 2,
+    "bathrooms": 3,
+    "quotedPrice": 1450.0,
+    "quotedPriceText": "1450万",
+    "bottomPrice": 1400.0,
+    "bottomPriceText": "1400万",
+    "priceRange": "1000-1500万",
+    "floor": "中层",
+    "floorText": "11",
+    "school": "平吉小学、龙茗中学",
+    "parking": "无",
+    "year": 2007,
+    "yearText": "2007",
+    "yearRange": "2005-2010",
+    "decoration": "精装",
+    "highlights": "顶楼复式，大露台",
+    "rating": "⭐⭐⭐",
+    "ratingLevel": 3,
+    "areaRange": "150-200平",
+    "surroundings": [
+      "学区",
+      "精装"
+    ],
+    "videoLink": "https://weixin.qq.com/sph/Aglh2wqd6a"
+  },
+  {
+    "id": 36,
+    "sourceFile": "AI-assistant-3.xlsx",
+    "sourceRow": 37,
+    "community": "东苑古龙城",
+    "area": 162.0,
+    "areaText": "162㎡",
+    "layout": "4房2厅2卫",
+    "rooms": 4,
+    "halls": 2,
+    "bathrooms": 2,
+    "quotedPrice": 1400.0,
+    "quotedPriceText": "1400万",
+    "bottomPrice": 1300.0,
+    "bottomPriceText": "1300万",
+    "priceRange": "1000-1500万",
+    "floor": "低层",
+    "floorText": "3",
+    "school": "平南小学、实验西校",
+    "parking": "无",
+    "year": 2004,
+    "yearText": "2004",
+    "yearRange": "2000-2005",
+    "decoration": "老装修",
+    "highlights": "电梯洋房",
+    "rating": "⭐⭐⭐",
+    "ratingLevel": 3,
+    "areaRange": "150-200平",
+    "surroundings": [
+      "学区"
+    ],
+    "videoLink": "https://weixin.qq.com/sph/ApLRHE1Mf5"
   }
 ]
