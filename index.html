@@ -1797,7 +1797,8 @@
     const aiMemoryKeys = {
       recentMessages: "xq_ai_recent_messages_v1",
       historySummary: "xq_ai_history_summary_v1",
-      buyerProfile: "xq_ai_buyer_profile_v1"
+      buyerProfile: "xq_ai_buyer_profile_v1",
+      visibleChat: "xq_ai_visible_chat_v1"
     };
     const maxRecentMemoryMessages = 20;
 
@@ -1821,10 +1822,52 @@
       localStorage.setItem(aiMemoryKeys.recentMessages, JSON.stringify((memory.recentMessages || []).slice(-maxRecentMemoryMessages)));
     }
 
+    function loadVisibleChat() {
+      return safeJsonParse(localStorage.getItem(aiMemoryKeys.visibleChat), [])
+        .filter((item) => item && item.role && (item.text || (Array.isArray(item.listingIds) && item.listingIds.length)))
+        .slice(-30);
+    }
+
+    function saveVisibleChat(items) {
+      localStorage.setItem(aiMemoryKeys.visibleChat, JSON.stringify((items || []).slice(-30)));
+    }
+
+    function addVisibleChatItem(item) {
+      const items = loadVisibleChat();
+      items.push({ ...item, at: Date.now() });
+      saveVisibleChat(items);
+    }
+
+    function visibleListingIds(items) {
+      return (items || []).map((item) => item && item.id).filter((id) => id !== undefined && id !== null);
+    }
+
+    function listingByIds(ids) {
+      const wanted = new Set((ids || []).map((id) => String(id)));
+      return listings.filter((item) => wanted.has(String(item.id)));
+    }
+
+    function restoreVisibleChat() {
+      const items = loadVisibleChat();
+      if (!items.length) return;
+      els.aiMessages.innerHTML = "";
+      items.forEach((item) => {
+        if (item.role === "user") {
+          appendAiMessage("user", item.text || "");
+          return;
+        }
+        const node = appendAiMessage("assistant", item.text || "");
+        const restoredListings = listingByIds(item.listingIds || []);
+        if (restoredListings.length) appendAiListings(restoredListings, node);
+      });
+      els.aiMessages.scrollTop = els.aiMessages.scrollHeight;
+    }
+
     function clearAiMemory() {
       localStorage.removeItem(aiMemoryKeys.buyerProfile);
       localStorage.removeItem(aiMemoryKeys.historySummary);
       localStorage.removeItem(aiMemoryKeys.recentMessages);
+      localStorage.removeItem(aiMemoryKeys.visibleChat);
     }
 
     function updateProfileValue(profile, key, value) {
@@ -2447,6 +2490,7 @@
       const query = text.trim();
       if (!query) return;
       appendAiMessage("user", query);
+      addVisibleChatItem({ role: "user", text: query });
       els.aiInput.value = "";
       const loadingNode = appendAiMessage("assistant", aiText.loading);
 
@@ -2468,8 +2512,10 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
           loadingNode.textContent = showListings ? conciseAiReply(replyText, matchedListings.length) : formatPropertyReply(replyText);
         }
         if (isMobileLayout()) setMobileView("ai");
+        const assistantText = loadingNode.textContent;
         if (showListings) appendAiListings(matchedListings, loadingNode);
-        rememberAiTurn(query, aiResult, loadingNode.textContent).catch(() => {});
+        addVisibleChatItem({ role: "assistant", text: assistantText, listingIds: showListings ? visibleListingIds(matchedListings) : [] });
+        rememberAiTurn(query, aiResult, assistantText).catch(() => {});
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
       }
@@ -2719,6 +2765,7 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
     if (els.aiClear) els.aiClear.addEventListener("click", () => {
       resetFilters();
       clearAiMemory();
+      els.aiMessages.innerHTML = "";
       appendAiMessage("assistant", aiText.cleared);
     });
 
@@ -2802,7 +2849,10 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
 
     loadAiConfig();
     Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge()])
-      .then(() => render())
+      .then(() => {
+        render();
+        restoreVisibleChat();
+      })
       .catch((error) => {
         appendAiMessage("assistant", `房源数据加载失败：${error.message || error}`);
         render();
