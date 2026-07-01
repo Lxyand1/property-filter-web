@@ -1794,6 +1794,118 @@
       defaultReply: u("AI \u5df2\u8fd4\u56de\u5339\u914d\u7ed3\u679c\uff0c\u4e0b\u65b9\u623f\u6e90\u5217\u8868\u5df2\u540c\u6b65\u66f4\u65b0\u3002")
     };
 
+    const aiMemoryKeys = {
+      recentMessages: "xq_ai_recent_messages_v1",
+      historySummary: "xq_ai_history_summary_v1",
+      buyerProfile: "xq_ai_buyer_profile_v1"
+    };
+    const maxRecentMemoryMessages = 20;
+
+    function safeJsonParse(value, fallback) {
+      try { return value ? JSON.parse(value) : fallback; } catch (error) { return fallback; }
+    }
+
+    function loadAiMemory() {
+      return {
+        buyerProfile: safeJsonParse(localStorage.getItem(aiMemoryKeys.buyerProfile), {}),
+        historySummary: localStorage.getItem(aiMemoryKeys.historySummary) || "",
+        recentMessages: safeJsonParse(localStorage.getItem(aiMemoryKeys.recentMessages), [])
+          .filter((item) => item && item.role && item.content)
+          .slice(-maxRecentMemoryMessages)
+      };
+    }
+
+    function saveAiMemory(memory) {
+      localStorage.setItem(aiMemoryKeys.buyerProfile, JSON.stringify(memory.buyerProfile || {}));
+      localStorage.setItem(aiMemoryKeys.historySummary, memory.historySummary || "");
+      localStorage.setItem(aiMemoryKeys.recentMessages, JSON.stringify((memory.recentMessages || []).slice(-maxRecentMemoryMessages)));
+    }
+
+    function clearAiMemory() {
+      localStorage.removeItem(aiMemoryKeys.buyerProfile);
+      localStorage.removeItem(aiMemoryKeys.historySummary);
+      localStorage.removeItem(aiMemoryKeys.recentMessages);
+    }
+
+    function updateProfileValue(profile, key, value) {
+      if (value !== undefined && value !== null && String(value).trim()) profile[key] = String(value).trim();
+    }
+
+    function extractBuyerProfile(query, aiResult = {}) {
+      const text = String(query || "");
+      const filters = normalizeFilters(aiResult.filters || {});
+      const profile = loadAiMemory().buyerProfile || {};
+      updateProfileValue(profile, "community", filters.community);
+      updateProfileValue(profile, "rooms", filters.rooms ? `${filters.rooms}\u623f` : "");
+      updateProfileValue(profile, "bathrooms", filters.bathrooms ? `${filters.bathrooms}\u536b` : "");
+      updateProfileValue(profile, "areaRange", filters.areaRange);
+      updateProfileValue(profile, "priceRange", filters.priceRange);
+      updateProfileValue(profile, "floor", filters.floor);
+      updateProfileValue(profile, "decoration", filters.decoration);
+      updateProfileValue(profile, "yearRange", filters.yearRange);
+      updateProfileValue(profile, "school", filters.school);
+      updateProfileValue(profile, "parking", filters.parking);
+      updateProfileValue(profile, "rating", filters.rating ? `${filters.rating}\u661f\u53ca\u4ee5\u4e0a` : "");
+      if (Array.isArray(filters.surroundings) && filters.surroundings.length) profile.focus = filters.surroundings.join("\uff0c");
+      const budget = text.match(/(\d{3,5})\s*\u4e07/);
+      if (budget) profile.budget = `${budget[1]}\u4e07`;
+      if (/\u9996\u4ed8/.test(text)) profile.mentionedDownPayment = true;
+      if (/\u6708\u4f9b/.test(text)) profile.mentionedMonthlyPayment = true;
+      if (/\u81ea\u4f4f/.test(text)) profile.purpose = "\u81ea\u4f4f";
+      if (/\u6539\u5584/.test(text)) profile.purpose = "\u6539\u5584";
+      if (/\u6295\u8d44/.test(text)) profile.purpose = "\u6295\u8d44";
+      const avoid = [];
+      if (/\u4e0d\u8981\u9876\u697c|\u907f\u514d\u9876\u697c/.test(text)) avoid.push("\u4e0d\u8981\u9876\u697c");
+      if (/\u4e0d\u8981\u4e34\u8857|\u6015\u5435|\u592a\u5435|\u566a\u97f3/.test(text)) avoid.push("\u907f\u514d\u566a\u97f3");
+      if (/\u4e0d\u8981\u8001\u88c5\u4fee|\u8001\u88c5\u4fee\u4e0d\u8981/.test(text)) avoid.push("\u4e0d\u8981\u8001\u88c5\u4fee");
+      if (avoid.length) profile.avoid = Array.from(new Set([...(profile.avoid || []), ...avoid]));
+      return profile;
+    }
+
+    function memoryContextForRequest() {
+      const memory = loadAiMemory();
+      return {
+        buyerProfile: memory.buyerProfile,
+        historySummary: memory.historySummary,
+        recentMessages: memory.recentMessages.slice(-maxRecentMemoryMessages)
+      };
+    }
+
+    function plainAssistantMemoryText(aiResult, renderedText) {
+      return String(renderedText || aiResult.policyReply || aiResult.listingReply || aiResult.reply || aiResult.content || "").replace(/\s+/g, " ").trim().slice(0, 800);
+    }
+
+    async function summarizeConversationMemory(olderMessages, existingSummary) {
+      if (!olderMessages.length) return existingSummary || "";
+      const data = await requestSenseAudio([
+        { role: "system", content: "\u4f60\u662f\u623f\u4ea7\u7f6e\u4e1a\u987e\u95ee\u7684\u5bf9\u8bdd\u8bb0\u5fc6\u6458\u8981\u52a9\u624b\u3002\u53ea\u4fdd\u7559\u4e70\u623f\u76f8\u5173\u4fe1\u606f\uff1a\u9884\u7b97\u3001\u9996\u4ed8\u3001\u533a\u57df\u3001\u5c0f\u533a\u3001\u6237\u578b\u3001\u9762\u79ef\u3001\u5b66\u533a\u3001\u8f66\u4f4d\u3001\u88c5\u4fee\u3001\u697c\u5c42\u3001\u8d2d\u623f\u8d44\u683c\u3001\u8d37\u6b3e\u7a0e\u8d39\u3001\u7528\u9014\u3001\u504f\u597d\u3001\u6392\u65a5\u70b9\u3001\u5df2\u63a8\u8350\u623f\u6e90\u548c\u5ba2\u6237\u53cd\u9988\u3002\u4e0d\u8981\u7f16\u9020\u3002\u8f93\u51fa 500 \u5b57\u4ee5\u5185\u4e2d\u6587\u6458\u8981\u3002" },
+        { role: "user", content: JSON.stringify({ existingSummary, olderMessages }) }
+      ], { temperature: 0 });
+      return String(data.choices?.[0]?.message?.content || data.content || existingSummary || "").trim().slice(0, 900);
+    }
+
+    async function rememberAiTurn(query, aiResult, renderedText) {
+      const memory = loadAiMemory();
+      memory.buyerProfile = extractBuyerProfile(query, aiResult);
+      memory.recentMessages = [
+        ...(memory.recentMessages || []),
+        { role: "user", content: String(query || "").trim(), at: Date.now() },
+        { role: "assistant", content: plainAssistantMemoryText(aiResult, renderedText), at: Date.now() }
+      ].filter((item) => item.content);
+      if (memory.recentMessages.length > maxRecentMemoryMessages) {
+        const overflow = memory.recentMessages.slice(0, memory.recentMessages.length - maxRecentMemoryMessages);
+        memory.recentMessages = memory.recentMessages.slice(-maxRecentMemoryMessages);
+        saveAiMemory(memory);
+        summarizeConversationMemory(overflow, memory.historySummary).then((summary) => {
+          const latest = loadAiMemory();
+          latest.historySummary = summary;
+          saveAiMemory(latest);
+        }).catch(() => {});
+        return;
+      }
+      saveAiMemory(memory);
+    }
+
     function appendAiMessage(role, text) {
       const node = document.createElement("div");
       node.className = "ai-message " + role;
@@ -2047,7 +2159,8 @@
         "property_question \u5fc5\u987b\u4f18\u5148\u4f7f\u7528 knowledgeContext \u548c webResults\u3002\u666e\u901a\u653f\u7b56\u95ee\u7b54\u8981\u7cbe\u7b80\uff0c\u7528\u6237\u95ee\u4ec0\u4e48\u5c31\u56de\u7b54\u4ec0\u4e48\uff0c\u4e0d\u8981\u628a\u9650\u8d2d\u3001\u8d37\u6b3e\u3001\u7a0e\u8d39\u3001\u6210\u672c\u5168\u90e8\u5c55\u5f00\u3002\u4f18\u5148\u91c7\u7528 requiredInputs\u3001decisionFlow\u3001salesGuidance\u3001riskNotes \u548c qa\uff0c\u4f46\u53ea\u6311\u6700\u76f8\u5173\u7684 3-5 \u6761\u3002",
         "property_question \u7684 reply \u6216 policyReply \u5fc5\u987b\u7528\u6362\u884c\u5206\u6bb5\u3002\u666e\u901a\u653f\u7b56\u95ee\u7b54\u9650 120-220 \u5b57\uff0c\u4e0d\u8d85\u8fc7 5 \u4e2a\u77ed\u6bb5\uff1a\u7ed3\u8bba\uff1a...\\n\\n\u9700\u786e\u8ba4\uff1a...\\n\\n\u5f71\u54cd\uff1a...\\n\\n\u5efa\u8bae\uff1a...\\n\\n\u98ce\u9669\uff1a...\u3002\u5982\u679c\u7528\u6237\u53ea\u95ee\u9650\u8d2d\uff0c\u4e0d\u4e3b\u52a8\u5c55\u5f00\u7a0e\u8d39\u548c\u6708\u4f9b\u3002",
         "\u623f\u4ef7\u8d70\u52bf\u3001\u7ecf\u6d4e\u8d70\u52bf\u3001\u4e70\u623f\u65f6\u673a\u7c7b\u95ee\u9898\uff0creply \u6216 policyReply \u5fc5\u987b\u81f3\u5c11\u8986\u76d6\uff1a1. \u603b\u4f53\u5224\u65ad\uff1b2. \u5b8f\u89c2\u7ecf\u6d4e\uff1b3. \u653f\u7b56\u548c\u4fe1\u8d37\uff1b4. \u4f9b\u9700\u5173\u7cfb\uff1b5. \u65b0\u623f/\u4e8c\u624b\u623f\u5dee\u5f02\uff1b6. \u677f\u5757\u5206\u5316\uff1b7. \u4e70\u65b9\u5efa\u8bae\uff1b8. \u98ce\u9669\u63d0\u793a\u3002\u957f\u5ea6\u5efa\u8bae 500-900 \u5b57\u3002",
-        "\u623f\u6e90\u7b5b\u9009\u5b57\u6bb5\u53d6\u503c\u5fc5\u987b\u6765\u81ea\u623f\u6e90\u6570\u636e\u548c\u7b5b\u9009\u9879\u3002\u672a\u77e5\u6761\u4ef6\u7559\u7a7a\u3002rooms\u3001bathrooms\u3001rating \u7528\u6570\u5b57\u5b57\u7b26\u4e32\u3002priceRange\u3001areaRange\u3001floor\u3001decoration\u3001yearRange\u3001school\u3001parking \u5fc5\u987b\u4f7f\u7528\u7b5b\u9009\u9879\u4e2d\u5b58\u5728\u7684\u503c\u3002surroundings \u53ea\u80fd\u5305\u542b \u5b66\u533a\u3001\u8f66\u4f4d\u3001\u7cbe\u88c5\u3001\u8c6a\u88c5\u3002\u9884\u7b97\u3001\u9996\u4ed8\u3001\u6708\u4f9b\u3001\u7a0e\u8d39\u548c\u6210\u672c\u95ee\u9898\u8981\u7ed3\u5408 cost_planning \u548c loan_policy \u601d\u8def\u56de\u7b54\u3002"
+        "\u8bf7\u4f7f\u7528 memoryContext \u4e2d\u7684 buyerProfile\u3001historySummary \u548c recentMessages \u7406\u89e3\u4e0a\u4e0b\u6587\u3002\u5f53\u7528\u6237\u8bf4\u201c\u521a\u624d\u201d\u3001\u201c\u8fd9\u4e2a\u9884\u7b97\u201d\u3001\u201c\u518d\u63a8\u51e0\u5957\u201d\u3001\u201c\u6709\u6ca1\u6709\u66f4...\u201d\u65f6\uff0c\u5fc5\u987b\u4f18\u5148\u5ef6\u7eed\u5df2\u8bb0\u4f4f\u7684\u5ba2\u6237\u9700\u6c42\u3002\u4f46\u4e0d\u8981\u7f16\u9020 memoryContext \u91cc\u6ca1\u6709\u7684\u4fe1\u606f\u3002",
+                "\u623f\u6e90\u7b5b\u9009\u5b57\u6bb5\u53d6\u503c\u5fc5\u987b\u6765\u81ea\u623f\u6e90\u6570\u636e\u548c\u7b5b\u9009\u9879\u3002\u672a\u77e5\u6761\u4ef6\u7559\u7a7a\u3002rooms\u3001bathrooms\u3001rating \u7528\u6570\u5b57\u5b57\u7b26\u4e32\u3002priceRange\u3001areaRange\u3001floor\u3001decoration\u3001yearRange\u3001school\u3001parking \u5fc5\u987b\u4f7f\u7528\u7b5b\u9009\u9879\u4e2d\u5b58\u5728\u7684\u503c\u3002surroundings \u53ea\u80fd\u5305\u542b \u5b66\u533a\u3001\u8f66\u4f4d\u3001\u7cbe\u88c5\u3001\u8c6a\u88c5\u3002\u9884\u7b97\u3001\u9996\u4ed8\u3001\u6708\u4f9b\u3001\u7a0e\u8d39\u548c\u6210\u672c\u95ee\u9898\u8981\u7ed3\u5408 cost_planning \u548c loan_policy \u601d\u8def\u56de\u7b54\u3002"
       ].join("\n");
     }
 
@@ -2201,7 +2314,7 @@
       }
       const data = await requestSenseAudio([
         { role: "system", content: aiSystemPrompt() },
-        { role: "user", content: JSON.stringify({ query, listings, knowledgeContext, webResults }) }
+        { role: "user", content: JSON.stringify({ query, listings, knowledgeContext, webResults, memoryContext: memoryContextForRequest() }) }
       ]);
       const content = data.choices?.[0]?.message?.content || data.content || "";
       return parseAiJson(content);
@@ -2356,6 +2469,7 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
         }
         if (isMobileLayout()) setMobileView("ai");
         if (showListings) appendAiListings(matchedListings, loadingNode);
+        rememberAiTurn(query, aiResult, loadingNode.textContent).catch(() => {});
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
       }
@@ -2604,6 +2718,7 @@ ${conciseAiReply(listingReply, matchedListings.length)}`;
 
     if (els.aiClear) els.aiClear.addEventListener("click", () => {
       resetFilters();
+      clearAiMemory();
       appendAiMessage("assistant", aiText.cleared);
     });
 
