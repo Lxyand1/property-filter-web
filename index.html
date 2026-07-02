@@ -2421,6 +2421,113 @@
       };
     }
 
+    function budgetToPriceRange(text) {
+      const raw = String(text || "");
+      const digitMatch = raw.match(/(\d{3,5})\s*\u4e07/);
+      const chineseBudgetMap = [
+        [/\u4e00\s*\u5343\s*\u4e07|\u4e00\s*\u5343|1\s*\u5343\s*\u4e07/, 1000],
+        [/\u4e24\s*\u5343\s*\u4e07|\u4e8c\s*\u5343\s*\u4e07|\u4e24\s*\u5343|\u4e8c\s*\u5343|2\s*\u5343\s*\u4e07/, 2000],
+        [/\u4e09\s*\u5343\s*\u4e07|\u4e09\s*\u5343|3\s*\u5343\s*\u4e07/, 3000]
+      ];
+      let value = digitMatch ? Number(digitMatch[1]) : null;
+      if (!value) {
+        const hit = chineseBudgetMap.find(([pattern]) => pattern.test(raw));
+        value = hit ? hit[1] : null;
+      }
+      if (!Number.isFinite(value)) return "";
+      if (/\u4ee5\u5185|\u4ee5\u4e0b|\u4e0d\u8d85|\u6700\u591a|\u63a7\u5236/.test(raw)) {
+        if (value <= 1000) return "1000\u4e07\u4ee5\u4e0b";
+        if (value <= 1500) return "1000-1500\u4e07";
+        if (value <= 2000) return "1500-2000\u4e07";
+        if (value <= 3000) return "2000-3000\u4e07";
+        return "3000\u4e07\u4ee5\u4e0a";
+      }
+      if (value < 1000) return "1000\u4e07\u4ee5\u4e0b";
+      if (value < 1500) return "1000-1500\u4e07";
+      if (value < 2000) return "1500-2000\u4e07";
+      if (value < 3000) return "2000-3000\u4e07";
+      return "3000\u4e07\u4ee5\u4e0a";
+    }
+
+    function inferFiltersFromQuery(query) {
+      const text = String(query || "");
+      const inferred = normalizeFilters({});
+      const communityHit = listings.find((item) => item.community && text.includes(item.community)) ||
+        listings.find((item) => item.community && item.community.length >= 2 && text.includes(item.community.slice(-2))) ||
+        listings.find((item) => item.community && text.includes(item.community.replace(/\u65b0\u65f6\u4ee3|\u4e07\u6e90\u57ce/g, "")));
+      if (communityHit) inferred.community = communityHit.community;
+      if (/\u4e00\u623f|1\s*\u623f/.test(text)) inferred.rooms = "1";
+      if (/\u4e24\u623f|\u4e8c\u623f|2\s*\u623f/.test(text)) inferred.rooms = "2";
+      if (/\u4e09\u623f|3\s*\u623f/.test(text)) inferred.rooms = "3";
+      if (/\u56db\u623f|4\s*\u623f/.test(text)) inferred.rooms = "4";
+      inferred.priceRange = budgetToPriceRange(text);
+      if (/\u5b66\u533a|\u5b66\u6821/.test(text)) inferred.surroundings.push("\u5b66\u533a");
+      if (/\u8f66\u4f4d|\u505c\u8f66/.test(text)) inferred.surroundings.push("\u8f66\u4f4d");
+      if (/\u7cbe\u88c5/.test(text)) {
+        inferred.decoration = "\u7cbe\u88c5";
+        inferred.surroundings.push("\u7cbe\u88c5");
+      }
+      if (/\u8c6a\u88c5/.test(text)) {
+        inferred.decoration = "\u8c6a\u88c5";
+        inferred.surroundings.push("\u8c6a\u88c5");
+      }
+      inferred.surroundings = Array.from(new Set(inferred.surroundings));
+      return inferred;
+    }
+
+    function profileFiltersFromMemory() {
+      const profile = loadAiMemory().buyerProfile || {};
+      const memoryFilters = normalizeFilters({});
+      memoryFilters.community = profile.community || "";
+      memoryFilters.rooms = String(profile.rooms || "").replace(/\D/g, "");
+      memoryFilters.bathrooms = String(profile.bathrooms || "").replace(/\D/g, "");
+      memoryFilters.areaRange = profile.areaRange || "";
+      memoryFilters.priceRange = profile.priceRange || budgetToPriceRange(profile.budget || "");
+      memoryFilters.floor = profile.floor || "";
+      memoryFilters.decoration = profile.decoration || "";
+      memoryFilters.yearRange = profile.yearRange || "";
+      memoryFilters.school = profile.school || "";
+      memoryFilters.parking = profile.parking || "";
+      memoryFilters.rating = String(profile.rating || "").replace(/\D/g, "");
+      memoryFilters.surroundings = profile.focus ? String(profile.focus).split(/\uff0c|,|\s+/).filter(Boolean) : [];
+      return memoryFilters;
+    }
+
+    function shouldIgnorePreviousFilters(query) {
+      return /\u4e0d\u6309\u4e4b\u524d|\u4e0d\u8981\u4e4b\u524d|\u91cd\u65b0\u627e|\u6362\u4e00\u4e2a\u6761\u4ef6|\u5ffd\u7565\u4e0a\u9762|\u5ffd\u7565\u4e4b\u524d|\u6e05\u7a7a\u6761\u4ef6/.test(String(query || ""));
+    }
+
+    function mergeFilterValue(current, inferred, memory) {
+      return current || inferred || memory || "";
+    }
+
+    function mergeAiFiltersWithContext(query, filters) {
+      const current = normalizeFilters(filters);
+      const inferred = inferFiltersFromQuery(query);
+      if (shouldIgnorePreviousFilters(query)) {
+        return {
+          ...current,
+          ...Object.fromEntries(Object.entries(inferred).filter(([key, value]) => key !== "surroundings" && Boolean(value))),
+          surroundings: Array.from(new Set([...(current.surroundings || []), ...(inferred.surroundings || [])]))
+        };
+      }
+      const memory = profileFiltersFromMemory();
+      return {
+        community: mergeFilterValue(current.community, inferred.community, memory.community),
+        rooms: mergeFilterValue(current.rooms, inferred.rooms, memory.rooms),
+        bathrooms: mergeFilterValue(current.bathrooms, inferred.bathrooms, memory.bathrooms),
+        areaRange: mergeFilterValue(current.areaRange, inferred.areaRange, memory.areaRange),
+        priceRange: mergeFilterValue(current.priceRange, inferred.priceRange, memory.priceRange),
+        floor: mergeFilterValue(current.floor, inferred.floor, memory.floor),
+        decoration: mergeFilterValue(current.decoration, inferred.decoration, memory.decoration),
+        yearRange: mergeFilterValue(current.yearRange, inferred.yearRange, memory.yearRange),
+        school: mergeFilterValue(current.school, inferred.school, memory.school),
+        parking: mergeFilterValue(current.parking, inferred.parking, memory.parking),
+        rating: mergeFilterValue(current.rating, inferred.rating, memory.rating),
+        surroundings: Array.from(new Set([...(memory.surroundings || []), ...(inferred.surroundings || []), ...(current.surroundings || [])]))
+      };
+    }
+
     function applyAiFilters(filters) {
       const normalized = normalizeFilters(filters);
       setSelectValue(els.community, normalized.community);
@@ -2832,7 +2939,9 @@
 
       try {
         const aiResult = await getAiMatch(query);
-        if (aiResult.filters) applyAiFilters(aiResult.filters);
+        const mergedFilters = mergeAiFiltersWithContext(query, aiResult.filters || {});
+        aiResult.filters = mergedFilters;
+        if (hasMeaningfulFilters(mergedFilters)) applyAiFilters(mergedFilters);
         const detected = detectUserIntents(query, aiResult);
         const replyText = aiResult.reply || aiResult.content || aiText.defaultReply;
         const policyReply = aiResult.policyReply || (detected.hasPropertyQuestion ? replyText : "");
