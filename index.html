@@ -3060,7 +3060,15 @@
         const replyText = aiResult.reply || aiResult.content || aiText.defaultReply;
         const policyReply = aiResult.policyReply || (detected.hasPropertyQuestion ? replyText : "");
         const listingReply = aiResult.listingReply || replyText;
-        const showListings = shouldShowAiListings(query, aiResult);
+        const forcePolicyOnly = suppressListingsForPolicy(query, {});
+        const showListings = forcePolicyOnly ? false : shouldShowAiListings(query, aiResult);
+        if (forcePolicyOnly) {
+          aiResult.intent = "property_question";
+          aiResult.intents = ["property_question"];
+          aiResult.showListings = false;
+          aiResult.suppressListings = true;
+          aiResult.filters = normalizeFilters({});
+        }
         if (showListings && hasMeaningfulFilters(mergedFilters)) applyAiFilters(mergedFilters);
         let matchedListings = showListings ? state.filtered : [];
         let relaxedResult = null;
