@@ -207,6 +207,19 @@
       color: var(--muted);
       font-size: 14px;
     }
+    .ai-header-content {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .memory-clear-button {
+      margin-left: auto;
+      white-space: nowrap;
+      align-self: flex-start;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
 
     .ai-messages {
       display: grid;
@@ -1722,6 +1735,14 @@
       display: none !important;
     }
 
+    body.mobile-view-ai .memory-clear-button,
+    html.mobile-view-ai body .memory-clear-button {
+      margin-left: auto !important;
+      padding: 8px 10px !important;
+      font-size: 12px !important;
+      align-self: center !important;
+    }
+
     body.mobile-view-ai .ai-messages,
     html.mobile-view-ai body .ai-messages {
       height: auto !important;
@@ -1899,10 +1920,11 @@
           <section class="ai-assistant" data-mobile-view="ai" aria-labelledby="page-title">
             <div class="ai-header">
               <div class="ai-avatar">AI</div>
-              <div>
+              <div class="ai-header-content">
                 <h1 id="page-title">&#23567;&#37041;AI&#21161;&#25163;</h1>
                 <p>&#36755;&#20837;&#23458;&#25143;&#38656;&#27714;&#65292;&#30001; AI &#33258;&#21160;&#21305;&#37197;&#25151;&#28304;&#65307;&#20063;&#21487;&#20197;&#29992;&#19979;&#26041;&#31579;&#36873;&#26465;&#20214;&#25163;&#21160;&#31579;&#36873;&#12290;</p>
               </div>
+              <button class="button memory-clear-button" type="button" id="aiClearMemory">&#28165;&#31354;&#21382;&#21490;&#35760;&#24518;</button>
             </div>
 
             <div class="ai-messages" id="aiMessages" aria-live="polite">
@@ -2116,7 +2138,8 @@
       aiMessages: document.getElementById("aiMessages"),
       aiForm: document.getElementById("aiForm"),
       aiInput: document.getElementById("aiInput"),
-      aiClear: document.getElementById("aiClear")
+      aiClear: document.getElementById("aiClear"),
+      aiClearMemory: document.getElementById("aiClearMemory")
     };
 
     function u(text) {
@@ -3359,6 +3382,13 @@ ${listingAnswerLead(query, assistantReplyText, listingReply, matchedListings.len
       clearAiMemory();
       els.aiMessages.innerHTML = "";
       appendAiMessage("assistant", aiText.cleared);
+    });
+
+    if (els.aiClearMemory) els.aiClearMemory.addEventListener("click", () => {
+      resetFilters();
+      clearAiMemory();
+      els.aiMessages.innerHTML = "";
+      appendAiMessage("assistant", aiText.memoryCleared);
     });
 
     [
