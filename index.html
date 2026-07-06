@@ -2250,15 +2250,18 @@
     }
 
     function renderWelcomeMessage() {
-      els.aiMessages.innerHTML = "";
       const node = appendAiMessage("assistant", aiWelcomeText);
       node.dataset.welcome = "true";
       return node;
     }
 
+    function scrollAiMessagesToBottom() {
+      els.aiMessages.scrollTop = els.aiMessages.scrollHeight;
+    }
+
     function restoreVisibleChat() {
       const items = loadVisibleChat();
-      renderWelcomeMessage();
+      els.aiMessages.innerHTML = "";
       items.forEach((item) => {
         if (item.role === "user") {
           appendAiMessage("user", item.text || "");
@@ -2268,7 +2271,8 @@
         const restoredListings = listingByIds(item.listingIds || []);
         if (restoredListings.length) appendAiListings(restoredListings, node);
       });
-      els.aiMessages.scrollTop = 0;
+      renderWelcomeMessage();
+      requestAnimationFrame(scrollAiMessagesToBottom);
     }
 
     function clearAiMemory() {
