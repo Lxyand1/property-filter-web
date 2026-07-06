@@ -1968,7 +1968,7 @@
             </div>
 
             <div class="ai-messages" id="aiMessages" aria-live="polite">
-              <div class="ai-message assistant">???????AI????????????????????????????????????????????????????????????????????????????????????</div>
+              <div class="ai-message assistant" data-welcome="true">???????AI????????????????????????????????????????????????????????????????????????????????????</div>
             </div>
 
             <form class="ai-form" id="aiForm">
@@ -2194,6 +2194,8 @@
       defaultReply: u("AI \u5df2\u8fd4\u56de\u5339\u914d\u7ed3\u679c\uff0c\u4e0b\u65b9\u623f\u6e90\u5217\u8868\u5df2\u540c\u6b65\u66f4\u65b0\u3002")
     };
 
+    const aiWelcomeText = "您好，我是小邱AI助手。您可以像和置业顾问聊天一样告诉我需求，例如预算、户型、小区、学区、车位、装修偏好；我会先帮您判断需求，再推荐匹配房源。限购、贷款、税费、二套房政策也可以直接问我。";
+
     const aiMemoryKeys = {
       recentMessages: "xq_ai_recent_messages_v1",
       historySummary: "xq_ai_history_summary_v1",
@@ -2247,10 +2249,16 @@
       return listings.filter((item) => wanted.has(String(item.id)));
     }
 
+    function renderWelcomeMessage() {
+      els.aiMessages.innerHTML = "";
+      const node = appendAiMessage("assistant", aiWelcomeText);
+      node.dataset.welcome = "true";
+      return node;
+    }
+
     function restoreVisibleChat() {
       const items = loadVisibleChat();
-      if (!items.length) return;
-      els.aiMessages.innerHTML = "";
+      renderWelcomeMessage();
       items.forEach((item) => {
         if (item.role === "user") {
           appendAiMessage("user", item.text || "");
@@ -2260,7 +2268,7 @@
         const restoredListings = listingByIds(item.listingIds || []);
         if (restoredListings.length) appendAiListings(restoredListings, node);
       });
-      els.aiMessages.scrollTop = els.aiMessages.scrollHeight;
+      els.aiMessages.scrollTop = 0;
     }
 
     function clearAiMemory() {
