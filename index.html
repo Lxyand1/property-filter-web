@@ -2733,8 +2733,17 @@
       const text = String(content || "").trim();
       try { return JSON.parse(text); } catch (error) {}
       const match = text.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error("AI \u8fd4\u56de\u5185\u5bb9\u4e0d\u662f\u53ef\u89e3\u6790\u7684 JSON");
-      return JSON.parse(match[0]);
+      if (match) {
+        try { return JSON.parse(match[0]); } catch (error) {}
+      }
+      return {
+        intent: "chat",
+        intents: ["chat"],
+        showListings: false,
+        suppressListings: true,
+        filters: {},
+        reply: text || "\u60a8\u597d\uff0c\u6211\u5728\u3002\u60a8\u53ef\u4ee5\u76f4\u63a5\u544a\u8bc9\u6211\u60a8\u60f3\u770b\u7684\u623f\u6e90\u9700\u6c42\uff0c\u6216\u8005\u95ee\u6211\u9650\u8d2d\u3001\u8d37\u6b3e\u3001\u7a0e\u8d39\u7b49\u95ee\u9898\u3002"
+      };
     }
 
     function cleanApiKey(value) {
