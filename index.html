@@ -2913,6 +2913,23 @@
       return explicitSearch || (!isPolicyQuestionText(text) && housingConstraint);
     }
 
+    function hardListingFilters(filters) {
+      const normalized = normalizeFilters(filters || {});
+      return {
+        ...normalized,
+        surroundings: []
+      };
+    }
+
+    function sortListingsByPreferences(items, filters) {
+      const normalized = normalizeFilters(filters || {});
+      const preferred = normalized.surroundings || [];
+      return items.slice().sort((a, b) => {
+        const score = (item) => preferred.reduce((sum, tag) => sum + ((item.surroundings || []).includes(tag) ? 1 : 0), 0) + Number(item.ratingLevel || 0) / 10;
+        return score(b) - score(a);
+      });
+    }
+
     function listingMatchesFilters(item, filters) {
       const normalized = normalizeFilters(filters);
       const basicMatch =
@@ -3001,18 +3018,19 @@
 
     function listingAnswerLead(query, reply, listingReply, count, filters, relaxedResult = null) {
       const normalized = normalizeFilters(filters || {});
-      const raw = String(reply || listingReply || "").trim();
-      if (!count) return raw || noMatchReply(normalized, relaxedResult);
-      const generic = /^\s*(?:\u4e3a\u60a8\u5339\u914d\u5230|\u5df2\u7ecf?\u4e3a\u60a8|\u5df2\u6839\u636e|\u4e0b\u9762\u662f|\u7ed9\u60a8\u63a8\u8350)/.test(raw);
-      if (raw && !generic) {
-        const answer = raw.length > 220 ? `${raw.slice(0, 210).trim()}\u2026` : raw;
-        return `${answer}\n\n\u4e0b\u9762\u662f\u5339\u914d\u5230\u7684 ${count} \u5957\u623f\u6e90\uff1a`;
+      const hardCondition = describeFilters(hardListingFilters(normalized));
+      const softPreference = normalized.surroundings.length ? `软偏好：${normalized.surroundings.join("，")}（用于优先排序，不会把其他房源全部筛掉）` : "";
+      const condition = [hardCondition, softPreference].filter(Boolean).join("；");
+      const totalCount = listings.length;
+      if (!count) return noMatchReply(normalized, relaxedResult);
+      const sourceNote = totalCount ? `\u5f53\u524d\u623f\u6e90\u5e93\u5171 ${totalCount} \u5957\uff0c\u672c\u8f6e\u5b8c\u5168\u5339\u914d ${count} \u5957\u3002` : `\u672c\u8f6e\u5b8c\u5168\u5339\u914d ${count} \u5957\u3002`;
+      if (relaxedResult && relaxedResult.listings && relaxedResult.listings.length) {
+        return `\u5148\u56de\u7b54\u4f60\u7684\u95ee\u9898\uff1a\u6309\u201c${condition}\u201d\u6682\u65f6\u6ca1\u6709\u5b8c\u5168\u5339\u914d\u3002\n\n${sourceNote}\u4e0b\u9762\u662f${relaxedResult.note}\u540e\u7684\u5019\u9009\u623f\u6e90\uff1a`;
       }
-      const condition = describeFilters(normalized);
       if (normalized.community) {
-        return `\u6709\uff0c${normalized.community}\u6309\u4f60\u8fd9\u6b21\u7684\u9700\u6c42\u5339\u914d\u5230 ${count} \u5957\u3002\n\n\u7b5b\u9009\u6761\u4ef6\uff1a${condition}\u3002\n\n\u4e0b\u9762\u662f\u5177\u4f53\u623f\u6e90\u5361\u7247\uff1a`;
+        return `\u5148\u56de\u7b54\u4f60\u7684\u95ee\u9898\uff1a\u6709\uff0c${normalized.community}\u91cc\u6309\u4f60\u8fd9\u6b21\u6761\u4ef6\u5339\u914d\u5230 ${count} \u5957\u3002\n\n\u7b5b\u9009\u6761\u4ef6\uff1a${condition}\u3002${sourceNote}\n\n\u4e0b\u9762\u662f\u5177\u4f53\u623f\u6e90\u5361\u7247\uff1a`;
       }
-      return `\u53ef\u4ee5\uff0c\u6309\u4f60\u8fd9\u6b21\u7684\u9700\u6c42\u5339\u914d\u5230 ${count} \u5957\u623f\u6e90\u3002\n\n\u7b5b\u9009\u6761\u4ef6\uff1a${condition}\u3002\n\n\u4e0b\u9762\u662f\u5177\u4f53\u623f\u6e90\u5361\u7247\uff1a`;
+      return `\u5148\u56de\u7b54\u4f60\u7684\u95ee\u9898\uff1a\u6709\uff0c\u6309\u4f60\u8fd9\u6b21\u6761\u4ef6\u5339\u914d\u5230 ${count} \u5957\u623f\u6e90\u3002\n\n\u7b5b\u9009\u6761\u4ef6\uff1a${condition}\u3002${sourceNote}\n\n\u4e0b\u9762\u662f\u5177\u4f53\u623f\u6e90\u5361\u7247\uff1a`;
     }
 
     function conciseAiReply(reply, count = state.filtered.length) {
@@ -3086,13 +3104,14 @@
           aiResult.suppressListings = true;
           aiResult.filters = normalizeFilters({});
         }
-        if (showListings && hasMeaningfulFilters(mergedFilters)) applyAiFilters(mergedFilters);
-        let matchedListings = showListings ? state.filtered : [];
+        const displayFilters = showListings ? hardListingFilters(mergedFilters) : mergedFilters;
+        if (showListings && hasMeaningfulFilters(displayFilters)) applyAiFilters(displayFilters);
+        let matchedListings = showListings ? sortListingsByPreferences(state.filtered, mergedFilters) : [];
         let relaxedResult = null;
         let assistantReplyText = replyText;
         if (showListings && !matchedListings.length) {
           relaxedResult = findRelaxedListings(mergedFilters);
-          matchedListings = relaxedResult.listings;
+          matchedListings = sortListingsByPreferences(relaxedResult.listings, mergedFilters);
           assistantReplyText = noMatchReply(mergedFilters, relaxedResult);
         }
         if (detected.hasPropertyQuestion && showListings) {
