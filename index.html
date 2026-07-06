@@ -218,41 +218,36 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
     .memory-reset-button {
       border: 1px solid rgba(47, 111, 235, 0.18);
-      background:
-        linear-gradient(135deg, rgba(47, 111, 235, 0.10), rgba(108, 92, 231, 0.12)),
-        rgba(255, 255, 255, 0.82);
-      color: var(--accent);
-      border-radius: 999px;
-      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 4px 8px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 13px;
+      justify-content: center;
+      font-family: inherit;
+      font-size: clamp(24px, 3vw, 36px);
       font-weight: 700;
-      line-height: 1;
+      line-height: 1.1;
       white-space: nowrap;
-      box-shadow: 0 8px 20px rgba(47, 111, 235, 0.12);
+      width: fit-content;
+      min-width: 0;
+      flex: 0 0 auto;
+      box-shadow: 0 8px 20px rgba(47, 111, 235, 0.10);
       cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-    }
-
-    .memory-reset-button::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #6C5CE7);
-      box-shadow: 0 0 0 4px rgba(47, 111, 235, 0.10);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
     }
 
     .memory-reset-button:hover {
       transform: translateY(-1px);
       border-color: rgba(47, 111, 235, 0.32);
-      box-shadow: 0 12px 26px rgba(47, 111, 235, 0.18);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 12px 26px rgba(47, 111, 235, 0.16);
     }
 
     .ai-messages {
@@ -1773,21 +1768,17 @@
     html.mobile-view-ai body .ai-title-line {
       width: 100% !important;
       gap: 8px !important;
+      flex-wrap: wrap !important;
     }
 
     body.mobile-view-ai .memory-reset-button,
     html.mobile-view-ai body .memory-reset-button {
       display: inline-flex !important;
-      padding: 7px 9px !important;
-      font-size: 12px !important;
-      box-shadow: 0 6px 16px rgba(47, 111, 235, 0.14) !important;
-    }
-
-    body.mobile-view-ai .memory-reset-button::before,
-    html.mobile-view-ai body .memory-reset-button::before {
-      width: 7px !important;
-      height: 7px !important;
-      box-shadow: 0 0 0 3px rgba(47, 111, 235, 0.10) !important;
+      padding: 3px 6px !important;
+      font-size: 18px !important;
+      line-height: 1.1 !important;
+      border-radius: 10px !important;
+      box-shadow: 0 6px 16px rgba(47, 111, 235, 0.12) !important;
     }
 
     body.mobile-view-ai .ai-messages,
@@ -1970,7 +1961,7 @@
               <div class="ai-header-main">
                 <div class="ai-title-line">
                   <h1 id="page-title">&#23567;&#37041;AI&#21161;&#25163;</h1>
-                  <button class="memory-reset-button" type="button" id="aiClearMemory" aria-label="&#28165;&#31354;&#21382;&#21490;&#35760;&#24518;">&#28165;&#31354;&#35760;&#24518;</button>
+                  <button class="memory-reset-button" type="button" id="aiClearMemory" aria-label="&#28165;&#31354;&#21382;&#21490;&#35760;&#24518;">&#28165;&#31354;&#21382;&#21490;&#35760;&#24518;</button>
                 </div>
                 <p>&#36755;&#20837;&#23458;&#25143;&#38656;&#27714;&#65292;&#30001; AI &#33258;&#21160;&#21305;&#37197;&#25151;&#28304;&#65307;&#20063;&#21487;&#20197;&#29992;&#19979;&#26041;&#31579;&#36873;&#26465;&#20214;&#25163;&#21160;&#31579;&#36873;&#12290;</p>
               </div>
