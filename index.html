@@ -2529,7 +2529,7 @@
     function parseBudgetConstraint(text) {
       const raw = String(text || "");
       const normalized = raw.replace(/\s+/g, "");
-      const budgetWords = /\u9884\u7b97|\u603b\u4ef7|\u4ef7\u683c|\u62a5\u4ef7|\u5e95\u4ef7|\u4ee5\u5185|\u4ee5\u4e0b|\u4e0d\u8d85|\u4e0d\u8d85\u8fc7|\u63a7\u5236|\u6700\u591a|\u5de6\u53f3|\u4e0a\u4e0b|\u7ea6|\u5927\u6982|\u4e07|\u767e\u4e07|\u5343\u4e07|\u767e|\u5343/;
+      const budgetWords = /\u9884\u7b97|\u603b\u4ef7|\u4ef7\u683c|\u62a5\u4ef7|\u5e95\u4ef7|\u4ee5\u5185|\u4ee5\u4e0b|\u4e0d\u8d85|\u4e0d\u8d85\u8fc7|\u63a7\u5236|\u6700\u591a|\u5de6\u53f3|\u4e0a\u4e0b|\u7ea6|\u5927\u6982|\u4e07|\u767e\u4e07|\u5343\u4e07|\u767e|\u5343|\u623f\u5b50|\u623f\u6e90|\u4e70|\u770b/;
       if (!budgetWords.test(normalized)) return {};
       const matches = [];
       const digitPattern = /(\d+(?:\.\d+)?)(?:\s*\u4e07|w|W)?/g;
@@ -3292,11 +3292,14 @@
           aiResult.filters = normalizeFilters({});
         }
         const displayFilters = showListings ? hardListingFilters(mergedFilters) : mergedFilters;
-        if (showListings && hasMeaningfulFilters(displayFilters)) applyAiFilters(displayFilters);
-        let matchedListings = showListings ? sortListingsByPreferences(state.filtered, mergedFilters) : [];
+        const hasDisplayFilters = hasMeaningfulFilters(displayFilters);
+        if (showListings && hasDisplayFilters) applyAiFilters(displayFilters);
+        let matchedListings = showListings && hasDisplayFilters ? sortListingsByPreferences(state.filtered, mergedFilters) : [];
         let relaxedResult = null;
         let assistantReplyText = replyText;
-        if (showListings && !matchedListings.length) {
+        if (showListings && !hasDisplayFilters) {
+          assistantReplyText = "我还没有识别到可用的筛选条件，为了避免把全部房源都推给你，请补充预算、户型、小区或其他关键条件。";
+        } else if (showListings && !matchedListings.length) {
           relaxedResult = findRelaxedListings(mergedFilters);
           matchedListings = sortListingsByPreferences(relaxedResult.listings, mergedFilters);
           assistantReplyText = noMatchReply(mergedFilters, relaxedResult);
