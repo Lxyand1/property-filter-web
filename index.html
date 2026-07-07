@@ -2295,6 +2295,9 @@
       updateProfileValue(profile, "bathrooms", filters.bathrooms ? `${filters.bathrooms}\u536b` : "");
       updateProfileValue(profile, "areaRange", filters.areaRange);
       updateProfileValue(profile, "priceRange", filters.priceRange);
+      updateProfileValue(profile, "minPrice", filters.minPrice ? `${filters.minPrice}万` : "");
+      updateProfileValue(profile, "maxPrice", filters.maxPrice ? `${filters.maxPrice}万` : "");
+      updateProfileValue(profile, "budgetStrict", filters.budgetStrict ? "是" : "");
       updateProfileValue(profile, "floor", filters.floor);
       updateProfileValue(profile, "decoration", filters.decoration);
       updateProfileValue(profile, "yearRange", filters.yearRange);
@@ -2487,6 +2490,10 @@
         bathrooms: safe.bathrooms ? String(safe.bathrooms) : "",
         areaRange: safe.areaRange || "",
         priceRange: safe.priceRange || "",
+        minPrice: Number.isFinite(Number(safe.minPrice)) && Number(safe.minPrice) > 0 ? Number(safe.minPrice) : "",
+        maxPrice: Number.isFinite(Number(safe.maxPrice)) && Number(safe.maxPrice) > 0 ? Number(safe.maxPrice) : "",
+        budgetStrict: Boolean(safe.budgetStrict),
+        budgetSourceText: safe.budgetSourceText || "",
         floor: safe.floor || "",
         decoration: safe.decoration || "",
         yearRange: safe.yearRange || "",
@@ -2495,6 +2502,60 @@
         rating: safe.rating ? String(safe.rating) : "",
         surroundings: Array.isArray(safe.surroundings) ? safe.surroundings : []
       };
+    }
+
+    function chineseBudgetToNumber(text) {
+      const raw = String(text || "").replace(/\s+/g, "");
+      const digit = raw.match(/(\d+(?:\.\d+)?)(?:\u4e07|w|W)?/);
+      if (digit) return Number(digit[1]);
+      const digitBeforeBai = raw.match(/(\d+(?:\.\d+)?)[\u767e\u4f70]/);
+      if (digitBeforeBai) return Number(digitBeforeBai[1]) * 100;
+      const map = {
+        "\u96f6": 0, "\u4e00": 1, "\u58f9": 1, "\u4e8c": 2, "\u8d30": 2, "\u4e24": 2, "\u4e09": 3, "\u53c1": 3, "\u56db": 4, "\u8086": 4,
+        "\u4e94": 5, "\u4f0d": 5, "\u516d": 6, "\u9646": 6, "\u4e03": 7, "\u67d2": 7, "\u516b": 8, "\u634c": 8, "\u4e5d": 9, "\u7396": 9
+      };
+      const numerals = "\u4e00\u4e8c\u4e24\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u58f9\u8d30\u53c1\u8086\u4f0d\u9646\u67d2\u634c\u7396";
+      const qian = raw.match(new RegExp(`([${numerals}])\\u5343`));
+      const bai = raw.match(new RegExp(`([${numerals}])[\\u767e\\u4f70]`));
+      const shi = raw.match(new RegExp(`([${numerals}])\\u5341`));
+      let value = 0;
+      if (qian) value += (map[qian[1]] || 0) * 1000;
+      if (bai) value += (map[bai[1]] || 0) * 100;
+      if (shi) value += (map[shi[1]] || 0) * 10;
+      if (value) return value;
+      return null;
+    }
+
+    function parseBudgetConstraint(text) {
+      const raw = String(text || "");
+      const normalized = raw.replace(/\s+/g, "");
+      const budgetWords = /\u9884\u7b97|\u603b\u4ef7|\u4ef7\u683c|\u62a5\u4ef7|\u5e95\u4ef7|\u4ee5\u5185|\u4ee5\u4e0b|\u4e0d\u8d85|\u4e0d\u8d85\u8fc7|\u63a7\u5236|\u6700\u591a|\u5de6\u53f3|\u4e0a\u4e0b|\u7ea6|\u5927\u6982|\u4e07|\u767e\u4e07|\u5343\u4e07|\u767e|\u5343/;
+      if (!budgetWords.test(normalized)) return {};
+      const matches = [];
+      const digitPattern = /(\d+(?:\.\d+)?)(?:\s*\u4e07|w|W)?/g;
+      let hit;
+      while ((hit = digitPattern.exec(raw))) {
+        const value = Number(hit[1]);
+        if (Number.isFinite(value) && value >= 100) matches.push({ value, text: hit[0] });
+      }
+      const chinesePattern = /[\u4e00\u4e8c\u4e24\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u58f9\u8d30\u53c1\u8086\u4f0d\u9646\u67d2\u634c\u7396](?:\u5343|\u767e|\u4f70)(?:[\u4e00\u4e8c\u4e24\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u58f9\u8d30\u53c1\u8086\u4f0d\u9646\u67d2\u634c\u7396](?:\u767e|\u5341))?(?:\u4e07)?/g;
+      let chineseHit;
+      while ((chineseHit = chinesePattern.exec(normalized))) {
+        const value = chineseBudgetToNumber(chineseHit[0]);
+        if (Number.isFinite(value) && value >= 100) matches.push({ value, text: chineseHit[0] });
+      }
+      if (!matches.length) return {};
+      const values = Array.from(new Set(matches.map((item) => item.value))).sort((a, b) => a - b);
+      const sourceText = matches.map((item) => item.text).join("/");
+      const hasRange = values.length >= 2 && /\u5230|\u81f3|-|\u2014|~|\uff5e/.test(normalized);
+      if (hasRange) {
+        return { minPrice: values[0], maxPrice: values[values.length - 1], budgetStrict: true, budgetSourceText: sourceText };
+      }
+      const value = values[values.length - 1];
+      if (/\u4ee5\u4e0a|\u8d77|\u81f3\u5c11|\u4e0d\u4f4e\u4e8e/.test(normalized)) {
+        return { minPrice: value, budgetStrict: true, budgetSourceText: sourceText };
+      }
+      return { maxPrice: value, budgetStrict: true, budgetSourceText: sourceText };
     }
 
     function budgetToPriceRange(text) {
@@ -2509,6 +2570,10 @@
       if (!value) {
         const hit = chineseBudgetMap.find(([pattern]) => pattern.test(raw));
         value = hit ? hit[1] : null;
+      }
+      if (!value) {
+        const exactBudget = parseBudgetConstraint(raw);
+        value = exactBudget.maxPrice || exactBudget.minPrice || null;
       }
       if (!Number.isFinite(value)) return "";
       if (/\u4ee5\u5185|\u4ee5\u4e0b|\u4e0d\u8d85|\u6700\u591a|\u63a7\u5236/.test(raw)) {
@@ -2537,6 +2602,7 @@
       if (/\u4e09\u623f|3\s*\u623f/.test(text)) inferred.rooms = "3";
       if (/\u56db\u623f|4\s*\u623f/.test(text)) inferred.rooms = "4";
       inferred.priceRange = budgetToPriceRange(text);
+      Object.assign(inferred, parseBudgetConstraint(text));
       if (/\u5b66\u533a|\u5b66\u6821/.test(text)) inferred.surroundings.push("\u5b66\u533a");
       if (/\u8f66\u4f4d|\u505c\u8f66/.test(text)) inferred.surroundings.push("\u8f66\u4f4d");
       if (/\u7cbe\u88c5/.test(text)) {
@@ -2559,6 +2625,10 @@
       memoryFilters.bathrooms = String(profile.bathrooms || "").replace(/\D/g, "");
       memoryFilters.areaRange = profile.areaRange || "";
       memoryFilters.priceRange = profile.priceRange || budgetToPriceRange(profile.budget || "");
+      Object.assign(memoryFilters, parseBudgetConstraint(profile.budget || ""));
+      if (profile.minPrice) memoryFilters.minPrice = Number(String(profile.minPrice).replace(/\D/g, "")) || memoryFilters.minPrice;
+      if (profile.maxPrice) memoryFilters.maxPrice = Number(String(profile.maxPrice).replace(/\D/g, "")) || memoryFilters.maxPrice;
+      if (profile.budgetStrict) memoryFilters.budgetStrict = true;
       memoryFilters.floor = profile.floor || "";
       memoryFilters.decoration = profile.decoration || "";
       memoryFilters.yearRange = profile.yearRange || "";
@@ -2594,6 +2664,10 @@
         bathrooms: mergeFilterValue(current.bathrooms, inferred.bathrooms, memory.bathrooms),
         areaRange: mergeFilterValue(current.areaRange, inferred.areaRange, memory.areaRange),
         priceRange: mergeFilterValue(current.priceRange, inferred.priceRange, memory.priceRange),
+        minPrice: current.minPrice || inferred.minPrice || memory.minPrice || "",
+        maxPrice: current.maxPrice || inferred.maxPrice || memory.maxPrice || "",
+        budgetStrict: Boolean(current.budgetStrict || inferred.budgetStrict || memory.budgetStrict),
+        budgetSourceText: current.budgetSourceText || inferred.budgetSourceText || memory.budgetSourceText || "",
         floor: mergeFilterValue(current.floor, inferred.floor, memory.floor),
         decoration: mergeFilterValue(current.decoration, inferred.decoration, memory.decoration),
         yearRange: mergeFilterValue(current.yearRange, inferred.yearRange, memory.yearRange),
@@ -2729,6 +2803,7 @@
         "property_question \u7684 reply \u6216 policyReply \u5fc5\u987b\u7528\u6362\u884c\u5206\u6bb5\u3002\u666e\u901a\u653f\u7b56\u95ee\u7b54\u9650 120-220 \u5b57\uff0c\u4e0d\u8d85\u8fc7 5 \u4e2a\u77ed\u6bb5\uff1a\u7ed3\u8bba\uff1a...\\n\\n\u9700\u786e\u8ba4\uff1a...\\n\\n\u5f71\u54cd\uff1a...\\n\\n\u5efa\u8bae\uff1a...\\n\\n\u98ce\u9669\uff1a...\u3002\u5982\u679c\u7528\u6237\u53ea\u95ee\u9650\u8d2d\uff0c\u4e0d\u4e3b\u52a8\u5c55\u5f00\u7a0e\u8d39\u548c\u6708\u4f9b\u3002",
         "\u623f\u4ef7\u8d70\u52bf\u3001\u7ecf\u6d4e\u8d70\u52bf\u3001\u4e70\u623f\u65f6\u673a\u7c7b\u95ee\u9898\uff0creply \u6216 policyReply \u5fc5\u987b\u81f3\u5c11\u8986\u76d6\uff1a1. \u603b\u4f53\u5224\u65ad\uff1b2. \u5b8f\u89c2\u7ecf\u6d4e\uff1b3. \u653f\u7b56\u548c\u4fe1\u8d37\uff1b4. \u4f9b\u9700\u5173\u7cfb\uff1b5. \u65b0\u623f/\u4e8c\u624b\u623f\u5dee\u5f02\uff1b6. \u677f\u5757\u5206\u5316\uff1b7. \u4e70\u65b9\u5efa\u8bae\uff1b8. \u98ce\u9669\u63d0\u793a\u3002\u957f\u5ea6\u5efa\u8bae 500-900 \u5b57\u3002",
         "\u8bf7\u4f7f\u7528 memoryContext \u4e2d\u7684 buyerProfile\u3001historySummary \u548c recentMessages \u7406\u89e3\u4e0a\u4e0b\u6587\u3002\u5f53\u7528\u6237\u8bf4\u201c\u521a\u624d\u201d\u3001\u201c\u8fd9\u4e2a\u9884\u7b97\u201d\u3001\u201c\u518d\u63a8\u51e0\u5957\u201d\u3001\u201c\u6709\u6ca1\u6709\u66f4...\u201d\u65f6\uff0c\u5fc5\u987b\u4f18\u5148\u5ef6\u7eed\u5df2\u8bb0\u4f4f\u7684\u5ba2\u6237\u9700\u6c42\u3002\u4f46\u4e0d\u8981\u7f16\u9020 memoryContext \u91cc\u6ca1\u6709\u7684\u4fe1\u606f\u3002",
+        "\u7528\u6237\u8bf4\u5177\u4f53\u9884\u7b97\u91d1\u989d\u65f6\uff0c\u5fc5\u987b\u628a\u5b83\u4f5c\u4e3a\u786c\u6761\u4ef6\uff1a\u4f8b\u5982 700\u4e07\u4ee5\u5185\u5fc5\u987b\u8fd4\u56de maxPrice=700\u3001budgetStrict=true\u3001budgetSourceText=700\u4e07\uff0cpriceRange \u53ea\u662f UI \u6863\u4f4d\uff0c\u4e0d\u80fd\u628a 700\u4e07\u76f4\u63a5\u7b49\u540c\u4e8e 1000\u4e07\u4ee5\u4e0b\u5e76\u63a8\u8350\u8d85\u8fc7 700\u4e07\u7684\u623f\u6e90\u3002\u5982\u679c\u9700\u8981\u8d85\u9884\u7b97\u63a8\u8350\uff0c\u5fc5\u987b\u5148\u8bf4\u660e\u201c\u653e\u5bbd\u9884\u7b97\u201d\u3002",
                 "\u623f\u6e90\u7b5b\u9009\u5b57\u6bb5\u53d6\u503c\u5fc5\u987b\u6765\u81ea\u623f\u6e90\u6570\u636e\u548c\u7b5b\u9009\u9879\u3002\u672a\u77e5\u6761\u4ef6\u7559\u7a7a\u3002rooms\u3001bathrooms\u3001rating \u7528\u6570\u5b57\u5b57\u7b26\u4e32\u3002priceRange\u3001areaRange\u3001floor\u3001decoration\u3001yearRange\u3001school\u3001parking \u5fc5\u987b\u4f7f\u7528\u7b5b\u9009\u9879\u4e2d\u5b58\u5728\u7684\u503c\u3002surroundings \u53ea\u80fd\u5305\u542b \u5b66\u533a\u3001\u8f66\u4f4d\u3001\u7cbe\u88c5\u3001\u8c6a\u88c5\u3002\u9884\u7b97\u3001\u9996\u4ed8\u3001\u6708\u4f9b\u3001\u7a0e\u8d39\u548c\u6210\u672c\u95ee\u9898\u8981\u7ed3\u5408 cost_planning \u548c loan_policy \u601d\u8def\u56de\u7b54\u3002"
       ].join("\n");
     }
@@ -2910,6 +2985,8 @@
         "bathrooms",
         "areaRange",
         "priceRange",
+        "minPrice",
+        "maxPrice",
         "floor",
         "decoration",
         "yearRange",
@@ -3002,6 +3079,7 @@
       const normalized = normalizeFilters(filters || {});
       return {
         ...normalized,
+        priceRange: (normalized.minPrice || normalized.maxPrice) ? "" : normalized.priceRange,
         surroundings: []
       };
     }
@@ -3015,6 +3093,20 @@
       });
     }
 
+    function listingPriceForBudget(item) {
+      const bottom = Number(item.bottomPrice || 0);
+      const quoted = Number(item.quotedPrice || 0);
+      return bottom || quoted || 0;
+    }
+
+    function listingMatchesBudget(item, filters) {
+      const price = listingPriceForBudget(item);
+      if (!price) return true;
+      if (filters.minPrice && price < Number(filters.minPrice)) return false;
+      if (filters.maxPrice && price > Number(filters.maxPrice)) return false;
+      return true;
+    }
+
     function listingMatchesFilters(item, filters) {
       const normalized = normalizeFilters(filters);
       const basicMatch =
@@ -3022,7 +3114,8 @@
         (!normalized.rooms || String(item.rooms) === normalized.rooms) &&
         (!normalized.bathrooms || String(item.bathrooms) === normalized.bathrooms) &&
         (!normalized.areaRange || item.areaRange === normalized.areaRange) &&
-        (!normalized.priceRange || item.priceRange === normalized.priceRange) &&
+        listingMatchesBudget(item, normalized) &&
+        ((normalized.minPrice || normalized.maxPrice) || !normalized.priceRange || item.priceRange === normalized.priceRange) &&
         (!normalized.floor || item.floor === normalized.floor) &&
         (!normalized.decoration || item.decoration === normalized.decoration) &&
         (!normalized.yearRange || item.yearRange === normalized.yearRange) &&
@@ -3061,8 +3154,9 @@
     function describeFilters(filters) {
       const normalized = normalizeFilters(filters);
       const parts = Object.entries(normalized)
-        .filter(([key, value]) => key !== "surroundings" && Boolean(value))
+        .filter(([key, value]) => !["surroundings", "budgetStrict", "budgetSourceText", "priceRange"].includes(key) && Boolean(value))
         .map(([key, value]) => filterLabel(key, value));
+      if (!normalized.minPrice && !normalized.maxPrice && normalized.priceRange) parts.push(filterLabel("priceRange", normalized.priceRange));
       if (normalized.surroundings.length) parts.push(`\u5173\u6ce8\uff1a${normalized.surroundings.join("\uff0c")}`);
       return parts.join("\uff0c") || "\u5f53\u524d\u9700\u6c42";
     }
@@ -3071,7 +3165,15 @@
       const next = normalizeFilters(filters);
       keys.forEach((key) => {
         if (key === "surroundings") next.surroundings = [];
-        else next[key] = "";
+        else {
+          next[key] = "";
+          if (key === "priceRange") {
+            next.minPrice = "";
+            next.maxPrice = "";
+            next.budgetStrict = false;
+            next.budgetSourceText = "";
+          }
+        }
       });
       return next;
     }
