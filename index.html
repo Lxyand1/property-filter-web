@@ -3293,7 +3293,10 @@
         }
         const displayFilters = showListings ? hardListingFilters(mergedFilters) : mergedFilters;
         const hasDisplayFilters = hasMeaningfulFilters(displayFilters);
-        if (showListings && hasDisplayFilters) applyAiFilters(displayFilters);
+        if (showListings && hasDisplayFilters) {
+          applyAiFilters(displayFilters);
+          state.filtered = filterListingsBy(displayFilters);
+        }
         let matchedListings = showListings && hasDisplayFilters ? sortListingsByPreferences(state.filtered, mergedFilters) : [];
         let relaxedResult = null;
         let assistantReplyText = replyText;
