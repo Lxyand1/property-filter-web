@@ -2249,6 +2249,32 @@
       return listings.filter((item) => wanted.has(String(item.id)));
     }
 
+    function recentRecommendedCommunities() {
+      const communities = [];
+      loadVisibleChat().slice().reverse().some((item) => {
+        const restoredListings = listingByIds(item.listingIds || []);
+        restoredListings.forEach((listing) => {
+          if (listing.community && !communities.includes(listing.community)) communities.push(listing.community);
+        });
+        return communities.length >= 6;
+      });
+      const profileCommunities = loadAiMemory().buyerProfile?.lastRecommendedCommunities || [];
+      profileCommunities.forEach((community) => {
+        if (community && !communities.includes(community)) communities.push(community);
+      });
+      return communities;
+    }
+
+    function wantsDifferentCommunity(query) {
+      return /\u5176\u4ed6\u5c0f\u533a|\u522b\u7684\u5c0f\u533a|\u6362\u4e2a\u5c0f\u533a|\u6362\u4e00\u4e2a\u5c0f\u533a|\u4e0d\u8981\u8fd9\u4e2a\u5c0f\u533a|\u5176\u4ed6\u697c\u76d8|\u522b\u7684\u697c\u76d8/.test(String(query || ""));
+    }
+
+    function excludeCommunitiesFromListings(items, communities) {
+      const blocked = new Set((communities || []).filter(Boolean));
+      if (!blocked.size) return items || [];
+      return (items || []).filter((item) => !blocked.has(item.community));
+    }
+
     function renderWelcomeMessage() {
       const node = appendAiMessage("assistant", aiWelcomeText);
       node.dataset.welcome = "true";
@@ -2669,8 +2695,10 @@
         };
       }
       const memory = profileFiltersFromMemory();
+      const differentCommunity = wantsDifferentCommunity(query);
+      const communityFilter = differentCommunity && !inferred.community ? "" : mergeFilterValue(current.community, inferred.community, differentCommunity ? "" : memory.community);
       return {
-        community: mergeFilterValue(current.community, inferred.community, memory.community),
+        community: communityFilter,
         rooms: mergeFilterValue(current.rooms, inferred.rooms, memory.rooms),
         bathrooms: mergeFilterValue(current.bathrooms, inferred.bathrooms, memory.bathrooms),
         areaRange: mergeFilterValue(current.areaRange, inferred.areaRange, memory.areaRange),
@@ -3321,10 +3349,13 @@
           state.filtered = filterListingsBy(displayFilters);
         }
         let matchedListings = showListings && hasDisplayFilters ? sortListingsByPreferences(state.filtered, mergedFilters) : [];
+        if (showListings && wantsDifferentCommunity(query)) {
+          matchedListings = excludeCommunitiesFromListings(matchedListings, recentRecommendedCommunities());
+        }
         let relaxedResult = null;
         let assistantReplyText = replyText;
         if (showListings && !hasDisplayFilters) {
-          assistantReplyText = "我还没有识别到可用的筛选条件，为了避免把全部房源都推给你，请补充预算、户型、小区或其他关键条件。";
+          assistantReplyText = "\u6211\u8fd8\u6ca1\u6709\u8bc6\u522b\u5230\u53ef\u7528\u7684\u7b5b\u9009\u6761\u4ef6\uff0c\u4e3a\u4e86\u907f\u514d\u628a\u5168\u90e8\u623f\u6e90\u90fd\u63a8\u7ed9\u4f60\uff0c\u8bf7\u8865\u5145\u9884\u7b97\u3001\u6237\u578b\u3001\u5c0f\u533a\u6216\u5176\u4ed6\u5173\u952e\u6761\u4ef6\u3002";
         } else if (showListings && !matchedListings.length) {
           assistantReplyText = noMatchReply(mergedFilters, null);
         }
@@ -3338,7 +3369,9 @@ ${listingAnswerLead(query, assistantReplyText, listingReply, matchedListings.len
         if (isMobileLayout()) setMobileView("ai");
         const assistantText = loadingNode.textContent;
         if (showListings) appendAiListings(matchedListings, loadingNode);
-        addVisibleChatItem({ role: "assistant", text: assistantText, listingIds: showListings ? visibleListingIds(matchedListings) : [] });
+        const assistantListingIds = showListings ? visibleListingIds(matchedListings) : [];
+        addVisibleChatItem({ role: "assistant", text: assistantText, listingIds: assistantListingIds });
+        aiResult.listingIds = assistantListingIds;
         rememberAiTurn(query, aiResult, assistantText).catch(() => {});
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
