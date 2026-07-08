@@ -2141,7 +2141,8 @@
       filtered: [],
       activeVideo: "",
       realEstateKnowledge: null,
-      salesPersona: null
+      salesPersona: null,
+      salesGuardrails: null
     };
 
     const els = {
@@ -2868,11 +2869,17 @@
       return JSON.stringify(state.salesPersona, null, 2);
     }
 
+    function salesGuardrailsContext() {
+      if (!state.salesGuardrails) return "";
+      return JSON.stringify(state.salesGuardrails, null, 2);
+    }
+
     function aiSystemPrompt() {
       return [
         "\u4f60\u662f\u5c0f\u90b1AI\u52a9\u624b\uff0c\u540c\u65f6\u5177\u5907\u4e24\u4e2a\u80fd\u529b\uff1a1. \u6839\u636e\u5ba2\u6237\u81ea\u7136\u8bed\u8a00\u9700\u6c42\u7b5b\u9009\u623f\u6e90\uff1b2. \u56de\u7b54\u4e0a\u6d77\u623f\u5730\u4ea7\u653f\u7b56\u3001\u8d37\u6b3e\u3001\u7a0e\u8d39\u3001\u5e02\u573a\u8d70\u52bf\u3001\u571f\u62cd\u548c\u4f4f\u5b85\u4ea7\u54c1\u95ee\u9898\u3002",
         "\u4f60\u7684\u4eba\u8bbe\u662f\u9500\u51a0\u578b\u7f6e\u4e1a\u987e\u95ee\uff1a\u6839\u672c\u76ee\u6807\u662f\u5e2e\u5ba2\u6237\u660e\u786e\u9700\u6c42\u3001\u63a8\u8350\u5408\u9002\u623f\u6e90\u3001\u63a8\u52a8\u770b\u623f\u548c\u6210\u4ea4\uff0c\u4f46\u5fc5\u987b\u771f\u5b9e\u3001\u4e13\u4e1a\u3001\u4e0d\u5938\u5927\u3001\u4e0d\u865a\u6784\u3002",
         "salesPersona JSON:\n" + salesPersonaContext(),
+        "salesGuardrails JSON:\n" + salesGuardrailsContext(),
         "\u53ea\u80fd\u8fd4\u56de\u4e25\u683c JSON\uff0c\u4e0d\u8981\u4f7f\u7528 Markdown\uff0c\u4e0d\u8981\u5728 JSON \u5916\u6dfb\u52a0\u4efb\u4f55\u6587\u5b57\u3002",
         "JSON \u683c\u5f0f\uff1a{\\\"intent\\\":\\\"listing_search|property_question|mixed|chat\\\",\\\"intents\\\":[\\\"property_question\\\",\\\"listing_search\\\"],\\\"filters\\\":{\\\"community\\\":\\\"\\\",\\\"rooms\\\":\\\"\\\",\\\"bathrooms\\\":\\\"\\\",\\\"areaRange\\\":\\\"\\\",\\\"priceRange\\\":\\\"\\\",\\\"floor\\\":\\\"\\\",\\\"decoration\\\":\\\"\\\",\\\"yearRange\\\":\\\"\\\",\\\"school\\\":\\\"\\\",\\\"parking\\\":\\\"\\\",\\\"rating\\\":\\\"\\\",\\\"surroundings\\\":[]},\\\"reply\\\":\\\"\u7ed9\u5ba2\u6237\u770b\u7684\u4e2d\u6587\u56de\u590d\\\",\\\"policyReply\\\":\\\"\u653f\u7b56\u6216\u77e5\u8bc6\u95ee\u7b54\\\",\\\"listingReply\\\":\\\"\u623f\u6e90\u63a8\u8350\u5f15\u5bfc\u8bed\\\"}",
         "\u627e\u623f\u65f6\u5fc5\u987b\u533a\u5206\u786c\u6761\u4ef6\u548c\u8f6f\u504f\u597d\uff1a\u9884\u7b97\u4e0a\u9650\u3001\u6307\u5b9a\u5c0f\u533a\u3001\u6237\u578b\u3001\u5fc5\u987b\u8f66\u4f4d\u3001\u5fc5\u987b\u5b66\u533a\u662f\u786c\u6761\u4ef6\uff1b\u5b89\u9759\u3001\u65b0\u4e00\u70b9\u3001\u54c1\u8d28\u597d\u3001\u81ea\u4f4f\u8212\u670d\u662f\u8f6f\u504f\u597d\uff0c\u7528\u4e8e\u6392\u5e8f\u548c\u89e3\u91ca\uff0c\u4e0d\u8981\u968f\u610f\u786c\u7b5b\u6389\u623f\u6e90\u3002",
@@ -2963,6 +2970,16 @@
         state.salesPersona = await response.json();
       } catch (error) {
         state.salesPersona = null;
+      }
+    }
+
+    async function loadSalesGuardrails() {
+      try {
+        const response = await fetch(`./data/sales-guardrails.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        state.salesGuardrails = await response.json();
+      } catch (error) {
+        state.salesGuardrails = null;
       }
     }
 
@@ -3801,7 +3818,7 @@ ${listingAnswerLead(query, assistantReplyText, listingReply, matchedListings.len
     setMobileView("ai");
 
     loadAiConfig();
-    Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge(), loadSalesPersona()])
+    Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge(), loadSalesPersona(), loadSalesGuardrails()])
       .then(() => {
         render();
         restoreVisibleChat();
