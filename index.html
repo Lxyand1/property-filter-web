@@ -2626,12 +2626,47 @@
       return "3000\u4e07\u4ee5\u4e0a";
     }
 
+    function normalizeCommunityText(text) {
+      return String(text || "")
+        .replace(/[\s\u3000]/g, "")
+        .replace(/\u5bcc\u5bb6/g, "\u5bcc\u5609")
+        .replace(/\u65b0\u6642\u4ee3/g, "\u65b0\u65f6\u4ee3");
+    }
+
+    function communityMatchScore(community, query) {
+      const normalizedCommunity = normalizeCommunityText(community);
+      const normalizedQuery = normalizeCommunityText(query);
+      if (!normalizedCommunity || !normalizedQuery) return 0;
+      if (normalizedQuery.includes(normalizedCommunity)) return normalizedCommunity.length + 20;
+      const aliases = Array.from(new Set([
+        normalizedCommunity,
+        normalizedCommunity.replace(/\u65b0\u65f6\u4ee3|\u4e07\u6e90\u57ce/g, ""),
+        normalizedCommunity.replace(/\u82b1\u56ed|\u516c\u9986|\u65b0\u57ce|\u6717\u90e1|\u5c1a\u90e1|\u9038\u90e1|\u5fa1\u7484|\u666f\u5ead/g, "")
+      ])).filter((value) => value && value.length >= 2);
+      let score = 0;
+      aliases.forEach((alias) => {
+        if (normalizedQuery.includes(alias)) score = Math.max(score, alias.length + 8);
+      });
+      for (let length = Math.min(4, normalizedCommunity.length); length >= 2; length -= 1) {
+        for (let index = 0; index <= normalizedCommunity.length - length; index += 1) {
+          const part = normalizedCommunity.slice(index, index + length);
+          if (normalizedQuery.includes(part)) score = Math.max(score, length);
+        }
+      }
+      return score;
+    }
+
+    function findCommunityFromQuery(query) {
+      return listings
+        .map((item) => ({ item, score: communityMatchScore(item.community, query) }))
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => b.score - a.score || String(b.item.community || "").length - String(a.item.community || "").length)[0]?.item || null;
+    }
+
     function inferFiltersFromQuery(query) {
       const text = String(query || "");
       const inferred = normalizeFilters({});
-      const communityHit = listings.find((item) => item.community && text.includes(item.community)) ||
-        listings.find((item) => item.community && item.community.length >= 2 && text.includes(item.community.slice(-2))) ||
-        listings.find((item) => item.community && text.includes(item.community.replace(/\u65b0\u65f6\u4ee3|\u4e07\u6e90\u57ce/g, "")));
+      const communityHit = findCommunityFromQuery(text);
       if (communityHit) inferred.community = communityHit.community;
       if (/\u4e00\u623f|1\s*\u623f/.test(text)) inferred.rooms = "1";
       if (/\u4e24\u623f|\u4e8c\u623f|2\s*\u623f/.test(text)) inferred.rooms = "2";
@@ -3247,6 +3282,51 @@
       return next;
     }
 
+    function priceGapFromTarget(item, filters) {
+      const price = listingPriceForBudget(item);
+      const target = Number(filters.targetPrice || filters.maxPrice || filters.minPrice || 0);
+      if (!price || !target) return 0;
+      return Math.abs(price - target);
+    }
+
+    function formatPriceLine(item) {
+      const quoted = item.quotedPrice ? `\u62a5\u4ef7${item.quotedPrice}\u4e07` : "";
+      const bottom = item.bottomPrice ? `\u76ee\u524d\u5e95\u4ef7${item.bottomPrice}\u4e07` : "";
+      return [quoted, bottom].filter(Boolean).join("\uff0c");
+    }
+
+    function findNearestCommunityListings(filters) {
+      const normalized = normalizeFilters(filters);
+      if (!normalized.community || !(normalized.targetPrice || normalized.maxPrice || normalized.minPrice)) {
+        return { listings: [], filters: normalized, note: "" };
+      }
+      const relaxedFilters = withoutFilter(normalized, ["priceRange"]);
+      const candidates = filterListingsBy(relaxedFilters)
+        .sort((a, b) => priceGapFromTarget(a, normalized) - priceGapFromTarget(b, normalized) || listingPriceForBudget(a) - listingPriceForBudget(b));
+      if (!candidates.length) return { listings: [], filters: relaxedFilters, note: "" };
+      return {
+        listings: candidates.slice(0, 3),
+        filters: relaxedFilters,
+        note: "\u4fdd\u7559\u6307\u5b9a\u5c0f\u533a\uff0c\u653e\u5bbd\u9884\u7b97",
+        salesFallback: true,
+        originalFilters: normalized
+      };
+    }
+
+    function salesFallbackReply(filters, relaxed) {
+      const normalized = normalizeFilters(filters);
+      const listing = relaxed?.listings?.[0];
+      if (!listing) return noMatchReply(normalized, null);
+      const target = normalized.targetPrice || normalized.maxPrice || normalized.minPrice;
+      const targetText = target ? `${target}\u4e07` : "\u8fd9\u4e2a\u9884\u7b97";
+      const priceLine = formatPriceLine(listing);
+      const parkingText = listing.parking && listing.parking !== "\u65e0" ? `\uff0c\u800c\u4e14\u662f\u5e26${listing.parking}\u7684` : "";
+      const roomsText = listing.rooms ? `${listing.rooms}\u623f` : "\u623f\u6e90";
+      const overBudget = target && listingPriceForBudget(listing) ? listingPriceForBudget(listing) - Number(target) : 0;
+      const overText = overBudget > 0 ? `\uff0c\u6bd4\u4f60\u7684\u76ee\u6807\u9884\u7b97\u9ad8\u7ea6${Math.round(overBudget)}\u4e07` : "";
+      return `${normalized.community}\u76ee\u524d${targetText}\u9644\u8fd1\u6ca1\u6709\u5b8c\u5168\u5339\u914d\u7684\u623f\u6e90\u3002\u6700\u63a5\u8fd1\u7684\u662f${listing.community}\u8fd9\u5957${roomsText}\uff0c\u6211\u7ed9\u4f60\u63a8\u8350\u4e00\u4e0b\uff0c\u4e0d\u59a8\u770b\u770b\u3002${priceLine}${parkingText}${overText}\uff0c\u5982\u679c\u9884\u7b97\u80fd\u9002\u5f53\u63d0\u5347\uff0c\u8fd9\u5957\u8fd8\u662f\u503c\u5f97\u7eb3\u5165\u5019\u9009\u7684\u3002`;
+    }
+
     function findRelaxedListings(filters) {
       const normalized = normalizeFilters(filters);
       const attempts = [
@@ -3278,6 +3358,9 @@
       const softPreference = normalized.surroundings.length ? `软偏好：${normalized.surroundings.join("，")}（用于优先排序，不会把其他房源全部筛掉）` : "";
       const condition = [hardCondition, softPreference].filter(Boolean).join("；");
       const totalCount = listings.length;
+      if (relaxedResult && relaxedResult.salesFallback && relaxedResult.listings && relaxedResult.listings.length) {
+        return salesFallbackReply(normalized, relaxedResult);
+      }
       if (!count) return noMatchReply(normalized, relaxedResult);
       const sourceNote = totalCount ? `\u5f53\u524d\u623f\u6e90\u5e93\u5171 ${totalCount} \u5957\uff0c\u672c\u8f6e\u5b8c\u5168\u5339\u914d ${count} \u5957\u3002` : `\u672c\u8f6e\u5b8c\u5168\u5339\u914d ${count} \u5957\u3002`;
       if (relaxedResult && relaxedResult.listings && relaxedResult.listings.length) {
@@ -3375,7 +3458,13 @@
         if (showListings && !hasDisplayFilters) {
           assistantReplyText = "\u6211\u8fd8\u6ca1\u6709\u8bc6\u522b\u5230\u53ef\u7528\u7684\u7b5b\u9009\u6761\u4ef6\uff0c\u4e3a\u4e86\u907f\u514d\u628a\u5168\u90e8\u623f\u6e90\u90fd\u63a8\u7ed9\u4f60\uff0c\u8bf7\u8865\u5145\u9884\u7b97\u3001\u6237\u578b\u3001\u5c0f\u533a\u6216\u5176\u4ed6\u5173\u952e\u6761\u4ef6\u3002";
         } else if (showListings && !matchedListings.length) {
-          assistantReplyText = noMatchReply(mergedFilters, null);
+          relaxedResult = findNearestCommunityListings(mergedFilters);
+          if (relaxedResult.listings.length) {
+            matchedListings = sortListingsByPreferences(relaxedResult.listings, mergedFilters);
+            assistantReplyText = salesFallbackReply(mergedFilters, relaxedResult);
+          } else {
+            assistantReplyText = noMatchReply(mergedFilters, null);
+          }
         }
         if (detected.hasPropertyQuestion && showListings) {
           loadingNode.textContent = `${formatPropertyReply(policyReply)}
@@ -3402,7 +3491,7 @@ ${listingAnswerLead(query, assistantReplyText, listingReply, matchedListings.len
 
     function fillSelect(select, values, labeler = (value) => value) {
       if (!select) return;
-      const first = select.querySelector("option")?.outerHTML || '<option value="">??</option>';
+      const first = select.querySelector("option")?.outerHTML || '<option value="">\u5168\u90e8</option>';
       select.innerHTML = first + values.map((value) => `<option value="${escapeAttr(value)}">${labeler(value)}</option>`).join("");
     }
 
