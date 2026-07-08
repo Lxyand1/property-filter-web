@@ -3356,11 +3356,13 @@
 
     function shouldShowAiListings(query, aiResult) {
       const text = String(query || "").trim();
-      if (suppressListingsForPolicy(text, aiResult)) return false;
-      if (aiResult && aiResult.showListings === true && !isPolicyQuestionText(text)) return true;
-      const detected = detectUserIntents(text, aiResult);
       const localFilters = inferFiltersFromQuery(text);
       const hasLocalListingFilters = hasMeaningfulFilters(localFilters);
+      const policyText = isPolicyQuestionText(text);
+      if (hasLocalListingFilters && !policyText) return true;
+      if (suppressListingsForPolicy(text, aiResult)) return false;
+      if (aiResult && aiResult.showListings === true && !policyText) return true;
+      const detected = detectUserIntents(text, aiResult);
       const intent = String((aiResult && aiResult.intent) || "").toLowerCase();
       if (intent === "chat" && !hasLocalListingFilters) return false;
       const explicitSearch = isExplicitListingSearchText(text) || hasLocalListingFilters;
