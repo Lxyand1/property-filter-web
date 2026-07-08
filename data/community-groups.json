@@ -1,0 +1,30 @@
+{
+  "version": "2026-07-08-community-groups-v1",
+  "description": "房源小区系列配置。用于把“万源城有什么房源”这类问法匹配到万源城逸郡、尚郡、朗郡、御璄等系列小区。",
+  "groups": [
+    {
+      "name": "万源城",
+      "matchMode": "prefix",
+      "aliases": [
+        "万源城"
+      ],
+      "communities": [
+        "万源城逸郡",
+        "万源城尚郡",
+        "万源城朗郡",
+        "万源城御璄"
+      ]
+    },
+    {
+      "name": "新时代",
+      "matchMode": "prefix",
+      "aliases": [
+        "新时代"
+      ],
+      "communities": [
+        "新时代富嘉花园",
+        "新时代景庭"
+      ]
+    }
+  ]
+}

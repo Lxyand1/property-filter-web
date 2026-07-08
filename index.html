@@ -2144,7 +2144,8 @@
       salesPersona: null,
       salesGuardrails: null,
       salesObjections: null,
-      viewingRules: null
+      viewingRules: null,
+      communityGroups: null
     };
 
     const els = {
@@ -2746,25 +2747,37 @@
       return score;
     }
 
+    function configuredCommunityGroups() {
+      const configured = Array.isArray(state.communityGroups?.groups) ? state.communityGroups.groups : [];
+      if (configured.length) return configured;
+      return [
+        { name: "\u4e07\u6e90\u57ce", matchMode: "prefix", aliases: ["\u4e07\u6e90\u57ce"], communities: [] },
+        { name: "\u65b0\u65f6\u4ee3", matchMode: "prefix", aliases: ["\u65b0\u65f6\u4ee3"], communities: [] }
+      ];
+    }
+
     function communityGroupsFromListings() {
-      const groups = new Set();
-      listings.forEach((item) => {
-        const community = normalizeCommunityText(item.community);
-        const hit = community.match(/^(\u4e07\u6e90\u57ce|\u65b0\u65f6\u4ee3)/);
-        if (hit) groups.add(hit[1]);
-      });
-      return Array.from(groups);
+      return configuredCommunityGroups().map((group) => normalizeCommunityText(group.name)).filter(Boolean);
     }
 
     function findCommunityGroupFromQuery(query) {
       const normalizedQuery = normalizeCommunityText(query);
-      return communityGroupsFromListings().find((group) => normalizedQuery.includes(group)) || "";
+      return configuredCommunityGroups().find((group) => {
+        const names = [group.name, ...(group.aliases || [])].map(normalizeCommunityText).filter(Boolean);
+        return names.some((name) => normalizedQuery.includes(name));
+      })?.name || "";
     }
 
     function communityMatchesFilter(item, filters) {
       const normalized = normalizeFilters(filters || {});
       if (normalized.community) return item.community === normalized.community;
-      if (normalized.communityGroup) return normalizeCommunityText(item.community).startsWith(normalizeCommunityText(normalized.communityGroup));
+      if (normalized.communityGroup) {
+        const group = configuredCommunityGroups().find((entry) => normalizeCommunityText(entry.name) === normalizeCommunityText(normalized.communityGroup));
+        if (group && Array.isArray(group.communities) && group.communities.length) {
+          return group.communities.some((community) => normalizeCommunityText(community) === normalizeCommunityText(item.community));
+        }
+        return normalizeCommunityText(item.community).startsWith(normalizeCommunityText(normalized.communityGroup));
+      }
       return true;
     }
 
@@ -3005,6 +3018,11 @@
       return JSON.stringify(state.viewingRules, null, 2);
     }
 
+    function communityGroupsContext() {
+      if (!state.communityGroups) return "";
+      return JSON.stringify(state.communityGroups, null, 2);
+    }
+
     function aiSystemPrompt() {
       return [
         "\u4f60\u662f\u5c0f\u90b1AI\u52a9\u624b\uff0c\u540c\u65f6\u5177\u5907\u4e24\u4e2a\u80fd\u529b\uff1a1. \u6839\u636e\u5ba2\u6237\u81ea\u7136\u8bed\u8a00\u9700\u6c42\u7b5b\u9009\u623f\u6e90\uff1b2. \u56de\u7b54\u4e0a\u6d77\u623f\u5730\u4ea7\u653f\u7b56\u3001\u8d37\u6b3e\u3001\u7a0e\u8d39\u3001\u5e02\u573a\u8d70\u52bf\u3001\u571f\u62cd\u548c\u4f4f\u5b85\u4ea7\u54c1\u95ee\u9898\u3002",
@@ -3013,6 +3031,7 @@
         "salesGuardrails JSON:\n" + salesGuardrailsContext(),
         "salesObjections JSON:\n" + salesObjectionsContext(),
         "viewingRules JSON:\n" + viewingRulesContext(),
+        "communityGroups JSON:\n" + communityGroupsContext(),
         "\u53ea\u80fd\u8fd4\u56de\u4e25\u683c JSON\uff0c\u4e0d\u8981\u4f7f\u7528 Markdown\uff0c\u4e0d\u8981\u5728 JSON \u5916\u6dfb\u52a0\u4efb\u4f55\u6587\u5b57\u3002",
         "JSON \u683c\u5f0f\uff1a{\\\"intent\\\":\\\"listing_search|property_question|mixed|chat\\\",\\\"intents\\\":[\\\"property_question\\\",\\\"listing_search\\\"],\\\"filters\\\":{\\\"community\\\":\\\"\\\",\\\"rooms\\\":\\\"\\\",\\\"bathrooms\\\":\\\"\\\",\\\"areaRange\\\":\\\"\\\",\\\"priceRange\\\":\\\"\\\",\\\"floor\\\":\\\"\\\",\\\"decoration\\\":\\\"\\\",\\\"yearRange\\\":\\\"\\\",\\\"school\\\":\\\"\\\",\\\"parking\\\":\\\"\\\",\\\"rating\\\":\\\"\\\",\\\"surroundings\\\":[]},\\\"reply\\\":\\\"\u7ed9\u5ba2\u6237\u770b\u7684\u4e2d\u6587\u56de\u590d\\\",\\\"policyReply\\\":\\\"\u653f\u7b56\u6216\u77e5\u8bc6\u95ee\u7b54\\\",\\\"listingReply\\\":\\\"\u623f\u6e90\u63a8\u8350\u5f15\u5bfc\u8bed\\\"}",
         "\u627e\u623f\u65f6\u5fc5\u987b\u533a\u5206\u786c\u6761\u4ef6\u548c\u8f6f\u504f\u597d\uff1a\u9884\u7b97\u4e0a\u9650\u3001\u6307\u5b9a\u5c0f\u533a\u3001\u6237\u578b\u3001\u5fc5\u987b\u8f66\u4f4d\u3001\u5fc5\u987b\u5b66\u533a\u662f\u786c\u6761\u4ef6\uff1b\u5b89\u9759\u3001\u65b0\u4e00\u70b9\u3001\u54c1\u8d28\u597d\u3001\u81ea\u4f4f\u8212\u670d\u662f\u8f6f\u504f\u597d\uff0c\u7528\u4e8e\u6392\u5e8f\u548c\u89e3\u91ca\uff0c\u4e0d\u8981\u968f\u610f\u786c\u7b5b\u6389\u623f\u6e90\u3002",
@@ -3133,6 +3152,16 @@
         state.viewingRules = await response.json();
       } catch (error) {
         state.viewingRules = null;
+      }
+    }
+
+    async function loadCommunityGroups() {
+      try {
+        const response = await fetch(`./data/community-groups.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        state.communityGroups = await response.json();
+      } catch (error) {
+        state.communityGroups = null;
       }
     }
 
@@ -4027,7 +4056,7 @@ ${listingAnswerLead(query, assistantReplyText, listingReply, matchedListings.len
     setMobileView("ai");
 
     loadAiConfig();
-    Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge(), loadSalesPersona(), loadSalesGuardrails(), loadSalesObjections(), loadViewingRules()])
+    Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge(), loadSalesPersona(), loadSalesGuardrails(), loadSalesObjections(), loadViewingRules(), loadCommunityGroups()])
       .then(() => {
         render();
         restoreVisibleChat();
