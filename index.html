@@ -2373,6 +2373,7 @@
       const filters = normalizeFilters(aiResult.filters || {});
       const profile = loadAiMemory().buyerProfile || {};
       updateProfileValue(profile, "community", filters.community);
+      updateProfileValue(profile, "communityGroup", filters.communityGroup);
       updateProfileValue(profile, "rooms", filters.rooms ? `${filters.rooms}\u623f` : "");
       updateProfileValue(profile, "bathrooms", filters.bathrooms ? `${filters.bathrooms}\u536b` : "");
       updateProfileValue(profile, "areaRange", filters.areaRange);
@@ -2603,6 +2604,7 @@
       const safe = filters || {};
       return {
         community: safe.community || "",
+        communityGroup: safe.communityGroup || "",
         rooms: safe.rooms ? String(safe.rooms) : "",
         bathrooms: safe.bathrooms ? String(safe.bathrooms) : "",
         areaRange: safe.areaRange || "",
@@ -2744,6 +2746,28 @@
       return score;
     }
 
+    function communityGroupsFromListings() {
+      const groups = new Set();
+      listings.forEach((item) => {
+        const community = normalizeCommunityText(item.community);
+        const hit = community.match(/^(\u4e07\u6e90\u57ce|\u65b0\u65f6\u4ee3)/);
+        if (hit) groups.add(hit[1]);
+      });
+      return Array.from(groups);
+    }
+
+    function findCommunityGroupFromQuery(query) {
+      const normalizedQuery = normalizeCommunityText(query);
+      return communityGroupsFromListings().find((group) => normalizedQuery.includes(group)) || "";
+    }
+
+    function communityMatchesFilter(item, filters) {
+      const normalized = normalizeFilters(filters || {});
+      if (normalized.community) return item.community === normalized.community;
+      if (normalized.communityGroup) return normalizeCommunityText(item.community).startsWith(normalizeCommunityText(normalized.communityGroup));
+      return true;
+    }
+
     function findCommunityFromQuery(query) {
       return listings
         .map((item) => ({ item, score: communityMatchScore(item.community, query) }))
@@ -2754,8 +2778,15 @@
     function inferFiltersFromQuery(query) {
       const text = String(query || "");
       const inferred = normalizeFilters({});
+      const communityGroup = findCommunityGroupFromQuery(text);
       const communityHit = findCommunityFromQuery(text);
-      if (communityHit) inferred.community = communityHit.community;
+      const normalizedText = normalizeCommunityText(text);
+      const fullCommunityMentioned = communityHit && normalizedText.includes(normalizeCommunityText(communityHit.community));
+      if (communityHit && (!communityGroup || fullCommunityMentioned)) {
+        inferred.community = communityHit.community;
+      } else if (communityGroup) {
+        inferred.communityGroup = communityGroup;
+      }
       if (/\u4e00\u623f|1\s*\u623f/.test(text)) inferred.rooms = "1";
       if (/\u4e24\u623f|\u4e8c\u623f|2\s*\u623f/.test(text)) inferred.rooms = "2";
       if (/\u4e09\u623f|3\s*\u623f/.test(text)) inferred.rooms = "3";
@@ -2780,6 +2811,7 @@
       const profile = loadAiMemory().buyerProfile || {};
       const memoryFilters = normalizeFilters({});
       memoryFilters.community = profile.community || "";
+      memoryFilters.communityGroup = profile.communityGroup || "";
       memoryFilters.rooms = String(profile.rooms || "").replace(/\D/g, "");
       memoryFilters.bathrooms = String(profile.bathrooms || "").replace(/\D/g, "");
       memoryFilters.areaRange = profile.areaRange || "";
@@ -2821,8 +2853,10 @@
       const memory = profileFiltersFromMemory();
       const differentCommunity = wantsDifferentCommunity(query);
       const communityFilter = differentCommunity && !inferred.community ? "" : mergeFilterValue(current.community, inferred.community, differentCommunity ? "" : memory.community);
+      const communityGroupFilter = communityFilter ? "" : mergeFilterValue(current.communityGroup, inferred.communityGroup, differentCommunity ? "" : memory.communityGroup);
       return {
         community: communityFilter,
+        communityGroup: communityGroupFilter,
         rooms: mergeFilterValue(current.rooms, inferred.rooms, memory.rooms),
         bathrooms: mergeFilterValue(current.bathrooms, inferred.bathrooms, memory.bathrooms),
         areaRange: mergeFilterValue(current.areaRange, inferred.areaRange, memory.areaRange),
@@ -3212,6 +3246,7 @@
       if (!filters || typeof filters !== "object") return false;
       return [
         "community",
+        "communityGroup",
         "rooms",
         "bathrooms",
         "areaRange",
@@ -3322,6 +3357,7 @@
       const preferred = normalized.surroundings || [];
       score += preferred.reduce((sum, tag) => sum + ((item.surroundings || []).includes(tag) ? 12 : 0), 0);
       if (normalized.community && item.community === normalized.community) score += 30;
+      if (normalized.communityGroup && communityMatchesFilter(item, normalized)) score += 18;
       if (normalized.rooms && String(item.rooms) === normalized.rooms) score += 20;
       const price = listingPriceForBudget(item);
       const target = Number(normalized.targetPrice || normalized.maxPrice || normalized.minPrice || 0);
@@ -3333,7 +3369,7 @@
     function recommendationTypeForListing(item, filters = {}, relaxedResult = null) {
       const normalized = normalizeFilters(filters || {});
       if (relaxedResult?.salesFallback) return "stretch_budget";
-      if (normalized.community && item.community !== normalized.community) return "alternative_community";
+      if ((normalized.community || normalized.communityGroup) && !communityMatchesFilter(item, normalized)) return "alternative_community";
       if (listingMatchesFilters(item, hardListingFilters(normalized))) return "exact_match";
       if (normalized.targetPrice && listingMatchesBudget(item, { targetPrice: normalized.targetPrice, budgetTolerance: Math.max(Number(normalized.budgetTolerance || 0), Math.round(Number(normalized.targetPrice) * 0.2)) })) return "near_budget";
       return "tradeoff_pick";
@@ -3395,7 +3431,7 @@
     function listingMatchesFilters(item, filters) {
       const normalized = normalizeFilters(filters);
       const basicMatch =
-        (!normalized.community || item.community === normalized.community) &&
+        communityMatchesFilter(item, normalized) &&
         (!normalized.rooms || String(item.rooms) === normalized.rooms) &&
         (!normalized.bathrooms || String(item.bathrooms) === normalized.bathrooms) &&
         (!normalized.areaRange || item.areaRange === normalized.areaRange) &&
@@ -3481,7 +3517,7 @@
 
     function findNearestCommunityListings(filters) {
       const normalized = normalizeFilters(filters);
-      if (!normalized.community || !(normalized.targetPrice || normalized.maxPrice || normalized.minPrice)) {
+      if (!(normalized.community || normalized.communityGroup) || !(normalized.targetPrice || normalized.maxPrice || normalized.minPrice)) {
         return { listings: [], filters: normalized, note: "" };
       }
       const relaxedFilters = withoutFilter(normalized, ["priceRange"]);
