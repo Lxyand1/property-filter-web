@@ -2142,7 +2142,9 @@
       activeVideo: "",
       realEstateKnowledge: null,
       salesPersona: null,
-      salesGuardrails: null
+      salesGuardrails: null,
+      salesObjections: null,
+      viewingRules: null
     };
 
     const els = {
@@ -2277,6 +2279,58 @@
       return (items || []).filter((item) => !blocked.has(item.community));
     }
 
+    function recentRecommendedListingIds() {
+      const ids = [];
+      loadVisibleChat().slice().reverse().some((item) => {
+        (item.listingIds || []).forEach((id) => {
+          const value = String(id);
+          if (value && !ids.includes(value)) ids.push(value);
+        });
+        return ids.length >= 12;
+      });
+      const profileIds = loadAiMemory().buyerProfile?.lastRecommendedListingIds || [];
+      profileIds.forEach((id) => {
+        const value = String(id);
+        if (value && !ids.includes(value)) ids.push(value);
+      });
+      return ids;
+    }
+
+    function referencesPreviousListing(query) {
+      return /\u521a\u624d\u90a3\u5957|\u4e0a\u9762\u90a3\u5957|\u521a\u63a8\u7684|\u4f60\u63a8\u8350\u7684|\u7b2c\u4e00\u5957|\u7b2c\u4e8c\u5957|\u7b2c\u4e09\u5957/.test(String(query || ""));
+    }
+
+    function excludeRepeatedListings(items, query) {
+      if (referencesPreviousListing(query)) return items || [];
+      const blocked = new Set(recentRecommendedListingIds());
+      if (!blocked.size) return items || [];
+      const fresh = (items || []).filter((item) => !blocked.has(String(item.id)));
+      return fresh.length ? fresh : (items || []);
+    }
+
+    function detectBuyerStage(query, aiResult = {}) {
+      const text = String(query || "");
+      if (/\u80fd\u770b\u623f|\u4ec0\u4e48\u65f6\u5019\u770b|\u7ea6\u770b|\u5b9e\u5730\u770b|\u5e26\u770b/.test(text)) return "ready_to_view";
+      if (/\u592a\u8d35|\u8d35\u4e86|\u8d85\u9884\u7b97|\u4e70\u4e0d\u8d77|\u9884\u7b97\u4e0d\u591f/.test(text)) return "price_sensitive";
+      if (/\u7a0e|\u8d37\u6b3e|\u9996\u4ed8|\u9650\u8d2d|\u4e8c\u5957|\u8d44\u683c/.test(text)) return "policy_checking";
+      if (/\u968f\u4fbf\u770b\u770b|\u4e86\u89e3\u4e00\u4e0b|\u5148\u770b\u770b|\u4e0d\u7740\u6025/.test(text)) return "browsing";
+      if (/\u8fd8\u6709|\u5176\u4ed6|\u522b\u7684|\u6362\u4e00\u4e2a|\u5bf9\u6bd4|\u54ea\u5957\u597d/.test(text)) return "comparing";
+      if (/\u5e95\u4ef7|\u80fd\u8c08|\u623f\u4e1c|\u8f66\u4f4d|\u88c5\u4fee|\u697c\u5c42/.test(text)) return "serious";
+      if (/\u623f\u5b50|\u623f\u6e90|\u627e\u623f|\u63a8\u8350|\u6709\u6ca1\u6709|\u9884\u7b97|\u5c0f\u533a|\u4e09\u623f|\u4e24\u623f|\u8f66\u4f4d/.test(text)) return "comparing";
+      return "browsing";
+    }
+
+    function detectBudgetFlexibility(query, filters = {}) {
+      const text = String(query || "");
+      if (/\u4ee5\u5185|\u4ee5\u4e0b|\u4e0d\u8d85|\u6700\u591a|\u63a7\u5236/.test(text) || filters.maxPrice) return "strict";
+      if (/\u5de6\u53f3|\u4e0a\u4e0b|\u5dee\u4e0d\u591a|\u53ef\u4ee5\u52a0|\u63d0\u5347|\u8d85\u4e00\u70b9/.test(text) || filters.targetPrice) return "flexible";
+      return "unknown";
+    }
+
+    function arrayUnique(values) {
+      return Array.from(new Set((values || []).filter(Boolean)));
+    }
+
     function renderWelcomeMessage() {
       const node = appendAiMessage("assistant", aiWelcomeText);
       node.dataset.welcome = "true";
@@ -2323,18 +2377,23 @@
       updateProfileValue(profile, "bathrooms", filters.bathrooms ? `${filters.bathrooms}\u536b` : "");
       updateProfileValue(profile, "areaRange", filters.areaRange);
       updateProfileValue(profile, "priceRange", filters.priceRange);
-      updateProfileValue(profile, "minPrice", filters.minPrice ? `${filters.minPrice}万` : "");
-      updateProfileValue(profile, "maxPrice", filters.maxPrice ? `${filters.maxPrice}万` : "");
-      updateProfileValue(profile, "targetPrice", filters.targetPrice ? `${filters.targetPrice}万` : "");
+      updateProfileValue(profile, "minPrice", filters.minPrice ? `${filters.minPrice}\u4e07` : "");
+      updateProfileValue(profile, "maxPrice", filters.maxPrice ? `${filters.maxPrice}\u4e07` : "");
+      updateProfileValue(profile, "targetPrice", filters.targetPrice ? `${filters.targetPrice}\u4e07` : "");
       updateProfileValue(profile, "budgetMode", filters.budgetMode || "");
-      updateProfileValue(profile, "budgetStrict", filters.budgetStrict ? "是" : "");
+      updateProfileValue(profile, "budgetStrict", filters.budgetStrict ? "\u662f" : "");
+      updateProfileValue(profile, "budgetFlexibility", detectBudgetFlexibility(text, filters));
+      updateProfileValue(profile, "buyerStage", detectBuyerStage(text, aiResult));
       updateProfileValue(profile, "floor", filters.floor);
       updateProfileValue(profile, "decoration", filters.decoration);
       updateProfileValue(profile, "yearRange", filters.yearRange);
       updateProfileValue(profile, "school", filters.school);
       updateProfileValue(profile, "parking", filters.parking);
       updateProfileValue(profile, "rating", filters.rating ? `${filters.rating}\u661f\u53ca\u4ee5\u4e0a` : "");
-      if (Array.isArray(filters.surroundings) && filters.surroundings.length) profile.focus = filters.surroundings.join("\uff0c");
+      if (Array.isArray(filters.surroundings) && filters.surroundings.length) {
+        profile.focus = filters.surroundings.join("\uff0c");
+        profile.decisionFactors = arrayUnique([...(profile.decisionFactors || []), ...filters.surroundings]);
+      }
       const budget = text.match(/(\d{3,5})\s*\u4e07/);
       if (budget) profile.budget = `${budget[1]}\u4e07`;
       if (/\u9996\u4ed8/.test(text)) profile.mentionedDownPayment = true;
@@ -2346,7 +2405,13 @@
       if (/\u4e0d\u8981\u9876\u697c|\u907f\u514d\u9876\u697c/.test(text)) avoid.push("\u4e0d\u8981\u9876\u697c");
       if (/\u4e0d\u8981\u4e34\u8857|\u6015\u5435|\u592a\u5435|\u566a\u97f3/.test(text)) avoid.push("\u907f\u514d\u566a\u97f3");
       if (/\u4e0d\u8981\u8001\u88c5\u4fee|\u8001\u88c5\u4fee\u4e0d\u8981/.test(text)) avoid.push("\u4e0d\u8981\u8001\u88c5\u4fee");
-      if (avoid.length) profile.avoid = Array.from(new Set([...(profile.avoid || []), ...avoid]));
+      if (/\u592a\u8d35|\u8d35\u4e86|\u8d85\u9884\u7b97/.test(text)) profile.lastObjection = "too_expensive";
+      if (/\u968f\u4fbf\u770b\u770b|\u5148\u770b\u770b/.test(text)) profile.lastObjection = "just_looking";
+      if (wantsDifferentCommunity(text)) profile.lastObjection = "need_alternative";
+      if (/\u80fd\u770b\u623f|\u7ea6\u770b|\u5b9e\u5730\u770b/.test(text)) profile.lastObjection = "need_viewing";
+      if (avoid.length) profile.avoid = arrayUnique([...(profile.avoid || []), ...avoid]);
+      if (filters.community) profile.preferredCommunities = arrayUnique([...(profile.preferredCommunities || []), filters.community]).slice(-8);
+      if (wantsDifferentCommunity(text)) profile.rejectedCommunities = arrayUnique([...(profile.rejectedCommunities || []), ...recentRecommendedCommunities()]).slice(-8);
       return profile;
     }
 
@@ -2375,6 +2440,14 @@
     async function rememberAiTurn(query, aiResult, renderedText) {
       const memory = loadAiMemory();
       memory.buyerProfile = extractBuyerProfile(query, aiResult);
+      const recommendedListings = listingByIds(aiResult.listingIds || []);
+      const recommendedCommunities = recommendedListings.map((listing) => listing.community).filter(Boolean);
+      if (recommendedListings.length) {
+        memory.buyerProfile.lastRecommendedListingIds = recommendedListings.map((listing) => String(listing.id)).slice(0, 12);
+        memory.buyerProfile.lastRecommendedCommunities = arrayUnique(recommendedCommunities).slice(0, 8);
+        memory.buyerProfile.recommendedListingIds = arrayUnique([...(memory.buyerProfile.recommendedListingIds || []), ...recommendedListings.map((listing) => String(listing.id))]).slice(-20);
+        memory.buyerProfile.recommendedCommunities = arrayUnique([...(memory.buyerProfile.recommendedCommunities || []), ...recommendedCommunities]).slice(-12);
+      }
       memory.recentMessages = [
         ...(memory.recentMessages || []),
         { role: "user", content: String(query || "").trim(), at: Date.now() },
@@ -2437,68 +2510,82 @@
       return fact;
     }
 
-    function appendAiListings(items, targetNode) {
+    function createListingCard(item, filters = {}, index = 0, relaxedResult = null) {
+      const card = document.createElement("div");
+      card.className = "ai-listing-card";
+
+      const head = document.createElement("div");
+      head.className = "ai-listing-title";
+      const name = document.createElement("div");
+      name.className = "ai-listing-name";
+      name.textContent = `${item.community} ${item.rating || ""}`.trim();
+      const area = document.createElement("div");
+      area.className = "ai-listing-area";
+      area.textContent = item.quotedPriceText || item.areaText || "";
+      head.append(name, area);
+
+      const subtitle = document.createElement("div");
+      subtitle.className = "ai-listing-subtitle";
+      subtitle.textContent = `${listingSummary(item)} / ${item.areaText || ""} / ${item.yearText || ""}`;
+
+      const reason = document.createElement("div");
+      reason.className = "ai-listing-reason";
+      reason.textContent = listingRecommendationReason(item);
+
+      const facts = document.createElement("div");
+      facts.className = "ai-listing-facts";
+      facts.append(
+        createFact("\u62a5\u4ef7", item.quotedPriceText || "\u2014"),
+        createFact("\u5e95\u4ef7", item.bottomPriceText || "\u2014"),
+        createFact("\u5b66\u533a", item.school || "\u2014"),
+        createFact("\u8f66\u4f4d", item.parking || "\u2014"),
+        createFact("\u88c5\u4fee", item.decoration || "\u2014"),
+        createFact("\u661f\u7ea7", item.rating || "\u2014")
+      );
+
+      const tags = document.createElement("div");
+      tags.className = "ai-listing-tags";
+      const typeTag = document.createElement("span");
+      typeTag.className = "ai-listing-tag";
+      typeTag.textContent = recommendationTypeLabel(recommendationTypeForListing(item, filters, relaxedResult));
+      tags.appendChild(typeTag);
+      (item.surroundings || []).forEach((tag) => {
+        const tagNode = document.createElement("span");
+        tagNode.className = "ai-listing-tag";
+        tagNode.textContent = tag;
+        tags.appendChild(tagNode);
+      });
+      const button = document.createElement("a");
+      button.className = "ai-video-button video-direct-link";
+      button.href = item.videoLink;
+      button.target = "_blank";
+      button.rel = "noopener noreferrer external";
+      button.textContent = "\u67e5\u770b\u623f\u6e90\u89c6\u9891";
+
+      card.append(head, subtitle, reason, facts, tags, button);
+      return card;
+    }
+
+    function appendAiListings(items, targetNode, options = {}) {
       const node = targetNode || document.createElement("div");
+      const filters = options.filters || {};
+      const relaxedResult = options.relaxedResult || null;
       if (!targetNode) node.className = "ai-message assistant";
       if (!items.length) {
         node.textContent = "\u6682\u65f6\u6ca1\u6709\u5339\u914d\u5230\u5b8c\u5168\u7b26\u5408\u6761\u4ef6\u7684\u623f\u6e90\uff0c\u60a8\u53ef\u4ee5\u653e\u5bbd\u6761\u4ef6\u518d\u8bd5\u3002";
       } else {
-        const title = document.createElement("div");
-        title.textContent = `\u4e3a\u60a8\u5339\u914d\u5230 ${items.length} \u5957\u623f\u6e90`;
-        node.appendChild(title);
-
         const list = document.createElement("div");
         list.className = "ai-listings";
-        items.forEach((item) => {
-          const card = document.createElement("div");
-          card.className = "ai-listing-card";
-
-          const head = document.createElement("div");
-          head.className = "ai-listing-title";
-          const name = document.createElement("div");
-          name.className = "ai-listing-name";
-          name.textContent = `${item.community} ${item.rating || ""}`.trim();
-          const area = document.createElement("div");
-          area.className = "ai-listing-area";
-          area.textContent = item.quotedPriceText || item.areaText || "";
-          head.append(name, area);
-
-          const subtitle = document.createElement("div");
-          subtitle.className = "ai-listing-subtitle";
-          subtitle.textContent = `${listingSummary(item)} / ${item.areaText || ""} / ${item.yearText || ""}`;
-
-          const reason = document.createElement("div");
-          reason.className = "ai-listing-reason";
-          reason.textContent = listingRecommendationReason(item);
-
-          const facts = document.createElement("div");
-          facts.className = "ai-listing-facts";
-          facts.append(
-            createFact("\u62a5\u4ef7", item.quotedPriceText || "\u2014"),
-            createFact("\u5e95\u4ef7", item.bottomPriceText || "\u2014"),
-            createFact("\u5b66\u533a", item.school || "\u2014"),
-            createFact("\u8f66\u4f4d", item.parking || "\u2014"),
-            createFact("\u88c5\u4fee", item.decoration || "\u2014"),
-            createFact("\u661f\u7ea7", item.rating || "\u2014")
-          );
-
-          const tags = document.createElement("div");
-          tags.className = "ai-listing-tags";
-          (item.surroundings || []).forEach((tag) => {
-            const tagNode = document.createElement("span");
-            tagNode.className = "ai-listing-tag";
-            tagNode.textContent = tag;
-            tags.appendChild(tagNode);
-          });
-          const button = document.createElement("a");
-          button.className = "ai-video-button video-direct-link";
-          button.href = item.videoLink;
-          button.target = "_blank";
-          button.rel = "noopener noreferrer external";
-          button.textContent = "\u67e5\u770b\u623f\u6e90\u89c6\u9891";
-
-          card.append(head, subtitle, reason, facts, tags, button);
-          list.appendChild(card);
+        items.forEach((item, index) => {
+          const intro = document.createElement("div");
+          intro.className = "ai-listing-reason";
+          intro.textContent = salesIntroForListing(item, filters, index, relaxedResult);
+          list.appendChild(intro);
+          list.appendChild(createListingCard(item, filters, index, relaxedResult));
+          const outro = document.createElement("div");
+          outro.className = "ai-listing-reason";
+          outro.textContent = salesOutroForListing(item, filters, index, relaxedResult);
+          list.appendChild(outro);
         });
         node.appendChild(list);
         bindVideoDirectLinks(node);
@@ -2874,12 +2961,24 @@
       return JSON.stringify(state.salesGuardrails, null, 2);
     }
 
+    function salesObjectionsContext() {
+      if (!state.salesObjections) return "";
+      return JSON.stringify(state.salesObjections, null, 2);
+    }
+
+    function viewingRulesContext() {
+      if (!state.viewingRules) return "";
+      return JSON.stringify(state.viewingRules, null, 2);
+    }
+
     function aiSystemPrompt() {
       return [
         "\u4f60\u662f\u5c0f\u90b1AI\u52a9\u624b\uff0c\u540c\u65f6\u5177\u5907\u4e24\u4e2a\u80fd\u529b\uff1a1. \u6839\u636e\u5ba2\u6237\u81ea\u7136\u8bed\u8a00\u9700\u6c42\u7b5b\u9009\u623f\u6e90\uff1b2. \u56de\u7b54\u4e0a\u6d77\u623f\u5730\u4ea7\u653f\u7b56\u3001\u8d37\u6b3e\u3001\u7a0e\u8d39\u3001\u5e02\u573a\u8d70\u52bf\u3001\u571f\u62cd\u548c\u4f4f\u5b85\u4ea7\u54c1\u95ee\u9898\u3002",
         "\u4f60\u7684\u4eba\u8bbe\u662f\u9500\u51a0\u578b\u7f6e\u4e1a\u987e\u95ee\uff1a\u6839\u672c\u76ee\u6807\u662f\u5e2e\u5ba2\u6237\u660e\u786e\u9700\u6c42\u3001\u63a8\u8350\u5408\u9002\u623f\u6e90\u3001\u63a8\u52a8\u770b\u623f\u548c\u6210\u4ea4\uff0c\u4f46\u5fc5\u987b\u771f\u5b9e\u3001\u4e13\u4e1a\u3001\u4e0d\u5938\u5927\u3001\u4e0d\u865a\u6784\u3002",
         "salesPersona JSON:\n" + salesPersonaContext(),
         "salesGuardrails JSON:\n" + salesGuardrailsContext(),
+        "salesObjections JSON:\n" + salesObjectionsContext(),
+        "viewingRules JSON:\n" + viewingRulesContext(),
         "\u53ea\u80fd\u8fd4\u56de\u4e25\u683c JSON\uff0c\u4e0d\u8981\u4f7f\u7528 Markdown\uff0c\u4e0d\u8981\u5728 JSON \u5916\u6dfb\u52a0\u4efb\u4f55\u6587\u5b57\u3002",
         "JSON \u683c\u5f0f\uff1a{\\\"intent\\\":\\\"listing_search|property_question|mixed|chat\\\",\\\"intents\\\":[\\\"property_question\\\",\\\"listing_search\\\"],\\\"filters\\\":{\\\"community\\\":\\\"\\\",\\\"rooms\\\":\\\"\\\",\\\"bathrooms\\\":\\\"\\\",\\\"areaRange\\\":\\\"\\\",\\\"priceRange\\\":\\\"\\\",\\\"floor\\\":\\\"\\\",\\\"decoration\\\":\\\"\\\",\\\"yearRange\\\":\\\"\\\",\\\"school\\\":\\\"\\\",\\\"parking\\\":\\\"\\\",\\\"rating\\\":\\\"\\\",\\\"surroundings\\\":[]},\\\"reply\\\":\\\"\u7ed9\u5ba2\u6237\u770b\u7684\u4e2d\u6587\u56de\u590d\\\",\\\"policyReply\\\":\\\"\u653f\u7b56\u6216\u77e5\u8bc6\u95ee\u7b54\\\",\\\"listingReply\\\":\\\"\u623f\u6e90\u63a8\u8350\u5f15\u5bfc\u8bed\\\"}",
         "\u627e\u623f\u65f6\u5fc5\u987b\u533a\u5206\u786c\u6761\u4ef6\u548c\u8f6f\u504f\u597d\uff1a\u9884\u7b97\u4e0a\u9650\u3001\u6307\u5b9a\u5c0f\u533a\u3001\u6237\u578b\u3001\u5fc5\u987b\u8f66\u4f4d\u3001\u5fc5\u987b\u5b66\u533a\u662f\u786c\u6761\u4ef6\uff1b\u5b89\u9759\u3001\u65b0\u4e00\u70b9\u3001\u54c1\u8d28\u597d\u3001\u81ea\u4f4f\u8212\u670d\u662f\u8f6f\u504f\u597d\uff0c\u7528\u4e8e\u6392\u5e8f\u548c\u89e3\u91ca\uff0c\u4e0d\u8981\u968f\u610f\u786c\u7b5b\u6389\u623f\u6e90\u3002",
@@ -2980,6 +3079,26 @@
         state.salesGuardrails = await response.json();
       } catch (error) {
         state.salesGuardrails = null;
+      }
+    }
+
+    async function loadSalesObjections() {
+      try {
+        const response = await fetch(`./data/sales-objections.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        state.salesObjections = await response.json();
+      } catch (error) {
+        state.salesObjections = null;
+      }
+    }
+
+    async function loadViewingRules() {
+      try {
+        const response = await fetch(`./data/viewing-rules.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        state.viewingRules = await response.json();
+      } catch (error) {
+        state.viewingRules = null;
       }
     }
 
@@ -3197,13 +3316,61 @@
       };
     }
 
-    function sortListingsByPreferences(items, filters) {
+    function listingSalesScore(item, filters = {}) {
       const normalized = normalizeFilters(filters || {});
+      let score = Number(item.ratingLevel || 0) * 100;
       const preferred = normalized.surroundings || [];
-      return items.slice().sort((a, b) => {
-        const score = (item) => preferred.reduce((sum, tag) => sum + ((item.surroundings || []).includes(tag) ? 1 : 0), 0) + Number(item.ratingLevel || 0) / 10;
-        return score(b) - score(a);
-      });
+      score += preferred.reduce((sum, tag) => sum + ((item.surroundings || []).includes(tag) ? 12 : 0), 0);
+      if (normalized.community && item.community === normalized.community) score += 30;
+      if (normalized.rooms && String(item.rooms) === normalized.rooms) score += 20;
+      const price = listingPriceForBudget(item);
+      const target = Number(normalized.targetPrice || normalized.maxPrice || normalized.minPrice || 0);
+      if (price && target) score += Math.max(0, 30 - Math.abs(price - target) / 10);
+      if (recentRecommendedListingIds().includes(String(item.id))) score -= 60;
+      return score;
+    }
+
+    function recommendationTypeForListing(item, filters = {}, relaxedResult = null) {
+      const normalized = normalizeFilters(filters || {});
+      if (relaxedResult?.salesFallback) return "stretch_budget";
+      if (normalized.community && item.community !== normalized.community) return "alternative_community";
+      if (listingMatchesFilters(item, hardListingFilters(normalized))) return "exact_match";
+      if (normalized.targetPrice && listingMatchesBudget(item, { targetPrice: normalized.targetPrice, budgetTolerance: Math.max(Number(normalized.budgetTolerance || 0), Math.round(Number(normalized.targetPrice) * 0.2)) })) return "near_budget";
+      return "tradeoff_pick";
+    }
+
+    function recommendationTypeLabel(type) {
+      const labels = {
+        exact_match: "\u5b8c\u5168\u5339\u914d",
+        near_budget: "\u9884\u7b97\u63a5\u8fd1",
+        stretch_budget: "\u8d85\u9884\u7b97\u4f46\u503c\u5f97\u770b",
+        alternative_community: "\u66ff\u4ee3\u5c0f\u533a",
+        tradeoff_pick: "\u9700\u8981\u53d6\u820d",
+        no_match: "\u6682\u65e0\u5339\u914d"
+      };
+      return labels[type] || labels.tradeoff_pick;
+    }
+
+    function salesIntroForListing(item, filters = {}, index = 0, relaxedResult = null) {
+      const type = recommendationTypeForListing(item, filters, relaxedResult);
+      const price = formatPriceLine(item);
+      const parking = item.parking && item.parking !== "\u65e0" ? `\uff0c\u5e26${item.parking}` : "";
+      if (type === "stretch_budget") return `\u7b2c${index + 1}\u5957\uff1a${item.community}\u8fd9\u5957${item.rooms || ""}\u623f\u662f\u8d85\u9884\u7b97\u5019\u9009\uff0c${price}${parking}\uff0c\u4f46\u7efc\u5408\u6761\u4ef6\u503c\u5f97\u4f60\u5148\u770b\u4e00\u773c\u3002`;
+      if (type === "exact_match") return `\u7b2c${index + 1}\u5957\uff1a${item.community}\u57fa\u672c\u7b26\u5408\u4f60\u8fd9\u8f6e\u6761\u4ef6\uff0c${price}${parking}\uff0c\u5efa\u8bae\u4f18\u5148\u7eb3\u5165\u770b\u623f\u6e05\u5355\u3002`;
+      if (type === "near_budget") return `\u7b2c${index + 1}\u5957\uff1a${item.community}\u548c\u4f60\u7684\u9884\u7b97\u6bd4\u8f83\u63a5\u8fd1\uff0c${price}${parking}\uff0c\u53ef\u4ee5\u4f5c\u4e3a\u91cd\u70b9\u5bf9\u6bd4\u3002`;
+      if (type === "alternative_community") return `\u7b2c${index + 1}\u5957\uff1a\u6307\u5b9a\u5c0f\u533a\u5916\u7684\u66ff\u4ee3\u9009\u62e9\uff0c${item.community}\u8fd9\u5957${price ? price : "\u4ef7\u683c\u53ef\u5bf9\u6bd4"}${parking}\uff0c\u9002\u5408\u653e\u5bbd\u5c0f\u533a\u65f6\u770b\u3002`;
+      return `\u7b2c${index + 1}\u5957\uff1a${item.community}\u6709\u4e00\u4e9b\u6761\u4ef6\u9700\u8981\u53d6\u820d\uff0c${price}${parking}\uff0c\u5efa\u8bae\u548c\u5176\u4ed6\u5019\u9009\u4e00\u8d77\u6bd4\u8f83\u3002`;
+    }
+
+    function salesOutroForListing(item, filters = {}, index = 0, relaxedResult = null) {
+      const type = recommendationTypeForListing(item, filters, relaxedResult);
+      if (type === "stretch_budget") return "\u5982\u679c\u9884\u7b97\u80fd\u9002\u5f53\u63d0\u5347\uff0c\u8fd9\u5957\u5efa\u8bae\u5b9e\u5730\u770b\u4e00\u4e0b\uff1b\u5982\u679c\u9884\u7b97\u4e0d\u80fd\u52a8\uff0c\u6211\u518d\u7ed9\u4f60\u627e\u66f4\u4e25\u683c\u9884\u7b97\u5185\u7684\u3002";
+      if (index === 0) return "\u8fd9\u5957\u53ef\u4ee5\u4f5c\u4e3a\u7b2c\u4e00\u987a\u4f4d\u770b\u623f\uff0c\u5148\u770b\u5b83\u80fd\u5feb\u901f\u5efa\u7acb\u4ef7\u683c\u548c\u5c45\u4f4f\u611f\u7684\u6807\u5c3a\u3002";
+      return "\u8fd9\u5957\u66f4\u9002\u5408\u505a\u5bf9\u6bd4\u76d8\uff0c\u5e2e\u4f60\u5224\u65ad\u54ea\u4e9b\u6761\u4ef6\u503c\u5f97\u52a0\u9884\u7b97\u3002";
+    }
+
+    function sortListingsByPreferences(items, filters) {
+      return (items || []).slice().sort((a, b) => listingSalesScore(b, filters) - listingSalesScore(a, filters));
     }
 
     function listingPriceForBudget(item) {
@@ -3448,6 +3615,7 @@
         const mergedFilters = mergeAiFiltersWithContext(query, aiResult.filters || {});
         aiResult.filters = mergedFilters;
         const detected = detectUserIntents(query, aiResult);
+        aiResult.buyerStage = detectBuyerStage(query, aiResult);
         const replyText = aiResult.reply || aiResult.content || aiText.defaultReply;
         const policyReply = aiResult.policyReply || (detected.hasPropertyQuestion ? replyText : "");
         const listingReply = aiResult.listingReply || replyText;
@@ -3470,6 +3638,9 @@
         if (showListings && wantsDifferentCommunity(query)) {
           matchedListings = excludeCommunitiesFromListings(matchedListings, recentRecommendedCommunities());
         }
+        if (showListings) {
+          matchedListings = excludeRepeatedListings(matchedListings, query);
+        }
         let relaxedResult = null;
         let assistantReplyText = replyText;
         if (showListings && !hasDisplayFilters) {
@@ -3477,7 +3648,7 @@
         } else if (showListings && !matchedListings.length) {
           relaxedResult = findNearestCommunityListings(mergedFilters);
           if (relaxedResult.listings.length) {
-            matchedListings = sortListingsByPreferences(relaxedResult.listings, mergedFilters);
+            matchedListings = excludeRepeatedListings(sortListingsByPreferences(relaxedResult.listings, mergedFilters), query);
             assistantReplyText = salesFallbackReply(mergedFilters, relaxedResult);
           } else {
             assistantReplyText = noMatchReply(mergedFilters, null);
@@ -3492,10 +3663,12 @@ ${listingAnswerLead(query, assistantReplyText, listingReply, matchedListings.len
         }
         if (isMobileLayout()) setMobileView("ai");
         const assistantText = loadingNode.textContent;
-        if (showListings) appendAiListings(matchedListings, loadingNode);
+        if (showListings) appendAiListings(matchedListings, loadingNode, { filters: mergedFilters, relaxedResult });
         const assistantListingIds = showListings ? visibleListingIds(matchedListings) : [];
-        addVisibleChatItem({ role: "assistant", text: assistantText, listingIds: assistantListingIds });
+        const recommendationTypes = showListings ? matchedListings.map((item) => ({ id: item.id, type: recommendationTypeForListing(item, mergedFilters, relaxedResult), score: Math.round(listingSalesScore(item, mergedFilters)) })) : [];
+        addVisibleChatItem({ role: "assistant", text: assistantText, listingIds: assistantListingIds, recommendationTypes });
         aiResult.listingIds = assistantListingIds;
+        aiResult.recommendationTypes = recommendationTypes;
         rememberAiTurn(query, aiResult, assistantText).catch(() => {});
       } catch (error) {
         loadingNode.textContent = error.message || aiText.failed;
@@ -3818,7 +3991,7 @@ ${listingAnswerLead(query, assistantReplyText, listingReply, matchedListings.len
     setMobileView("ai");
 
     loadAiConfig();
-    Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge(), loadSalesPersona(), loadSalesGuardrails()])
+    Promise.all([loadListings(), loadFileAiConfig(), loadRealEstateKnowledge(), loadSalesPersona(), loadSalesGuardrails(), loadSalesObjections(), loadViewingRules()])
       .then(() => {
         render();
         restoreVisibleChat();
