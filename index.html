@@ -3359,10 +3359,12 @@
       if (suppressListingsForPolicy(text, aiResult)) return false;
       if (aiResult && aiResult.showListings === true && !isPolicyQuestionText(text)) return true;
       const detected = detectUserIntents(text, aiResult);
+      const localFilters = inferFiltersFromQuery(text);
+      const hasLocalListingFilters = hasMeaningfulFilters(localFilters);
       const intent = String((aiResult && aiResult.intent) || "").toLowerCase();
-      if (intent === "chat") return false;
-      const explicitSearch = isExplicitListingSearchText(text);
-      const housingConstraint = isHousingConstraintText(text);
+      if (intent === "chat" && !hasLocalListingFilters) return false;
+      const explicitSearch = isExplicitListingSearchText(text) || hasLocalListingFilters;
+      const housingConstraint = isHousingConstraintText(text) || hasLocalListingFilters;
       const metaQuestion = /\u600e\u4e48|\u600e\u6837|\u5982\u4f55|\u4ec0\u4e48\u65f6\u5019|\u4e3a\u4ec0\u4e48|\u80fd\u4e0d\u80fd|\u53ef\u4e0d\u53ef\u4ee5|\u600e\u4e48\u624d\u80fd|\u63d0\u4f9b\u623f\u6e90\u5361\u7247|\u623f\u6e90\u5361\u7247|\u4f7f\u7528|\u529f\u80fd|\u5e2e\u52a9|\u6559\u6211/.test(text);
       const cardQuestionOnly = metaQuestion && /\u623f\u6e90\u5361\u7247|\u4f7f\u7528|\u529f\u80fd|\u5e2e\u52a9|\u6559\u6211/.test(text) && !explicitSearch;
       if (cardQuestionOnly) return false;
