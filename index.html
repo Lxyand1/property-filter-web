@@ -2768,8 +2768,26 @@
       })?.name || "";
     }
 
-    function communityMatchesFilter(item, filters) {
+    function normalizeCommunityFilterFields(filters) {
       const normalized = normalizeFilters(filters || {});
+      const exactExists = normalized.community && listings.some((item) => normalizeCommunityText(item.community) === normalizeCommunityText(normalized.community));
+      const groupFromCommunity = normalized.community && configuredCommunityGroups().find((group) => {
+        const names = [group.name, ...(group.aliases || [])].map(normalizeCommunityText).filter(Boolean);
+        return names.includes(normalizeCommunityText(normalized.community));
+      });
+      if (normalized.community && !exactExists && groupFromCommunity) {
+        normalized.communityGroup = groupFromCommunity.name;
+        normalized.community = "";
+      }
+      if (normalized.communityGroup && !configuredCommunityGroups().some((group) => normalizeCommunityText(group.name) === normalizeCommunityText(normalized.communityGroup))) {
+        const group = configuredCommunityGroups().find((entry) => (entry.aliases || []).map(normalizeCommunityText).includes(normalizeCommunityText(normalized.communityGroup)));
+        if (group) normalized.communityGroup = group.name;
+      }
+      return normalized;
+    }
+
+    function communityMatchesFilter(item, filters) {
+      const normalized = normalizeCommunityFilterFields(filters || {});
       if (normalized.community) return item.community === normalized.community;
       if (normalized.communityGroup) {
         const group = configuredCommunityGroups().find((entry) => normalizeCommunityText(entry.name) === normalizeCommunityText(normalized.communityGroup));
@@ -2854,20 +2872,20 @@
     }
 
     function mergeAiFiltersWithContext(query, filters) {
-      const current = normalizeFilters(filters);
+      const current = normalizeCommunityFilterFields(filters || {});
       const inferred = inferFiltersFromQuery(query);
       if (shouldIgnorePreviousFilters(query)) {
-        return {
+        return normalizeCommunityFilterFields({
           ...current,
           ...Object.fromEntries(Object.entries(inferred).filter(([key, value]) => key !== "surroundings" && Boolean(value))),
           surroundings: Array.from(new Set([...(current.surroundings || []), ...(inferred.surroundings || [])]))
-        };
+        });
       }
       const memory = profileFiltersFromMemory();
       const differentCommunity = wantsDifferentCommunity(query);
       const communityFilter = differentCommunity && !inferred.community ? "" : mergeFilterValue(current.community, inferred.community, differentCommunity ? "" : memory.community);
       const communityGroupFilter = communityFilter ? "" : mergeFilterValue(current.communityGroup, inferred.communityGroup, differentCommunity ? "" : memory.communityGroup);
-      return {
+      return normalizeCommunityFilterFields({
         community: communityFilter,
         communityGroup: communityGroupFilter,
         rooms: mergeFilterValue(current.rooms, inferred.rooms, memory.rooms),
@@ -2888,7 +2906,7 @@
         parking: mergeFilterValue(current.parking, inferred.parking, memory.parking),
         rating: mergeFilterValue(current.rating, inferred.rating, memory.rating),
         surroundings: Array.from(new Set([...(memory.surroundings || []), ...(inferred.surroundings || []), ...(current.surroundings || [])]))
-      };
+      });
     }
 
     function applyAiFilters(filters) {
@@ -3376,7 +3394,7 @@
     }
 
     function hardListingFilters(filters) {
-      const normalized = normalizeFilters(filters || {});
+      const normalized = normalizeCommunityFilterFields(filters || {});
       return {
         ...normalized,
         priceRange: (normalized.minPrice || normalized.maxPrice || normalized.targetPrice) ? "" : normalized.priceRange,
